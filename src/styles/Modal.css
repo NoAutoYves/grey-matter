@@ -1,0 +1,139 @@
+@font-face {
+  font-family: 'noto';
+  src: url('../assets/fonts/NotoSans-Bold.ttf') format('truetype');
+}
+
+.warning-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.warning-modal {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+  padding: 1.5rem;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 300px;
+  width: 90%;
+  font-family: 'noto', sans-serif;
+}
+
+.warning-modal p {
+  color: #fff;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.warning-modal-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.warning-confirm-btn {
+  background: #c33533;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.warning-cancel-btn {
+  background: #009924;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .warning-modal {
+    max-width: 400px;
+    padding: 2rem;
+  }
+
+  .warning-modal p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  .warning-modal-buttons {
+    gap: 1.5rem;
+  }
+
+  .warning-confirm-btn,
+  .warning-cancel-btn {
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+
+.cropper-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cropper-container {
+  width: 90%;
+  max-width: 500px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cropper-box {
+  position: relative;
+  width: 100%;
+  height: 400px;
+}
+
+.cropper-controls {
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  background: #1a1a1a;
+}
+
+.cropper-controls button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.cropper-controls button:first-of-type {
+  background: #6846ff;
+  color: white;
+}
+
+.cropper-controls button:last-of-type {
+  background: #e53935;
+  color: white;
+}
+
+.cropper-controls input {
+  flex: 1;
+}

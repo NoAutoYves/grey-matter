@@ -1,0 +1,222 @@
+@font-face {
+  font-family: 'noto';
+  src: url('../assets/fonts/NotoSans-Bold.ttf') format('truetype');
+}
+
+.subject-page{
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  font-family: 'noto', sans-serif;
+  background-image: url('../assets/images/background-images/MainBG.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.subjects-container {
+  width: min(320px, 90%);
+  margin: auto;
+  margin-top: 10%;
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(16px);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.subject-page-card {
+  padding: 1rem;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(8px);
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+}
+
+.subject-page-card:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.subjects-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.subject-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  background: #6846ff;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.subject-btn:hover {
+  background: #5535cc;
+  transform: translateY(-2px);
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .subject-page {
+    background-image: url('../assets/images/background-images/MainBG.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .subjects-container {
+    width: min(600px, 80%);
+    margin-top: 5%;
+    padding: 2rem;
+    margin-bottom: 5%;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+
+  .subjects-subtitle {
+    font-size: 1rem;
+  }
+
+  .subjects-title {
+    font-size: 2rem;
+  }
+
+  .subject-page-card {
+    padding: 1.2rem;
+    font-size: 1rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .subject-page-card h3 {
+    font-size: 1.5rem;
+  }
+
+  .subject-page-card p {
+    font-size: 1rem;
+  }
+
+  .subject-btn {
+    font-size: 1rem;
+    padding: 0.8rem 1.2rem;
+  }
+}
+
+/* Laptop / Desktop */
+@media (min-width: 1024px) {
+  .subject-page {
+    background-image: url('../assets/images/background-images/MainBG.jpeg');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .subjects-container {
+    width: min(800px, 70%);
+    margin: auto;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    padding: 2rem;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(16px);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .subjects-title {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .subjects-subtitle {
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #666;
+  }
+
+  .subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-top: 30px;
+  }
+
+  .subject-page-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(8px);
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .subject-page-card:hover {
+    transform: translateY(-5px);
+    background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .subject-page-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #000;
+  }
+
+  .subject-page-card p {
+    font-size: 0.9rem;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .subject-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    background: #6846ff;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .subject-btn:hover {
+    background: #5535cc;
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px #6846ff, 0 0 5px #6846ff;
+  }
+}

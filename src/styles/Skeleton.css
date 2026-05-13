@@ -1,0 +1,196 @@
+@font-face {
+  font-family: 'noto';
+  src: url('../assets/fonts/NotoSans-Bold.ttf') format('truetype');
+}
+
+/* Override react-loading-skeleton default colors */
+.react-loading-skeleton {
+  background: rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* Remove the default gradient and add your own */
+.react-loading-skeleton::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 0, 0, 0.1),
+    transparent
+  ) !important;
+}
+
+/* Skeleton Loading - Transparent & Blurry */
+.skeleton-quiz, 
+.skeleton-subjects, 
+.skeleton-profile, 
+.skeleton-quizlist {
+  padding: 1rem;
+}
+
+.skeleton-header,
+.skeleton-box,
+.skeleton-question,
+.skeleton-option,
+.skeleton-title,
+.skeleton-card,
+.skeleton-avatar,
+.skeleton-name,
+.skeleton-bio,
+.skeleton-stat,
+.skeleton-list-item {
+  background: rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(12px) !important;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer effect overlay */
+.skeleton-header::after,
+.skeleton-box::after,
+.skeleton-question::after,
+.skeleton-option::after,
+.skeleton-title::after,
+.skeleton-card::after,
+.skeleton-avatar::after,
+.skeleton-name::after,
+.skeleton-bio::after,
+.skeleton-stat::after,
+.skeleton-list-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 0, 0, 0.1),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-info-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.skeleton-box {
+  flex: 1;
+  height: 60px;
+}
+
+.skeleton-question {
+  height: 80px;
+  margin-bottom: 1rem;
+}
+
+.skeleton-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.skeleton-option {
+  height: 50px;
+}
+
+.skeleton-title {
+  height: 30px;
+  width: 60%;
+  margin: 0 auto 1rem auto;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.skeleton-card {
+  height: 120px;
+}
+
+.skeleton-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 1rem auto;
+}
+
+.skeleton-name {
+  height: 20px;
+  width: 50%;
+  margin: 0 auto 0.5rem auto;
+}
+
+.skeleton-bio {
+  height: 60px;
+  margin-bottom: 1rem;
+}
+
+.skeleton-stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.skeleton-stat {
+  flex: 1;
+  height: 70px;
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.skeleton-list-item {
+  height: 60px;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.auth-message-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  font-family: 'noto', sans-serif;
+}
+
+.auth-message {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+  padding: 2rem;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.auth-message p {
+  color: #fff;
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.auth-message p:first-child {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}

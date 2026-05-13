@@ -1,0 +1,323 @@
+@font-face {
+  font-family: 'noto';
+  src: url('../assets/fonts/NotoSans-Bold.ttf') format('truetype');
+}
+
+.info-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: url('../assets/images/background-images/MainBG.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  font-family: 'noto', sans-serif;
+}
+
+/* Main Container */
+.info-container {
+  max-width: 900px;
+  margin: 5rem auto;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Typography */
+.info-container h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  color: #000000;
+  border-left: 4px solid #6846ff;
+  padding-left: 1rem;
+}
+
+.info-container h2 {
+  font-size: 1.4rem;
+  margin: 1.8rem 0 0.8rem;
+  color: #000000;
+}
+
+.info-container h3 {
+  font-size: 1.2rem;
+  margin: 1rem 0 0.5rem;
+  color: #000000;
+}
+
+.info-container p {
+  line-height: 1.7;
+  margin-bottom: 0.8rem;
+  color: #333333;
+}
+
+.info-container a {
+  color: #6846ff;
+  text-decoration: none;
+}
+
+.info-container a:hover {
+  text-decoration: underline;
+}
+
+/* Lists */
+.info-container ul, 
+.info-container ol {
+  margin: 0.5rem 0 1rem 1.5rem;
+  color: #333333;
+  line-height: 1.6;
+}
+
+.info-container li {
+  margin-bottom: 0.3rem;
+}
+
+/* Policy pages (better readability) */
+.policy-container {
+  max-width: 900px;
+  line-height: 1.7;
+}
+
+.policy-container h2 {
+  margin-top: 1.8rem;
+}
+
+/* ===== Contact Page ===== */
+.contact-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.contact-info div {
+  text-align: center;
+}
+
+.contact-info h3 {
+  margin-bottom: 0.5rem;
+  color: #000000;
+  font-size: 1.1rem;
+}
+
+.contact-info p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.contact-form label {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: -0.5rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0, 0, 0, 0.1);
+  font-family: 'noto', sans-serif;
+  font-size: 0.95rem;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.submit-btn {
+  background: #6846ff;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.3s;
+}
+
+.submit-btn:hover {
+  opacity: 0.85;
+}
+
+.success-message {
+  background: #4caf50;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* ===== Careers Page ===== */
+.job-listing {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  transition: transform 0.2s;
+}
+
+.job-listing:hover {
+  transform: translateX(5px);
+}
+
+.job-listing h3 {
+  margin: 0 0 0.25rem;
+  color: #000;
+}
+
+.job-type {
+  display: inline-block;
+  background: #6846ff;
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  margin-bottom: 0.75rem;
+}
+
+.apply-btn {
+  background: #00d431;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: opacity 0.3s;
+}
+
+.apply-btn:hover {
+  opacity: 0.85;
+}
+
+.careers-note {
+  margin-top: 2rem;
+  font-style: italic;
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* ===== Help & FAQ Page ===== */
+.faq-section {
+  margin: 2rem 0;
+}
+
+.faq-item {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  color: #000;
+}
+
+.faq-question span {
+  font-size: 1.5rem;
+  font-weight: normal;
+}
+
+.faq-answer {
+  padding: 0 0 1rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.help-contact {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.help-contact h3 {
+  margin-bottom: 0.5rem;
+}
+
+.help-btn {
+  display: inline-block;
+  background: #6846ff;
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  transition: opacity 0.3s;
+}
+
+.help-btn:hover {
+  opacity: 0.85;
+  text-decoration: none;
+}
+
+/* ===== Footer Links ===== */
+.footer-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.footer-links a {
+  color: #707070;
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: #6846ff;
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 768px) {
+  .info-container {
+    margin: 2rem 1rem;
+    padding: 1.5rem;
+  }
+
+  .info-container h1 {
+    font-size: 1.8rem;
+  }
+
+  .info-container h2 {
+    font-size: 1.2rem;
+  }
+
+  .contact-info {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .footer-links {
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,134 @@
+@font-face {
+  font-family: 'Gamja';
+  src: url('../assets/fonts/GamjaFlower-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'noto';
+  src: url('../assets/fonts/NotoSans-Bold.ttf') format('truetype');
+}
+
+/* Header Styles */
+.func-header {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.func-header h1 {
+  margin: 0;
+  padding-top: 5%;
+  font-size: 1.6rem;
+  font-family: 'Gamja', sans-serif;
+  color: #000000;
+}
+
+.func-header-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 1%;
+}
+
+.func-nav-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.3s;
+  font-family: "noto", sans-serif;
+  color: #000000;
+  font-size: 12px;
+}
+
+.header-nav-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.func-nav-links:hover {
+  color: #6846ff;
+}
+
+/* Footer Styles */
+.func-footer {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+  font-family: 'noto', sans-serif;
+  color: #000000;
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .func-header {
+    padding-bottom: 1rem;
+  }  
+  
+  .func-header h1 {
+    font-size: 3rem;
+    padding-top: 2%;
+  }
+
+  .func-header-nav {
+    gap: 30px;
+  }
+
+  .func-nav-links {
+    font-size: 14px;
+  }
+
+  .header-nav-img {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Laptop / Desktop */
+@media (min-width: 1024px) {
+  .func-header {
+    padding: 1rem 2rem;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .func-header h1 {
+    padding-top: 0;
+    font-size: 2rem;
+  }
+
+  .func-header-nav {
+    justify-content: flex-end;
+    gap: 30px;
+    margin-top: 0;
+  }
+
+  .func-nav-links {
+    flex-direction: row;
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .header-nav-img {
+    width: 24px;
+    height: 24px;
+  }
+}

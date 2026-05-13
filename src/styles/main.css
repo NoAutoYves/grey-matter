@@ -1,0 +1,12 @@
+@import './Landing.css';
+@import './HeaderFooter.css';
+@import './Auth.css';
+@import './Profile.css';
+@import './Subject.css';
+@import './List.css';
+@import './Quiz.css';
+@import './Result.css';
+@import './Skeleton.css';
+@import './Modal.css';
+@import './GlobalStyles.css';
+@import '../pages/admin/Admin.css';
