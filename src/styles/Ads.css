@@ -1,0 +1,28 @@
+.sponsor-container {
+    text-align: center;
+    margin: 10px auto;
+    overflow: hidden;
+    display: block;
+    width: 100%;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+}
+
+.sponsor-top {
+    max-width: 728px;
+    min-height: 90px;
+    background: #f5f5f5;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+}
+
+.sponsor-top .sponsor-placeholder {
+    width: 100%;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 12px;
+    padding: 10px;
+}

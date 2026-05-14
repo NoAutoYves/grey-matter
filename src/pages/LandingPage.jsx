@@ -33,6 +33,13 @@ function LandingPage(){
         <>
         <div className="index-page">
 
+        {/* AD DIV - ABOVE NAV */}
+        <div className="sponsor-container sponsor-top">
+            <div className="sponsor-placeholder">
+                Advertisement
+            </div>
+        </div>
+
         <nav className="landing-nav">
             <Link to="/login"><img src={loginIcon} alt="Login" className="nav-img"/>LOGIN</Link>
             <Link to="/subjects"><img src={subjectIcon} alt="Topics" className="nav-img"/>TOPICS</Link>
