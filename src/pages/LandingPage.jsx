@@ -33,7 +33,7 @@ function LandingPage(){
         <>
         <div className="index-page">
 
-        {/* AD DIV - ABOVE NAV */}
+        {/* AD 1 - LEADERBOARD (728x90) - ABOVE NAV */}
         <div className="sponsor-container sponsor-top">
             <div className="sponsor-placeholder">
                 Advertisement
@@ -53,7 +53,21 @@ function LandingPage(){
 
         <LandingSubjects/>
 
+        {/* AD 2 - LARGE RECTANGLE (336x280) - BETWEEN SUBJECTS AND SOCIAL MEDIA */}
+        <div className="sponsor-container sponsor-large-rectangle">
+            <div className="sponsor-placeholder">
+                Advertisement
+            </div>
+        </div>
+
         <SocialMedia/>
+
+        {/* AD 3 - FOOTER BANNER (728x90) - BEFORE FOOTER LINKS */}
+        <div className="sponsor-container sponsor-footer">
+            <div className="sponsor-placeholder">
+                Advertisement
+            </div>
+        </div>
 
         <footer>
             <div className="footer-links">
