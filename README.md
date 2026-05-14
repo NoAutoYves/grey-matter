@@ -1,16 +1,40 @@
-# React + Vite
+# Grey Matter
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interactive e-learning platform for high school students to master commerce and science subjects through targeted multiple-choice exercises.
 
-Currently, two official plugins are available:
+## Subjects Covered
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Accounting
+- Business Studies
+- Economics
+- Geography
+- Biology
+- Physics
+- Mathematics
+- Mathematical Literacy
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Interactive exercises with immediate feedback
+- Progress tracking and performance analytics
+- Notes section for study reminders
+- User profiles with avatars
+- Exercise history and saved notes
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Frontend:** React, Vite
+- **Backend:** Flask
+- **Database:** PostgreSQL
+- **Authentication:** Session-based with bcrypt
+
+## Local Development
+
+### Backend Setup
+
+```bash
+cd grey-matter-backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python App.py
