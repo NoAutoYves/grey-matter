@@ -347,7 +347,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-image: url('../assets/images/background-images/MainBG.jpeg');
+    background-image: url('../assets/images/background-images/desktopBG.jpeg');
     background-size: cover;
     background-position: center;
   }

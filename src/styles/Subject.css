@@ -133,7 +133,7 @@
 /* Laptop / Desktop */
 @media (min-width: 1024px) {
   .subject-page {
-    background-image: url('../assets/images/background-images/MainBG.jpeg');
+    background-image: url('../assets/images/background-images/desktopBG.jpeg');
     background-size: cover;
     background-position: center;
   }
