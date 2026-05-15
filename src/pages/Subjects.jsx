@@ -21,6 +21,13 @@ function Subjects() {
       <div className="subject-page">
         <FuncHeader />
 
+        {/* AD 1 - TOP BANNER (after header, before main container) */}
+        <div className="sponsor-container-subjects sponsor-top">
+          <div className="sponsor-placeholder">
+            Advertisement
+          </div>
+        </div>
+
         <section className="subjects-container">
           <h2 className="subjects-title">Choose an Exercise</h2>
           <p className="subjects-subtitle">
@@ -42,7 +49,22 @@ function Subjects() {
           </div>
         </section>
 
+        {/* AD 2 - LARGE RECTANGLE (after main container, before social media) */}
+        <div className="sponsor-container-subjects sponsor-billboard">
+          <div className="sponsor-placeholder">
+            Advertisement
+          </div>
+        </div>
+
         <SocialMedia />
+
+        {/* AD 3 - FOOTER BANNER (after social media, before footer) */}
+        <div className="sponsor-container-subjects sponsor-footer">
+          <div className="sponsor-placeholder">
+            Advertisement
+          </div>
+        </div>
+
         <FuncFooter />
       </div>
     </>

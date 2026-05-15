@@ -77,12 +77,19 @@ function ExerciseList() {
     <div className={`quiz-list-page ${subject}`}>
       <FuncHeader />
       
+      {/* AD 1 - TOP LEADERBOARD */}
+      <div className="sponsor-container-list sponsor-top">
+        <div className="sponsor-placeholder">
+          Advertisement
+        </div>
+      </div>
+      
       <section className="quiz-list-container">
         <h2 className="quiz-list-title">{subjectName} Exercises</h2>
         <p className="quiz-list-subtitle">Available exercises for this subject:</p>
 
         {grades.length > 0 ? (
-          grades.map((gradeGroup) => (
+          grades.map((gradeGroup, gradeIndex) => (
             <div key={gradeGroup.grade_level} className="grade-section">
               <h3 className="grade-title">{gradeGroup.grade_display}</h3>
               <ul className="quiz-list">
@@ -130,6 +137,13 @@ function ExerciseList() {
                   </li>
                 ))}
               </ul>
+              
+              {/* LEADERBOARD AD AFTER EVERY GRADE (including last grade) */}
+              <div className="sponsor-container-list sponsor-leaderboard">
+                <div className="sponsor-placeholder">
+                  Advertisement
+                </div>
+              </div>
             </div>
           ))
         ) : (
@@ -138,6 +152,12 @@ function ExerciseList() {
       </section>
 
       <SocialMedia />
+      {/* BILLBOARD AD AFTER SOCIAL MEDIA */}
+      <div className="sponsor-container-list sponsor-billboard">
+          <div className="sponsor-placeholder">
+              Advertisement
+          </div>
+      </div>
       <FuncFooter />
     </div>
   );

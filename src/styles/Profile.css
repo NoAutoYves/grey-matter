@@ -3,6 +3,18 @@
   src: url('../assets/fonts/NotoSans-Bold.ttf') format('truetype');
 }
 
+.sponsor-container-profile.sponsor-top,
+.sponsor-container-profile.sponsor-billboard {
+    display: block !important;
+    align-self: center;
+    margin: 0 auto;
+}
+
+.sponsor-container-profile.sponsor-top {
+    width: 728px;
+    min-height: 90px;
+}
+
 .save-settings-btn {
   background: #6846ff;
   color: white;

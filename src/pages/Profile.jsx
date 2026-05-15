@@ -255,6 +255,14 @@ function Profile() {
   return (
     <div className="profile-page">
       <FuncHeader />
+      
+      {/* AD 1 - LEADERBOARD (below header, above profile container) */}
+      <div className="sponsor-container-profile sponsor-top">
+        <div className="sponsor-placeholder">
+          Advertisement (Leaderboard - 728x90)
+        </div>
+      </div>
+      
       <section className="profile-container">
         {/* Profile Header with Edit Avatar Icon */}
         <div className="profile-header-wrapper">
@@ -328,6 +336,14 @@ function Profile() {
           />
         )}
       </section>
+      
+      {/* AD 2 - BILLBOARD (after profile container, before footer) */}
+      <div className="sponsor-container-profile sponsor-billboard">
+        <div className="sponsor-placeholder">
+          Advertisement (Large Rectangle - 336x280)
+        </div>
+      </div>
+      
       <FuncFooter />
       <MessageModal isOpen={messageModalOpen} message={messageText} onClose={() => setMessageModalOpen(false)} />
       

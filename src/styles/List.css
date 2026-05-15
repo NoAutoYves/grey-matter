@@ -18,6 +18,25 @@
   color: #6846ff;
 }
 
+.sponsor-container-list.sponsor-footer, 
+.sponsor-container-list.sponsor-billboard,
+.sponsor-container-list.sponsor-top,
+.sponsor-container-list.sponsor-billboard,
+.sponsor-container-list.sponsor-leaderboard
+ {
+    display: block !important;
+}
+
+.sponsor-container-list.sponsor-leaderboard {
+  margin: 0 auto;
+}
+
+.sponsor-container-list.sponsor-top {
+  width: 728px;
+  height: 90px;
+  align-self: center;
+}
+
 @media (max-width: 767px) {
   .grade-title {
     font-size: 1.1rem;

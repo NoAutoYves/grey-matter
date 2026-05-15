@@ -8,6 +8,19 @@
   src: url('../assets/fonts/NotoSans-Bold.ttf') format('truetype');
 }
 
+.sponsor-container-landing.sponsor-footer, 
+.sponsor-container-landing.sponsor-billboard,
+.sponsor-container-landing.sponsor-top
+ {
+    display: block !important;
+}
+
+.sponsor-container-landing.sponsor-footer,
+.sponsor-container-landing.sponsor-top {
+  width: 970px;
+  height: 90px;
+}
+
 /* Mobile */
 @media (max-width: 767px) {
   .index-page {
@@ -155,6 +168,10 @@
     width: 30px;
     height: auto;
     object-fit: contain;
+  }
+
+  .sponsor-container {
+    display: block !important;
   }
 }
 

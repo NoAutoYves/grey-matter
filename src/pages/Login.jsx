@@ -29,12 +29,9 @@ function Login(){
 
   // Runs when form is submitted
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Stop page from reloading
-    
-    // Clear previous error
+    e.preventDefault();
     setError("");
     
-    // Send login request to Flask
     const response = await apiRequest(`${import.meta.env.VITE_API_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -45,13 +42,11 @@ function Login(){
       }),
     });
     
-    // Check if response is ok without trying to read body twice
     if (response.ok) {
       const data = await response.json();
       login({user_id: data.user_id, email: data.email});
       window.location.href = "/";
     } else {
-      // For error responses, read the body once
       try {
         const errorData = await response.json();
         setError(errorData.error || "Login failed");
@@ -94,6 +89,14 @@ function Login(){
       <>
         <div className="login-page">
           <FuncHeader />
+          
+          {/* AD 1 - LEADERBOARD (below header) */}
+          <div className="sponsor-container sponsor-top">
+            <div className="sponsor-placeholder">
+              Advertisement (Leaderboard - 728x90)
+            </div>
+          </div>
+          
           <div className="login-container">
             <h2 className="login-title">Reset Password</h2>
             <p className="login-subtitle">Enter your email to receive a reset link</p>
@@ -139,62 +142,93 @@ function Login(){
     <>
       <div className="login-page">
         <FuncHeader />
-        <div className="login-container">
-          <h2 className="login-title">Login</h2>
-          <p className="login-subtitle">Welcome back, please login to your account</p>
 
-          {/* Show error message if login fails */}
-          {error && <div className="error_message">{error}</div>}
-
-          <form onSubmit={handleSubmit}>
-            <label htmlFor="email">Email</label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-            />
-
-            <label htmlFor="password">Password</label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-            />
-
-            <div className="login-options">
-              <div className="login-remember">
-                <input 
-                  type="checkbox" 
-                  id="remember" 
-                  name="remember" 
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
-                />
-                <label htmlFor="remember">Remember me</label>
-              </div>
-              <button 
-                type="button" 
-                onClick={() => setForgotPasswordMode(true)}
-                className="forgot-password-btn"
-              >
-                Forgot Password?
-              </button>
-            </div>
-
-            <button type="submit" className="login-button">LOGIN</button>
-
-            <p className="login-link">
-              Don't have an account? <SignUpLink/>
-            </p>
-          </form>
+        {/* AD 1 - LEADERBOARD (below header) */}
+        <div className="sponsor-container sponsor-top">
+          <div className="sponsor-placeholder">
+            Advertisement (Leaderboard - 728x90)
+          </div>
         </div>
+        {/* AD 2 - LEADERBOARD (for tablets) */}
+        <div className="sponsor-container-login sponsor-top">
+          <div className="sponsor-placeholder">
+            Advertisement (Leaderboard - 728x90)
+          </div>
+        </div>
+        
+        <div className="login-wrapper">
+          <div className="login-container">
+            <h2 className="login-title">Login</h2>
+            <p className="login-subtitle">Welcome back, please login to your account</p>
+
+            {error && <div className="error_message">{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="email">Email</label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required 
+              />
+
+              <label htmlFor="password">Password</label>
+              <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required 
+              />
+
+              <div className="login-options">
+                <div className="login-remember">
+                  <input 
+                    type="checkbox" 
+                    id="remember" 
+                    name="remember" 
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
+                  />
+                  <label htmlFor="remember">Remember me</label>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={() => setForgotPasswordMode(true)}
+                  className="forgot-password-btn"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+
+              <button type="submit" className="login-button">LOGIN</button>
+
+              <p className="login-link">
+                Don't have an account? <SignUpLink/>
+              </p>
+            </form>
+          </div>
+
+          {/* AD 2 - SKYSCRAPER (right sidebar) */}
+          <div className="sponsor-container sponsor-skyscraper-right">
+            <div className="sponsor-placeholder">
+              Advertisement (Skyscraper - 160x600)
+            </div>
+          </div>
+        </div>
+
         <SocialMedia/>
+
+        {/* AD 1 - BILLBOARD (970x250) - ABOVE NAV (PREMIUM) */}
+        <div className="sponsor-container-login sponsor-billboard">
+            <div className="sponsor-placeholder">
+                Advertisement (Billboard - 970x250)
+            </div>
+        </div>
+
         <FuncFooter />
       </div>
     </>

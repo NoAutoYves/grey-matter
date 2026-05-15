@@ -33,10 +33,10 @@ function LandingPage(){
         <>
         <div className="index-page">
 
-        {/* AD 1 - LEADERBOARD (728x90) - ABOVE NAV */}
-        <div className="sponsor-container sponsor-top">
+        {/* AD 1 - BILLBOARD (970x250) - ABOVE NAV (PREMIUM) */}
+        <div className="sponsor-container-landing sponsor-top">
             <div className="sponsor-placeholder">
-                Advertisement
+                Advertisement (Billboard - 970x250)
             </div>
         </div>
 
@@ -54,18 +54,18 @@ function LandingPage(){
         <LandingSubjects/>
 
         {/* AD 2 - LARGE RECTANGLE (336x280) - BETWEEN SUBJECTS AND SOCIAL MEDIA */}
-        <div className="sponsor-container sponsor-large-rectangle">
+        <div className="sponsor-container-landing sponsor-billboard">
             <div className="sponsor-placeholder">
-                Advertisement
+                Advertisement (Large Rectangle - 336x280)
             </div>
         </div>
 
         <SocialMedia/>
 
-        {/* AD 3 - FOOTER BANNER (728x90) - BEFORE FOOTER LINKS */}
-        <div className="sponsor-container sponsor-footer">
+        {/* AD 3 - LEADERBOARD (728x90) - BEFORE FOOTER LINKS */}
+        <div className="sponsor-container-landing sponsor-footer">
             <div className="sponsor-placeholder">
-                Advertisement
+                Advertisement (Leaderboard - 728x90)
             </div>
         </div>
 
