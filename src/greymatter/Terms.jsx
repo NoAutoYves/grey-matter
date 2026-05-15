@@ -5,6 +5,14 @@ function Terms() {
   return (
     <div className="info-page">
       <FuncHeader />
+
+      {/* AD 1 - LEADERBOARD (below header, above profile container) */}
+      <div className="sponsor-container-profile sponsor-top">
+        <div className="sponsor-placeholder">
+          Advertisement (Leaderboard - 728x90)
+        </div>
+      </div>
+      
       <div className="info-container policy-container">
         <h1>Terms and Conditions</h1>
 
@@ -69,6 +77,14 @@ function Terms() {
         <h2>Contact Information</h2>
         <p>If you have any questions about these Terms and Conditions, please contact us at: legal@greymatterschool.co.za</p>
       </div>
+
+      {/* AD 2 - BILLBOARD (after profile container, before footer) */}
+      <div className="sponsor-container-profile sponsor-billboard">
+        <div className="sponsor-placeholder">
+          Advertisement (Large Rectangle - 336x280)
+        </div>
+      </div>
+
       <FuncFooter />
     </div>
   );

@@ -49,6 +49,14 @@ function Help() {
   return (
     <div className="info-page">
       <FuncHeader />
+
+      {/* AD 1 - LEADERBOARD (below header, above profile container) */}
+      <div className="sponsor-container-profile sponsor-top">
+        <div className="sponsor-placeholder">
+          Advertisement (Leaderboard - 728x90)
+        </div>
+      </div>
+      
       <div className="info-container policy-container">
         <h1>Help & Frequently Asked Questions (FAQ)</h1>
         <p>Find answers to common questions below. Can't find what you're looking for? <a href="/contact">Contact our support team</a>.</p>
@@ -71,6 +79,14 @@ function Help() {
           <a href="/contact" className="help-btn">Contact Support</a>
         </div>
       </div>
+
+      {/* AD 2 - BILLBOARD (after profile container, before footer) */}
+      <div className="sponsor-container-profile sponsor-billboard">
+        <div className="sponsor-placeholder">
+          Advertisement (Large Rectangle - 336x280)
+        </div>
+      </div>
+
       <FuncFooter />
     </div>
   );

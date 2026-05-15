@@ -43,6 +43,14 @@ function Contact() {
   return (
     <div className="info-page">
       <FuncHeader />
+
+      {/* AD 1 - LEADERBOARD (below header, above profile container) */}
+      <div className="sponsor-container-profile sponsor-top">
+        <div className="sponsor-placeholder">
+          Advertisement (Leaderboard - 728x90)
+        </div>
+      </div>
+
       <div className="info-container">
         <h1>Contact Us</h1>
         <p>Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
@@ -50,7 +58,7 @@ function Contact() {
         <div className="contact-info">
           <div>
             <h3>📍 Address</h3>
-            <p>123 Education Street<br />Johannesburg, 2000<br />South Africa</p>
+            <p>3600 Darwin Street<br />Sandton, 2148<br />South Africa</p>
           </div>
           <div>
             <h3>📧 Email</h3>
@@ -59,8 +67,8 @@ function Contact() {
           </div>
           <div>
             <h3>📞 Phone</h3>
-            <p>+27 (0) 11 123 4567</p>
-            <p>Mon-Fri, 9am-5pm</p>
+            <p>+27 (0) 00 000 0000</p>
+            <p>Mon-Fri, 8am-4pm</p>
           </div>
         </div>
         
@@ -82,6 +90,12 @@ function Contact() {
             {loading ? "Sending..." : "Send Message"}
           </button>
         </form>
+      </div>
+      {/* AD 2 - BILLBOARD (after profile container, before footer) */}
+      <div className="sponsor-container-profile sponsor-billboard">
+        <div className="sponsor-placeholder">
+          Advertisement (Large Rectangle - 336x280)
+        </div>
       </div>
       <FuncFooter />
     </div>

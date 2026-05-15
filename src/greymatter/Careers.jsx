@@ -20,6 +20,14 @@ function Careers() {
   return (
     <div className="info-page">
       <FuncHeader />
+
+      {/* AD 1 - LEADERBOARD (below header, above profile container) */}
+      <div className="sponsor-container-profile sponsor-top">
+        <div className="sponsor-placeholder">
+          Advertisement (Leaderboard - 728x90)
+        </div>
+      </div>
+      
       <div className="info-container">
         <h1>Careers at Grey Matter</h1>
         <p>Join us in revolutionizing education. We're looking for passionate individuals who believe in the power of learning.</p>
@@ -45,6 +53,14 @@ function Careers() {
         
         <p className="careers-note">Don't see a role that fits? Send your resume to careers@greymatterschool.co.za</p>
       </div>
+
+      {/* AD 2 - BILLBOARD (after profile container, before footer) */}
+      <div className="sponsor-container-profile sponsor-billboard">
+        <div className="sponsor-placeholder">
+          Advertisement (Large Rectangle - 336x280)
+        </div>
+      </div>
+
       <FuncFooter />
     </div>
   );
