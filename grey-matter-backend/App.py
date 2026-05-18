@@ -15,57 +15,47 @@ from routes.Contact import contact_bp
 from routes.Admin import admin_bp
 from routes.Results import results_bp
 
-# Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
 
-# Get secret key from environment - no fallback for production
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 if not app.secret_key:
     raise ValueError("FLASK_SECRET_KEY environment variable is not set")
 
-# Get debug mode from environment (default to False for production)
 debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
 
-# Session configuration
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=12)
 app.config['SESSION_REFRESH_EACH_REQUEST'] = True
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
-# CSRF configuration
 app.config['WTF_CSRF_TIME_LIMIT'] = 3600
 app.config['WTF_CSRF_SSL_STRICT'] = False
 app.config['WTF_CSRF_CHECK_DEFAULT'] = False
 
-# Initialize extensions
 limiter.init_app(app)
 csrf.init_app(app)
 
-# Session timeout checker
 @app.before_request
 def check_session_timeout():
     if request.endpoint in ['serve_uploads', 'static', 'get_csrf_token']:
         return None
-    
     if 'user_id' in session:
         session['last_activity'] = datetime.now().isoformat()
     elif 'last_activity' in session:
         session.clear()
 
-# Endpoint to get CSRF token for frontend
 @app.route("/api/csrf-token", methods=["GET"])
 def get_csrf_token():
     return jsonify({"csrf_token": generate_csrf()})
 
-# Rate limit error handler
 @app.errorhandler(429)
 def rate_limit_handler(e):
-    return jsonify({
-        "error": "Too many requests. Please slow down and try again later."
-    }), 429
+    return jsonify({"error": "Too many requests. Please slow down and try again later."}), 429
 
-# CSRF error handler
 @app.errorhandler(400)
 def csrf_error_handler(e):
     if "CSRF" in str(e):
@@ -73,10 +63,7 @@ def csrf_error_handler(e):
     return jsonify({"error": str(e)}), 400
 
 CORS(app, supports_credentials=True, origins=[
-    "http://localhost:5173",
-    "http://172.20.10.4:5173",
-    "http://127.0.0.1:5173",
-    "http://35.179.153.148",
+    "https://greymatterschool.co.za",
     "http://greymatterschool.co.za"
 ])
 

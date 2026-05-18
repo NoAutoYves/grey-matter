@@ -39,7 +39,7 @@ function AdminAnalytics() {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/analytics`);
+      const response = await apiRequest(`/api/admin/analytics`);
       const data = await response.json();
       if (response.ok) {
         setAnalytics(data);

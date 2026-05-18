@@ -19,7 +19,7 @@ function ExerciseList() {
   useEffect(() => {
     const fetchExercises = async () => {
       try {
-        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/exercises/${subject}`, {
+        const response = await apiRequest(`/api/exercises/${subject}`, {
           credentials: 'include'
         });
         const data = await response.json();

@@ -26,7 +26,7 @@ function PhoneNoInput() {
     }
 
     // Send the phone number to Flask backend
-    const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/updatePhoneNumber`, {
+    const response = await apiRequest(`/api/updatePhoneNumber`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ phone: value }), // Only send phone number

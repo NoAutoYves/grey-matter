@@ -19,7 +19,7 @@ function LandingPage(){
         showModal(
             "Are you sure you want to log out?",
             async () => {
-                await apiRequest(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+                await apiRequest(`/auth/logout`, {
                     method: "POST",
                 });
                 logout();

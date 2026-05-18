@@ -36,7 +36,7 @@ function App() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/auth/check-session`);
+        const response = await apiRequest(`/auth/check-session`);
         if (!response.ok) {
           // Session expired, clear user data
           localStorage.removeItem('user');

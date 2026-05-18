@@ -1,10 +1,14 @@
 // utils/api.js
 let csrfToken = null;
 
+// Base URL configuration
+const BASE_URL = 'https://greymatterschool.co.za';
+const API_BASE_URL = `${BASE_URL}/api`;
+
 // Get CSRF token from backend
 export async function fetchCSRFToken() {
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/csrf-token`, {
+        const response = await fetch(`${API_BASE_URL}/csrf-token`, {
             credentials: 'include'
         });
         const data = await response.json();
@@ -59,7 +63,22 @@ export async function apiRequest(url, options = {}) {
         }
     }
     
-    const response = await fetch(url, {
+    // Build the full URL correctly
+    let fullUrl;
+    if (url.startsWith('/api/')) {
+        // If it's already an API path
+        fullUrl = `${BASE_URL}${url}`;
+    } else if (url.startsWith('/')) {
+        // If it's a relative path (like /auth/login)
+        fullUrl = `${BASE_URL}${url}`;
+    } else {
+        // If it's a relative path without leading slash
+        fullUrl = `${BASE_URL}/${url}`;
+    }
+    
+    console.log('API Request URL:', fullUrl, 'Method:', method); // Debug log
+    
+    const response = await fetch(fullUrl, {
         ...options,
         credentials: 'include'
     });
@@ -76,7 +95,7 @@ export async function apiRequest(url, options = {}) {
         if (text.includes('CSRF')) {
             await fetchCSRFToken();
             options.headers['X-CSRFToken'] = csrfToken;
-            const retryResponse = await fetch(url, { ...options, credentials: 'include' });
+            const retryResponse = await fetch(fullUrl, { ...options, credentials: 'include' });
             
             // Check for session expiration on retry
             if (retryResponse.status === 401) {
@@ -89,3 +108,31 @@ export async function apiRequest(url, options = {}) {
     
     return response;
 }
+
+// Convenience methods
+export const api = {
+    get: (url, options = {}) => apiRequest(url, { ...options, method: 'GET' }),
+    post: (url, body, options = {}) => {
+        const isFormData = body instanceof FormData;
+        const headers = { ...options.headers };
+        
+        // Don't set Content-Type for FormData - browser will set it with boundary
+        if (isFormData) {
+            delete headers['Content-Type'];
+        }
+        
+        return apiRequest(url, {
+            ...options,
+            method: 'POST',
+            body: isFormData ? body : JSON.stringify(body),
+            headers
+        });
+    },
+    put: (url, body, options = {}) => apiRequest(url, {
+        ...options,
+        method: 'PUT',
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json', ...options.headers }
+    }),
+    delete: (url, options = {}) => apiRequest(url, { ...options, method: 'DELETE' })
+};

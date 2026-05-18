@@ -30,7 +30,7 @@ function AdminExercises() {
 
   const fetchExercises = async () => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/exercises`);
+      const response = await apiRequest(`/api/admin/exercises`);
       const data = await response.json();
       if (response.ok) {
         setExercises(data.exercises);
@@ -45,9 +45,9 @@ function AdminExercises() {
   const fetchDropdownOptions = async () => {
     try {
       const [gradesRes, subjectsRes, termsRes] = await Promise.all([
-        apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/grades`),
-        apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/subjects`),
-        apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/terms`)
+        apiRequest(`/api/admin/grades`),
+        apiRequest(`/api/admin/subjects`),
+        apiRequest(`/api/admin/terms`)
       ]);
       
       const gradesData = await gradesRes.json();
@@ -157,7 +157,7 @@ function AdminExercises() {
     };
     
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/exercises`, {
+      const response = await apiRequest(`/api/admin/exercises`, {
         method: "POST",
         body: JSON.stringify(exerciseData)
       });
@@ -190,7 +190,7 @@ function AdminExercises() {
   const deleteExercise = async (exerciseId) => {
     if (confirm("Delete this exercise? All questions will be removed.")) {
       try {
-        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/exercises/${exerciseId}`, {
+        const response = await apiRequest(`/api/admin/exercises/${exerciseId}`, {
           method: "DELETE"
         });
         if (response.ok) {

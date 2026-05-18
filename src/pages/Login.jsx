@@ -32,7 +32,7 @@ function Login(){
     e.preventDefault();
     setError("");
     
-    const response = await apiRequest(`${import.meta.env.VITE_API_URL}/auth/login`, {
+    const response = await apiRequest(`/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ 
@@ -61,7 +61,7 @@ function Login(){
     setResetMessage("");
     setError("");
 
-    const response = await apiRequest(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
+    const response = await apiRequest(`/auth/forgot-password`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ email: resetEmail }),

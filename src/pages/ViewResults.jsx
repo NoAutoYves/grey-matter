@@ -27,7 +27,7 @@ function ViewResults() {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/results/${exerciseId}`);
+        const response = await apiRequest(`/api/results/${exerciseId}`);
         const data = await response.json();
         
         if (response.ok) {

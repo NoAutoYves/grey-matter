@@ -13,7 +13,7 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/stats`);
+        const response = await apiRequest(`/api/admin/stats`);
         const data = await response.json();
         if (response.ok) {
           setStats(data);

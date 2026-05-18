@@ -14,8 +14,10 @@ from utils.sanitise import sanitize_text, sanitize_email, sanitize_username
 
 auth_bp = Blueprint('auth', __name__)
 
-# Get environment variables
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://172.20.10.4:5173")
+# Hardcoded for production - DO NOT USE IPs
+FRONTEND_URL = "https://greymatterschool.co.za"
+
+# SMTP credentials - use environment variables for security
 BREVO_SMTP_USERNAME = os.environ.get("BREVO_SMTP_USERNAME")
 BREVO_SMTP_PASSWORD = os.environ.get("BREVO_SMTP_PASSWORD")
 BREVO_SMTP_SERVER = os.environ.get("BREVO_SMTP_SERVER", "smtp-relay.brevo.com")
@@ -56,7 +58,7 @@ def signup():
     first_name = sanitize_text(data.get("first_name", ""), max_length=50)
     last_name = sanitize_text(data.get("last_name", ""), max_length=50)
     email = sanitize_email(data.get("email", ""))
-    password = data.get("password")  # Don't sanitize password - it's hashed
+    password = data.get("password")
     confirm_password = data.get("confirm_password")
     agree = data.get("privacy_p")
     username = sanitize_username(data.get("username") or email.split('@')[0] if email else "", max_length=50)
@@ -137,7 +139,6 @@ def login():
     ua = request.headers.get('User-Agent', '')
     
     try:
-        # SANITIZE EMAIL INPUT
         email = sanitize_email(request.form.get("email", ""))
         password = request.form.get("password")
         remember = request.form.get("remember") == "on"
@@ -202,7 +203,6 @@ def forgot_password():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
     
-    # SANITIZE EMAIL INPUT
     email = sanitize_email(request.form.get("email", ""))
     
     if not email:
@@ -243,13 +243,12 @@ def forgot_password():
     cursor.close()
     conn.close()
     
-    # Use environment variable for frontend URL
+    # Use HARDCODED frontend URL (no IPs)
     reset_link = f"{FRONTEND_URL}/reset-password?token={reset_token}"
     
     log_activity(user_id, "forgot_password_request", f"Reset token generated for {email}", ip, ua)
     
     try:
-        # Use environment variables for SMTP
         smtp_server = BREVO_SMTP_SERVER
         smtp_port = BREVO_SMTP_PORT
         smtp_username = BREVO_SMTP_USERNAME
@@ -309,7 +308,6 @@ def reset_password():
         log_activity(None, "reset_password_failed", "Password mismatch", ip, ua)
         return jsonify({"error": "Passwords do not match"}), 400
     
-    # Validate password strength
     errors = []
     if not password_schema.validate(new_password):
         if len(new_password) < 8:
@@ -349,10 +347,8 @@ def reset_password():
     
     user_id = user[0]
     
-    # Hash new password
     hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
     
-    # Update password and clear reset token
     cursor.execute("""
         UPDATE users 
         SET password_hash = %s, reset_token = NULL, reset_token_expires = NULL
@@ -368,7 +364,6 @@ def reset_password():
 
 @auth_bp.route("/check-session", methods=["GET"])
 def check_session():
-    """Check if user session is still valid"""
     if 'user_id' in session:
         return jsonify({
             "authenticated": True,

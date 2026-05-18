@@ -48,7 +48,7 @@ function ResetPassword() {
     }
 
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
+      const response = await apiRequest(`/auth/reset-password`, {
         method: "POST",
         body: JSON.stringify({
           token: token,

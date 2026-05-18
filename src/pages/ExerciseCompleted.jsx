@@ -44,7 +44,7 @@ function ExerciseCompleted() {
     setFeedbackError("");
     
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/feedback`, {
+      const response = await apiRequest(`/api/feedback`, {
         method: "POST",
         body: JSON.stringify({
           exercise_id: exerciseId,
@@ -112,7 +112,7 @@ function ExerciseCompleted() {
       const maxRetries = 3;
       
       try {
-        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/exercise/save-results`, {
+        const response = await apiRequest(`/api/exercise/save-results`, {
           method: "POST",
           body: JSON.stringify({
             exercise_id: exerciseId,

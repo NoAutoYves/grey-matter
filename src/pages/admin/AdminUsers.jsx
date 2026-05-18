@@ -16,7 +16,7 @@ function AdminUsers() {
 
   const fetchUsers = async () => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/users`);
+      const response = await apiRequest(`/api/admin/users`);
       const data = await response.json();
       if (response.ok) {
         setUsers(data.users);
@@ -38,7 +38,7 @@ function AdminUsers() {
 
   const toggleAdminStatus = async (userId, isAdmin) => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}/role`, {
+      const response = await apiRequest(`/api/admin/users/${userId}/role`, {
         method: "PUT",
         body: JSON.stringify({ is_admin: !isAdmin })
       });
@@ -53,7 +53,7 @@ function AdminUsers() {
 
   const toggleVerification = async (userId, isVerified) => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}/verify`, {
+      const response = await apiRequest(`/api/admin/users/${userId}/verify`, {
         method: "PUT",
         body: JSON.stringify({ is_verified: !isVerified })
       });
@@ -69,7 +69,7 @@ function AdminUsers() {
   const resetUserPassword = async (userId, email) => {
     if (confirm(`Send password reset link to ${email}?`)) {
       try {
-        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}/reset-password`, {
+        const response = await apiRequest(`/api/admin/users/${userId}/reset-password`, {
           method: "POST"
         });
         if (response.ok) {
@@ -92,7 +92,7 @@ function AdminUsers() {
 
   const viewUserActivity = async (userId) => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}/activity`);
+      const response = await apiRequest(`/api/admin/users/${userId}/activity`);
       const data = await response.json();
       if (response.ok) {
         setUserActivities(data.activities);
@@ -107,7 +107,7 @@ function AdminUsers() {
   const deleteUser = async (userId, email) => {
     if (confirm(`Permanently delete user ${email}? This cannot be undone.`)) {
       try {
-        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}`, {
+        const response = await apiRequest(`/api/admin/users/${userId}`, {
           method: "DELETE"
         });
         if (response.ok) {

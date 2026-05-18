@@ -101,7 +101,7 @@ function Exercise() {
   // Fetch exercise data - UPDATED to use apiRequest
   useEffect(() => {
     const fetchExercise = async () => {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/exercise/${subject}/${exerciseId}`, {
+      const response = await apiRequest(`/api/exercise/${subject}/${exerciseId}`, {
         credentials: 'include'
       });
       const data = await response.json();
@@ -172,7 +172,7 @@ function Exercise() {
           // Save results - UPDATED to use apiRequest
           const saveToDatabase = async () => {
             try {
-              const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/exercise/save-results`, {
+              const response = await apiRequest(`/api/exercise/save-results`, {
                 method: "POST",
                 body: JSON.stringify({
                   exercise_id: exerciseId,

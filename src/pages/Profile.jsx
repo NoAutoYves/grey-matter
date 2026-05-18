@@ -65,7 +65,7 @@ function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/persona/profile`);
+        const response = await apiRequest(`/persona/profile`);
         const data = await response.json();
         if (response.ok) {
           setProfileData({
@@ -115,7 +115,7 @@ function Profile() {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("avatar", selectedFile);
-    const response = await apiRequest(`${import.meta.env.VITE_API_URL}/persona/profile/avatar`, {
+    const response = await apiRequest(`/persona/profile/avatar`, {
       method: "POST", body: formData
     });
     const data = await response.json();
@@ -136,14 +136,14 @@ function Profile() {
   // Personal info save
   const handlePersonalInfoSave = async () => {
     // Save username and bio
-    const response1 = await apiRequest(`${import.meta.env.VITE_API_URL}/persona/profile/edit`, {
+    const response1 = await apiRequest(`/persona/profile/edit`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ username: editForm.username, bio: editForm.bio })
     });
     
     // Save first name and last name
-    const response2 = await apiRequest(`${import.meta.env.VITE_API_URL}/api/updateInfo`, {
+    const response2 = await apiRequest(`/api/updateInfo`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ first_name: editForm.first_name, last_name: editForm.last_name, bio: editForm.bio })
@@ -167,7 +167,7 @@ function Profile() {
   // Email update
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/updateEmail`, {
+    const response = await apiRequest(`/api/updateEmail`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ email })
@@ -179,7 +179,7 @@ function Profile() {
   // Phone update
   const handlePhoneSubmit = async (e) => {
     e.preventDefault();
-    const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/updatePhoneNumber`, {
+    const response = await apiRequest(`/api/updatePhoneNumber`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ phone: phoneNumber })
@@ -195,7 +195,7 @@ function Profile() {
       showMessage("New passwords do not match");
       return;
     }
-    const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/changePassword`, {
+    const response = await apiRequest(`/api/changePassword`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ current_password: currentPassword, new_password: newPassword })
@@ -217,7 +217,7 @@ function Profile() {
     showModal(
       "Are you sure you want to permanently delete your account?",
       async () => {
-        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/deleteAccount`, { method: "POST" });
+        const response = await apiRequest(`/api/deleteAccount`, { method: "POST" });
         if (response.ok) window.location.href = "/login";
         else showMessage((await response.json()).error || "Failed to delete account");
       },
@@ -226,7 +226,7 @@ function Profile() {
   };
 
   const avatarUrl = profileData.avatar && profileData.avatar !== "null" 
-    ? `${import.meta.env.VITE_API_URL}${profileData.avatar}?t=${avatarRefreshKey}` 
+    ? `${profileData.avatar}?t=${avatarRefreshKey}` 
     : default_avatar;
 
   if (loading) {

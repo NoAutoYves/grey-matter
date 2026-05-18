@@ -46,7 +46,7 @@ function FuncHeader({ showWarning = false }) {
         if (exerciseId) {
           localStorage.removeItem(`exercise_progress_${exerciseId}`);
         }
-        await apiRequest(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+        await apiRequest(`/auth/logout`, {
           method: "POST",
         });
         logoutUser();

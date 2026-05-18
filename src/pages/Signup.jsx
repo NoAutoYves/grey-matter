@@ -18,7 +18,7 @@ function Signup() {
     e.preventDefault();
     setError("");
 
-    const response = await apiRequest(`${import.meta.env.VITE_API_URL}/auth/signup`, {
+    const response = await apiRequest(`/auth/signup`, {
       method: "POST",
       body: JSON.stringify({
         first_name,
