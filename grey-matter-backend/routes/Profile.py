@@ -3,8 +3,8 @@ from routes.db import get_db_connection
 import os
 from utils.sanitise import sanitize_text, sanitize_username, sanitize_bio
 
-# Get the absolute path to the backend directory
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Get the absolute path to the backend directory (fixed - now goes up one more level)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads', 'avatars')
 
 profile_bp = Blueprint('profile', __name__)
@@ -234,8 +234,8 @@ def update_avatar():
     # Create uploads folder using absolute path
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     
-    # Generate unique filename
-    new_filename = f"user_{user_id}_avatar_{ext}"
+    # Generate unique filename (fixed - removed extra underscore)
+    new_filename = f"user_{user_id}_avatar{ext}"
     save_path = os.path.join(UPLOAD_FOLDER, new_filename)
     
     # Save file

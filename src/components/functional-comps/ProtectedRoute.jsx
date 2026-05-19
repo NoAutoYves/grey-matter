@@ -12,7 +12,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await apiRequest(`/persona/profile`);
+        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/persona/profile`);
         
         if (response.status === 401) {
           setIsAuthenticated(false);

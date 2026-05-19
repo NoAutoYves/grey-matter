@@ -11,7 +11,7 @@ import ExerciseCompleted from "./pages/ExerciseCompleted";
 import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./components/functional-comps/ProtectedRoute";
 import ViewResults from "./pages/ViewResults";
-import { fetchCSRFToken, apiRequest } from "./utils/api";
+import { fetchCSRFToken } from "./utils/api";
 
 // Greymatter pages
 import About from "./greymatter/About";
@@ -30,27 +30,7 @@ import AdminExercises from "./pages/admin/AdminExercises";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 
 function App() {
-  const navigate = useNavigate();
-
-  // Check session on app load
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const response = await apiRequest(`/auth/check-session`);
-        if (!response.ok) {
-          // Session expired, clear user data
-          localStorage.removeItem('user');
-          const message = 'Your session has expired. Please login again.';
-          sessionStorage.setItem('sessionExpiredMessage', message);
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error('Session check failed:', error);
-      }
-    };
-    
-    checkSession();
-  }, [navigate]);
+  // Session check removed - no automatic redirect on expiry
 
   // Refresh CSRF token every 50 minutes (tokens expire in 60 minutes)
   useEffect(() => {

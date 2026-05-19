@@ -20,29 +20,6 @@ export async function fetchCSRFToken() {
     }
 }
 
-// Handle session expiration
-function handleSessionExpired() {
-    // Clear local storage
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    
-    // Clear any stored user data in sessionStorage
-    sessionStorage.clear();
-    
-    // Redirect to login page if not already there
-    if (!window.location.pathname.includes('/login') && 
-        !window.location.pathname.includes('/signup') &&
-        !window.location.pathname.includes('/reset-password')) {
-        
-        // Show message to user
-        const message = 'Your session has expired. Please login again.';
-        sessionStorage.setItem('sessionExpiredMessage', message);
-        
-        // Redirect to login
-        window.location.href = '/login';
-    }
-}
-
 // Main API request function
 export async function apiRequest(url, options = {}) {
     const method = options.method || 'GET';
@@ -83,9 +60,8 @@ export async function apiRequest(url, options = {}) {
         credentials: 'include'
     });
     
-    // Handle session expiration (401 Unauthorized)
+    // Handle 401 Unauthorized - just throw error without redirect
     if (response.status === 401) {
-        handleSessionExpired();
         throw new Error('Session expired');
     }
     
@@ -99,7 +75,6 @@ export async function apiRequest(url, options = {}) {
             
             // Check for session expiration on retry
             if (retryResponse.status === 401) {
-                handleSessionExpired();
                 throw new Error('Session expired');
             }
             return retryResponse;
