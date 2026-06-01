@@ -29,9 +29,17 @@ dmypy.json
 *.db
 
 # === Backend environment ===
-grey-matter-backend/.env
-grey-matter-backend/.env.local
-grey-matter-backend/.env.*.local
+.env
+.env.local
+.env.*.local
+config_local.py
+config_development.py
+
+# === Backend local config files ===
+local_config.py
+development_config.py
+*_local.py
+*_dev.py
 
 # === Node / React / Vite ===
 node_modules/
@@ -43,14 +51,13 @@ lerna-debug.log*
 dist/
 dist-ssr/
 *.local
+
+# === Frontend environment files (ignore all, keep examples) ===
 .env
 .env.local
-.env.production.local
-.env.development.local
-
-# === Frontend environment (kept for reference, but ignore any actual secrets) ===
-!.env.production
+.env.*.local
 !.env.example
+!.env.production.example
 
 # === Editor / IDE ===
 .vscode/
@@ -90,3 +97,8 @@ coverage/
 *.sql
 .DS_Store
 Thumbs.db
+
+# === Local development overrides ===
+*-local.*
+*-dev.*
+*.local.*

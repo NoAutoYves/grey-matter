@@ -5,6 +5,7 @@ import FuncHeader from "../components/functional-comps/FuncHeader";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { apiRequest } from "../utils/api";
+import MathRenderer from "../components/functional-comps/MathRenderer";
 
 function Exercise() {
   const { subject } = useParams();
@@ -276,8 +277,8 @@ function Exercise() {
           </div>
 
           <div className="quiz-box">
-            {/* Question text */}
-            <h2>{currentQ.question_text}</h2>
+            {/* Question text with math rendering */}
+            <h2><MathRenderer text={currentQ.question_text} /></h2>
             
             {/* Question image (if exists) */}
             {currentQ.image_url && (
@@ -295,7 +296,7 @@ function Exercise() {
               </div>
             )}
             
-            {/* Options grid */}
+            {/* Options grid with math rendering */}
             <div className="options-grid">
               {currentQ.options.map((option, idx) => {
                 const letter = String.fromCharCode(65 + idx);
@@ -320,7 +321,7 @@ function Exercise() {
                     }}
                     disabled={!!isAnswered || showFeedback}
                   >
-                    {option}
+                    <MathRenderer text={option} />
                   </button>
                 );
               })}

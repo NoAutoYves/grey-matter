@@ -59,50 +59,108 @@ def subject_exercise_list(subject):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Get exercises with grade information
+    # Get exercises with grade and topic information (no term)
     cursor.execute("""
         SELECT e.exercise_id, e.exercise_name, e.exercise_title, 
-               g.grade_level, g.display_name
+               g.grade_level, g.display_name,
+               tp.topic_id, tp.topic_name, tp.display_order as topic_order
         FROM exercises e
         JOIN grades g ON e.grade_id = g.grade_id
+        LEFT JOIN topics tp ON e.topic_id = tp.topic_id
         WHERE e.subject_id = %s AND e.is_published = TRUE
-        ORDER BY g.grade_level, e.display_order, e.exercise_id
+        ORDER BY g.grade_level, tp.display_order, e.display_order, e.exercise_id
     """, (subject_id,))
     
     exercises_data = cursor.fetchall()
     cursor.close()
     conn.close()
     
-    # Group by grade
-    exercises_by_grade = {}
+    # Group by grade, then by topic
+    result = []
+    grades_dict = {}
+    
     for ex in exercises_data:
-        exercise_id, exercise_name, exercise_title, grade_level, grade_display = ex
+        exercise_id, exercise_name, exercise_title, grade_level, grade_display, topic_id, topic_name, topic_order = ex
+        
+        # Format exercise title
+        if not exercise_title:
+            # Convert exercise_name like "breathing_exercise_1" to "Breathing - Exercise 1"
+            parts = exercise_name.split('_')
+            if len(parts) >= 3 and parts[-2] == 'exercise':
+                topic_part = ' '.join(parts[:-2]).title()
+                exercise_num = parts[-1]
+                formatted_title = f"{topic_part} - Exercise {exercise_num}"
+            else:
+                formatted_title = exercise_name.replace('_', ' ').title()
+        else:
+            formatted_title = exercise_title
+        
         completed = check_user_completion(user_id, exercise_id)
         
         exercise = {
             "exercise_id": exercise_id,
             "exercise_name": exercise_name,
-            "exercise_title": exercise_title or exercise_name.replace("_", " ").title(),
+            "exercise_title": formatted_title,
             "completed": completed
         }
         
-        if grade_level not in exercises_by_grade:
-            exercises_by_grade[grade_level] = {
+        # Create grade structure
+        if grade_level not in grades_dict:
+            grades_dict[grade_level] = {
                 "grade_level": grade_level,
                 "grade_display": grade_display,
+                "topics": {}
+            }
+        
+        # Handle topic (if no topic, put in "General" topic)
+        topic_key = topic_id if topic_id else 0
+        topic_display = topic_name if topic_name else "General"
+        
+        if topic_key not in grades_dict[grade_level]["topics"]:
+            grades_dict[grade_level]["topics"][topic_key] = {
+                "topic_id": topic_key,
+                "topic_name": topic_display,
                 "exercises": []
             }
-        exercises_by_grade[grade_level]["exercises"].append(exercise)
+        
+        grades_dict[grade_level]["topics"][topic_key]["exercises"].append(exercise)
     
-    # Convert to sorted list
-    result = {
-        "subject_name": subject.capitalize(),
-        "grades": [exercises_by_grade[g] for g in sorted(exercises_by_grade.keys())]
-    }
+    # Convert nested dictionaries to lists for JSON response
+    for grade_level in sorted(grades_dict.keys()):
+        grade = grades_dict[grade_level]
+        topics_list = []
+        
+        for topic_id in sorted(grade["topics"].keys()):
+            topic = grade["topics"][topic_id]
+            topics_list.append({
+                "topic_id": topic["topic_id"],
+                "topic_name": topic["topic_name"],
+                "exercises": topic["exercises"]
+            })
+        
+        result.append({
+            "grade_level": grade["grade_level"],
+            "grade_display": grade["grade_display"],
+            "topics": topics_list
+        })
     
-    total_exercises = sum(len(grade["exercises"]) for grade in result["grades"])
-    completed_exercises = sum(1 for grade in result["grades"] for ex in grade["exercises"] if ex["completed"])
+    total_exercises = sum(
+        len(ex)
+        for grade in result
+        for topic in grade["topics"]
+        for ex in topic["exercises"]
+    )
+    completed_exercises = sum(
+        1
+        for grade in result
+        for topic in grade["topics"]
+        for ex in topic["exercises"]
+        if ex["completed"]
+    )
     
     log_activity(user_id, "exercise_list_view", f"Viewed {subject} exercises: {completed_exercises}/{total_exercises} completed", ip, ua)
     
-    return jsonify(result), 200
+    return jsonify({
+        "subject_name": subject.capitalize(),
+        "grades": result
+    }), 200

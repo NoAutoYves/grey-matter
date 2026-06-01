@@ -26,6 +26,7 @@ body {
   display: flex;
   flex-direction: column;
   background: #1e1e22;
+  color: #c0c0c0;
 }
 
 /* Admin Custom Header */

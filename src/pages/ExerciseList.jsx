@@ -89,56 +89,63 @@ function ExerciseList() {
         <p className="quiz-list-subtitle">Available exercises for this subject:</p>
 
         {grades.length > 0 ? (
-          grades.map((gradeGroup, gradeIndex) => (
+          grades.map((gradeGroup) => (
             <div key={gradeGroup.grade_level} className="grade-section">
               <h3 className="grade-title">{gradeGroup.grade_display}</h3>
-              <ul className="quiz-list">
-                {gradeGroup.exercises.map((exercise) => (
-                  <li 
-                    key={exercise.exercise_id} 
-                    className={`quiz-item ${exercise.completed ? 'completed' : 'not-taken'}`}
-                  >
-                    {exercise.completed ? (
-                      <div className="quiz-completed-actions">
-                        <span className="quiz-title">{exercise.exercise_title}</span>
-                        <div className="dropdown-container">
-                          <button 
-                            className="actions-btn"
-                            onClick={() => toggleDropdown(exercise.exercise_id)}
-                          >
-                            Actions ▼
-                          </button>
-                          {openDropdown === exercise.exercise_id && (
-                            <div className="dropdown-menu">
-                              <Link 
-                                to={`/${subject}/exercise?exercise_id=${exercise.exercise_id}`} 
-                                className="dropdown-item"
-                                onClick={() => handleRetake(exercise.exercise_id)}
-                              >
-                                Retake
-                              </Link>
-                              <Link 
-                                to={`/view-results?exercise_id=${exercise.exercise_id}`} 
-                                className="dropdown-item"
-                                onClick={() => setOpenDropdown(null)}
-                              >
-                                View Results
-                              </Link>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <Link to={`/${subject}/exercise?exercise_id=${exercise.exercise_id}`} className="quiz-link">
-                        <span className="quiz-title">{exercise.exercise_title}</span>
-                        <span className="quiz-status">Not Taken</span>
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
               
-              {/* LEADERBOARD AD AFTER EVERY GRADE (including last grade) */}
+              {/* Loop through topics within the grade */}
+              {gradeGroup.topics && gradeGroup.topics.map((topic) => (
+                <div key={topic.topic_id} className="topic-section">
+                  <h4 className="topic-title">{topic.topic_name}</h4>
+                  <ul className="quiz-list">
+                    {topic.exercises.map((exercise) => (
+                      <li 
+                        key={exercise.exercise_id} 
+                        className={`quiz-item ${exercise.completed ? 'completed' : 'not-taken'}`}
+                      >
+                        {exercise.completed ? (
+                          <div className="quiz-completed-actions">
+                            <span className="quiz-title">{exercise.exercise_title}</span>
+                            <div className="dropdown-container">
+                              <button 
+                                className="actions-btn"
+                                onClick={() => toggleDropdown(exercise.exercise_id)}
+                              >
+                                Actions ▼
+                              </button>
+                              {openDropdown === exercise.exercise_id && (
+                                <div className="dropdown-menu">
+                                  <Link 
+                                    to={`/${subject}/exercise?exercise_id=${exercise.exercise_id}`} 
+                                    className="dropdown-item"
+                                    onClick={() => handleRetake(exercise.exercise_id)}
+                                  >
+                                    Retake
+                                  </Link>
+                                  <Link 
+                                    to={`/view-results?exercise_id=${exercise.exercise_id}`} 
+                                    className="dropdown-item"
+                                    onClick={() => setOpenDropdown(null)}
+                                  >
+                                    View Results
+                                  </Link>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <Link to={`/${subject}/exercise?exercise_id=${exercise.exercise_id}`} className="quiz-link">
+                            <span className="quiz-title">{exercise.exercise_title}</span>
+                            <span className="quiz-status">Not Taken</span>
+                          </Link>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              
+              {/* LEADERBOARD AD AFTER EVERY GRADE */}
               <div className="sponsor-container-list sponsor-leaderboard">
                 <div className="sponsor-placeholder">
                   Advertisement

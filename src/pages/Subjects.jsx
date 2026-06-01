@@ -13,7 +13,7 @@ function Subjects() {
     { id: 6, name: "Biology", path: "biology", class: "biology" },
     { id: 7, name: "Physics", path: "physics", class: "physics" },
     { id: 8, name: "Maths Literacy", path: "maths-lit", class: "mathslit" },
-    { id: 9, name: "Mathematics", path: "maths", class: "maths" }
+    { id: 9, name: "Mathematics", path: "mathematics", class: "maths" }
   ];
 
   return (

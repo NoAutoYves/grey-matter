@@ -64,7 +64,9 @@ def csrf_error_handler(e):
 
 CORS(app, supports_credentials=True, origins=[
     "https://greymatterschool.co.za",
-    "http://greymatterschool.co.za"
+    "http://greymatterschool.co.za",
+    "http://localhost:5173",
+    "http://localhost:5000"
 ])
 
 app.register_blueprint(auth_bp, url_prefix="/auth")

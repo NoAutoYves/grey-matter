@@ -1,8 +1,12 @@
 // utils/api.js
 let csrfToken = null;
 
-// Base URL configuration
-const BASE_URL = 'https://greymatterschool.co.za';
+// Base URL configuration - check environment
+const isDevelopment = import.meta.env.DEV || process.env.NODE_ENV === 'development';
+const BASE_URL = isDevelopment 
+    ? (import.meta.env.VITE_API_URL || 'http://localhost:5000')
+    : 'https://greymatterschool.co.za';
+
 const API_BASE_URL = `${BASE_URL}/api`;
 
 // Get CSRF token from backend
