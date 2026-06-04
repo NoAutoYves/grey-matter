@@ -8,7 +8,7 @@ Interactive e-learning platform for high school students to master commerce and 
 - Business Studies
 - Economics
 - Geography
-- Biology
+- Life Science
 - Physics
 - Mathematics
 - Mathematical Literacy

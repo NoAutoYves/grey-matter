@@ -33,8 +33,8 @@ function LandingSubjects() {
             </Link>
 
             <Link to="biology/" className="subject-card">
-                <img src={biology} alt="Biology Exercises"/>
-                <p>BIOLOGY</p>
+                <img src={biology} alt="Life Science Exercises"/>
+                <p>LIFE SCIENCE</p>
             </Link>
 
             <Link to="physics/" className="subject-card">
