@@ -49,7 +49,6 @@ def check_session_timeout():
         session.clear()
 
 @app.route("/api/csrf-token", methods=["GET"])
-@limiter.exempt
 def get_csrf_token():
     return jsonify({"csrf_token": generate_csrf()})
 
