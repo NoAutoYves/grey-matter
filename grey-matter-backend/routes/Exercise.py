@@ -127,6 +127,7 @@ def save_results():
         "breakdown": breakdown
     })
     
+    # Check if record exists
     cursor.execute("""
         SELECT progress_id, retake_count FROM user_progress 
         WHERE user_id = %s AND exercise_id = %s
@@ -135,6 +136,7 @@ def save_results():
     existing = cursor.fetchone()
     
     if existing:
+        # Update existing record
         progress_id = existing[0]
         retake_count = existing[1] + 1
         
@@ -148,6 +150,7 @@ def save_results():
         
         log_activity(user_id, "exercise_retake", f"Retake #{retake_count} of exercise {exercise_id} - Score: {score}/{total_questions}", ip, ua)
     else:
+        # Insert new record
         cursor.execute("""
             INSERT INTO user_progress (user_id, exercise_id, score, total_questions, 
                                        percentage, time_taken_seconds, answers, retake_count)
@@ -159,11 +162,25 @@ def save_results():
     
     # Save notes (already sanitized)
     if notes and notes != "No notes taken.":
+        # Check if note exists
         cursor.execute("""
-            INSERT INTO user_notes (user_id, exercise_id, note_text, created_at)
-            VALUES (%s, %s, %s, NOW())
-            ON CONFLICT (user_id, exercise_id) DO UPDATE SET note_text = %s, created_at = NOW()
-        """, (user_id, exercise_id, notes, notes))
+            SELECT note_id FROM user_notes 
+            WHERE user_id = %s AND exercise_id = %s
+        """, (user_id, exercise_id))
+        
+        note_exists = cursor.fetchone()
+        
+        if note_exists:
+            cursor.execute("""
+                UPDATE user_notes 
+                SET note_text = %s, created_at = NOW()
+                WHERE user_id = %s AND exercise_id = %s
+            """, (notes, user_id, exercise_id))
+        else:
+            cursor.execute("""
+                INSERT INTO user_notes (user_id, exercise_id, note_text, created_at)
+                VALUES (%s, %s, %s, NOW())
+            """, (user_id, exercise_id, notes))
         
         log_activity(user_id, "notes_saved", f"Saved notes for exercise {exercise_id}", ip, ua)
     

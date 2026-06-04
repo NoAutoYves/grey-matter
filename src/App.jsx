@@ -1,11 +1,12 @@
 import { useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Subjects from "./pages/Subjects";
 import Profile from "./pages/Profile";
 import ExerciseList from "./pages/ExerciseList";
+import ExercisesByTopic from "./pages/ExercisesByTopic";
 import Exercise from "./pages/Exercise";
 import ExerciseCompleted from "./pages/ExerciseCompleted";
 import ResetPassword from "./pages/ResetPassword";
@@ -30,8 +31,8 @@ import AdminExercises from "./pages/admin/AdminExercises";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 
 function App() {
-  // Session check removed - no automatic redirect on expiry
-
+  // REMOVE this entire checkSession useEffect - ProtectedRoute handles this already!
+  
   // Refresh CSRF token every 50 minutes (tokens expire in 60 minutes)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -61,7 +62,8 @@ function App() {
       {/* Protected routes (require login) */}
       <Route path="/subjects" element={<ProtectedRoute><Subjects /></ProtectedRoute>} />
       <Route path="/persona" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-      <Route path="/exercises/:subject" element={<ProtectedRoute><ExerciseList /></ProtectedRoute>} />
+      <Route path="/:subject" element={<ProtectedRoute><ExerciseList /></ProtectedRoute>} />
+      <Route path="/:subject/topic/:topicId" element={<ProtectedRoute><ExercisesByTopic /></ProtectedRoute>} />
       <Route path="/:subject/exercise" element={<ProtectedRoute><Exercise /></ProtectedRoute>} />
       <Route path="/exercise-completed" element={<ProtectedRoute><ExerciseCompleted /></ProtectedRoute>} />
       <Route path="/view-results" element={<ProtectedRoute><ViewResults /></ProtectedRoute>} />

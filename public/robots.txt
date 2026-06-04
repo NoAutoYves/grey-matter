@@ -4,15 +4,14 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
-Disallow: /persona/
 Disallow: /api/
 Disallow: /login
 Disallow: /signup
 Disallow: /reset-password
+Disallow: /persona/
 
 # ---------------------------
 # ALLOW AI SEARCH BOTS (for AEO)
-# These allow Grey Matter content to appear in ChatGPT, Perplexity, Gemini, Copilot answers
 # ---------------------------
 User-agent: OAI-SearchBot
 User-agent: PerplexityBot
@@ -21,21 +20,19 @@ User-agent: GPTBot
 User-agent: ClaudeBot
 User-agent: Bingbot
 Allow: /
+# Also explicitly disallow persona for these bots if you want privacy
+Disallow: /persona/
 
 # ---------------------------
-# GOOGLE FAMILY (Full access)
+# GOOGLE FAMILY (Full access - but no persona if you want privacy)
 # ---------------------------
 User-agent: Googlebot
 User-agent: GoogleOther
-User-agent: Google-SMART
-User-agent: Google-NotebookLM
-User-agent: AdsBot-Google
-User-agent: Googlebot-Image
-User-agent: Googlebot-Video
 Allow: /
+Disallow: /persona/
 
 # ---------------------------
-# BLOCK HARMFUL / DATA-SCRAPING BOTS
+# BLOCK HARMFUL BOTS
 # ---------------------------
 User-agent: Bytespider
 User-agent: Amazonbot
@@ -48,8 +45,3 @@ User-agent: SemrushBot
 User-agent: MJ12bot
 User-agent: AhrefsBot
 Disallow: /
-
-# ---------------------------
-# SITEMAPS
-# ---------------------------
-Sitemap: https://greymatterschool.co.za/sitemap.xml

@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import { UserContext } from "../context/UserContext";
@@ -11,52 +11,39 @@ import { apiRequest } from "../utils/api";
 function ExerciseList() {
   const { subject } = useParams();
   const { user } = useContext(UserContext);
-  const [grades, setGrades] = useState([]);
+  const [groupedTopics, setGroupedTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [subjectName, setSubjectName] = useState("");
-  const [openDropdown, setOpenDropdown] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchExercises = async () => {
+    const fetchTopics = async () => {
       try {
-        const response = await apiRequest(`/api/exercises/${subject}`, {
+        const response = await apiRequest(`/api/exercises/${subject}/topics`, {
           credentials: 'include'
         });
         const data = await response.json();
         
         if (response.ok) {
-          setGrades(data.grades || []);
+          setGroupedTopics(data.grouped_topics || []);
           setSubjectName(data.subject_name);
         }
       } catch (error) {
-        console.error("Failed to fetch exercises:", error);
+        console.error("Failed to fetch topics:", error);
       } finally {
         setLoading(false);
       }
     };
     
     if (user) {
-      fetchExercises();
+      fetchTopics();
     } else {
       setLoading(false);
     }
   }, [subject, user]);
 
-  const handleRetake = (exerciseId) => {
-    localStorage.removeItem("finalScore");
-    localStorage.removeItem("breakdown");
-    localStorage.removeItem("notes");
-    localStorage.removeItem("timeTaken");
-    localStorage.removeItem("totalQuestions");
-    setOpenDropdown(null);
-  };
-
-  const toggleDropdown = (exerciseId) => {
-    if (openDropdown === exerciseId) {
-      setOpenDropdown(null);
-    } else {
-      setOpenDropdown(exerciseId);
-    }
+  const handleTopicClick = (topicId) => {
+    navigate(`/${subject}/topic/${topicId}`);
   };
 
   if (loading) {
@@ -77,7 +64,6 @@ function ExerciseList() {
     <div className={`quiz-list-page ${subject}`}>
       <FuncHeader />
       
-      {/* AD 1 - TOP LEADERBOARD */}
       <div className="sponsor-container-list sponsor-top">
         <div className="sponsor-placeholder">
           Advertisement
@@ -85,86 +71,41 @@ function ExerciseList() {
       </div>
       
       <section className="quiz-list-container">
-        <h2 className="quiz-list-title">{subjectName} Exercises</h2>
-        <p className="quiz-list-subtitle">Available exercises for this subject:</p>
+        <h2 className="quiz-list-title">{subjectName} Topics</h2>
+        <p className="quiz-list-subtitle">Select a topic to view exercises:</p>
 
-        {grades.length > 0 ? (
-          grades.map((gradeGroup) => (
-            <div key={gradeGroup.grade_level} className="grade-section">
-              <h3 className="grade-title">{gradeGroup.grade_display}</h3>
-              
-              {/* Loop through topics within the grade */}
-              {gradeGroup.topics && gradeGroup.topics.map((topic) => (
-                <div key={topic.topic_id} className="topic-section">
-                  <h4 className="topic-title">{topic.topic_name}</h4>
-                  <ul className="quiz-list">
-                    {topic.exercises.map((exercise) => (
-                      <li 
-                        key={exercise.exercise_id} 
-                        className={`quiz-item ${exercise.completed ? 'completed' : 'not-taken'}`}
-                      >
-                        {exercise.completed ? (
-                          <div className="quiz-completed-actions">
-                            <span className="quiz-title">{exercise.exercise_title}</span>
-                            <div className="dropdown-container">
-                              <button 
-                                className="actions-btn"
-                                onClick={() => toggleDropdown(exercise.exercise_id)}
-                              >
-                                Actions ▼
-                              </button>
-                              {openDropdown === exercise.exercise_id && (
-                                <div className="dropdown-menu">
-                                  <Link 
-                                    to={`/${subject}/exercise?exercise_id=${exercise.exercise_id}`} 
-                                    className="dropdown-item"
-                                    onClick={() => handleRetake(exercise.exercise_id)}
-                                  >
-                                    Retake
-                                  </Link>
-                                  <Link 
-                                    to={`/view-results?exercise_id=${exercise.exercise_id}`} 
-                                    className="dropdown-item"
-                                    onClick={() => setOpenDropdown(null)}
-                                  >
-                                    View Results
-                                  </Link>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ) : (
-                          <Link to={`/${subject}/exercise?exercise_id=${exercise.exercise_id}`} className="quiz-link">
-                            <span className="quiz-title">{exercise.exercise_title}</span>
-                            <span className="quiz-status">Not Taken</span>
-                          </Link>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-              
-              {/* LEADERBOARD AD AFTER EVERY GRADE */}
-              <div className="sponsor-container-list sponsor-leaderboard">
-                <div className="sponsor-placeholder">
-                  Advertisement
+        {groupedTopics.length > 0 ? (
+          <div className="topics-by-grade">
+            {groupedTopics.map((gradeGroup) => (
+              <div key={gradeGroup.grade_level} className="grade-section">
+                <h3 className="grade-header">{gradeGroup.grade_display}</h3>
+                <div className="topics-grid">
+                  {gradeGroup.topics.map((topic) => (
+                    <div 
+                      key={topic.topic_id} 
+                      className="topic-card"
+                      onClick={() => handleTopicClick(topic.topic_id)}
+                    >
+                      <h4 className="topic-title">{topic.topic_name}</h4>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         ) : (
-          <p className="no-quizzes">No exercises available for this subject yet.</p>
+          <p className="no-quizzes">No topics available for this subject yet.</p>
         )}
       </section>
 
       <SocialMedia />
-      {/* BILLBOARD AD AFTER SOCIAL MEDIA */}
+      
       <div className="sponsor-container-list sponsor-billboard">
-          <div className="sponsor-placeholder">
-              Advertisement
-          </div>
+        <div className="sponsor-placeholder">
+          Advertisement
+        </div>
       </div>
+      
       <FuncFooter />
     </div>
   );

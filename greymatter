@@ -22,7 +22,8 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 
-    location /persona/ {
+    # Remove the trailing slash or change it to /persona (no slash)
+    location /persona {
         proxy_pass http://127.0.0.1:5000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

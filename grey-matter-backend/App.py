@@ -71,7 +71,7 @@ CORS(app, supports_credentials=True, origins=[
 
 app.register_blueprint(auth_bp, url_prefix="/auth")
 app.register_blueprint(settings_bp, url_prefix="/api")
-app.register_blueprint(profile_bp, url_prefix="/persona")
+app.register_blueprint(profile_bp, url_prefix="/api/persona")
 app.register_blueprint(exercise_list_bp, url_prefix="/api")
 app.register_blueprint(exercise_bp, url_prefix="/api")
 app.register_blueprint(contact_bp, url_prefix="/api")

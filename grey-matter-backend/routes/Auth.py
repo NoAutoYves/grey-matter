@@ -364,12 +364,23 @@ def reset_password():
 
 @auth_bp.route("/check-session", methods=["GET"])
 def check_session():
-    if 'user_id' in session:
-        return jsonify({
-            "authenticated": True,
-            "user_id": session['user_id']
-        }), 200
+    if "user_id" in session:
+        return jsonify({"authenticated": True, "user_id": session["user_id"]}), 200
     else:
-        return jsonify({
-            "authenticated": False
-        }), 401
+        return jsonify({"authenticated": False}), 401
+
+@auth_bp.route("/check-admin", methods=["GET"])
+def check_admin():
+    if "user_id" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    
+    user_id = session["user_id"]
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT is_admin FROM users WHERE user_id = %s", (user_id,))
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    is_admin = result[0] if result else False
+    return jsonify({"is_admin": is_admin}), 200

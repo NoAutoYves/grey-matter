@@ -12,42 +12,42 @@ function LandingSubjects() {
     return(
         <>
           <section className="subjects">
-            <Link to="/exercises/business/" className="subject-card">
+            <Link to="business/" className="subject-card">
                 <img src={business} alt="Business Studies Exercises"/>
                 <p>BUSINESS</p>
             </Link>
 
-            <Link to="/exercises/accounting/" className="subject-card">
+            <Link to="accounting/" className="subject-card">
                 <img src={accounting} alt="Accounting Studies Exercises"/>
                 <p>ACCOUNTING</p>
             </Link>
 
-            <Link to="/exercises/economics/" className="subject-card">
+            <Link to="economics/" className="subject-card">
                 <img src={economics} alt="Economics Exercises"/>
                 <p>ECONOMICS</p>
             </Link>
 
-            <Link to="/exercises/geography/" className="subject-card">
+            <Link to="geography/" className="subject-card">
                 <img src={geography} alt="Geography Exercises"/>
                 <p>GEOGRAPHY</p>
             </Link>
 
-            <Link to="/exercises/biology/" className="subject-card">
+            <Link to="biology/" className="subject-card">
                 <img src={biology} alt="Biology Exercises"/>
                 <p>BIOLOGY</p>
             </Link>
 
-            <Link to="/exercises/physics/" className="subject-card">
+            <Link to="physics/" className="subject-card">
                 <img src={phsyics} alt="Physics Exercises"/>
                 <p>PHYSICS</p>
             </Link>
 
-            <Link to="/exercises/maths-lit/" className="subject-card">
+            <Link to="maths-lit/" className="subject-card">
                 <img src={mathslit} alt="Maths Literacy Exercises"/>
                 <p>MATHS LITERACY</p>
             </Link>
 
-            <Link to="/exercises/maths/" className="subject-card">
+            <Link to="maths/" className="subject-card">
                 <img src={maths} alt="Mathematics Exercises"/>
                 <p>MATHEMATICS</p>
             </Link>

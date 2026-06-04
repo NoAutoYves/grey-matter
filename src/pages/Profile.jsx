@@ -65,7 +65,7 @@ function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await apiRequest(`/persona/profile`);
+        const response = await apiRequest(`/api/persona/profile`);
         const data = await response.json();
         if (response.ok) {
           setProfileData({
@@ -115,7 +115,7 @@ function Profile() {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("avatar", selectedFile);
-    const response = await apiRequest(`/persona/profile/avatar`, {
+    const response = await apiRequest(`/api/persona/profile/avatar`, {
       method: "POST", body: formData
     });
     const data = await response.json();
@@ -136,7 +136,7 @@ function Profile() {
   // Personal info save
   const handlePersonalInfoSave = async () => {
     // Save username and bio
-    const response1 = await apiRequest(`/persona/profile/edit`, {
+    const response1 = await apiRequest(`/api/persona/profile/edit`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ username: editForm.username, bio: editForm.bio })

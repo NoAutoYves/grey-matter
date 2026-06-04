@@ -59,16 +59,16 @@ def subject_exercise_list(subject):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Get exercises with grade and topic information (no term)
+    # Get exercises with grade and topic information
     cursor.execute("""
         SELECT e.exercise_id, e.exercise_name, e.exercise_title, 
                g.grade_level, g.display_name,
-               tp.topic_id, tp.topic_name, tp.display_order as topic_order
+               t.topic_id, t.topic_name, t.display_order as topic_order
         FROM exercises e
         JOIN grades g ON e.grade_id = g.grade_id
-        LEFT JOIN topics tp ON e.topic_id = tp.topic_id
+        LEFT JOIN topics t ON e.topic_id = t.topic_id
         WHERE e.subject_id = %s AND e.is_published = TRUE
-        ORDER BY g.grade_level, tp.display_order, e.display_order, e.exercise_id
+        ORDER BY g.grade_level, t.display_order, e.display_order, e.exercise_id
     """, (subject_id,))
     
     exercises_data = cursor.fetchall()
@@ -84,7 +84,6 @@ def subject_exercise_list(subject):
         
         # Format exercise title
         if not exercise_title:
-            # Convert exercise_name like "breathing_exercise_1" to "Breathing - Exercise 1"
             parts = exercise_name.split('_')
             if len(parts) >= 3 and parts[-2] == 'exercise':
                 topic_part = ' '.join(parts[:-2]).title()
@@ -163,4 +162,142 @@ def subject_exercise_list(subject):
     return jsonify({
         "subject_name": subject.capitalize(),
         "grades": result
+    }), 200
+
+@exercise_list_bp.route("/exercises/<subject>/topics", methods=["GET"])
+def subject_topics_list(subject):
+    ip = request.remote_addr
+    ua = request.headers.get('User-Agent', '')
+    
+    if "user_id" not in session:
+        log_activity(None, "topics_list_failed", "Not logged in", ip, ua)
+        return jsonify({"error": "Not logged in"}), 401
+    
+    user_id = session["user_id"]
+    
+    subject_id = get_subject_id(subject)
+    if not subject_id:
+        log_activity(user_id, "topics_list_failed", f"Subject not found: {subject}", ip, ua)
+        return jsonify({"error": "Subject not found"}), 404
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get topics with grade information (since topics are linked to exercises which have grades)
+    cursor.execute("""
+        SELECT DISTINCT t.topic_id, t.topic_name, t.display_order,
+               g.grade_level, g.display_name as grade_display
+        FROM topics t
+        JOIN exercises e ON t.topic_id = e.topic_id
+        JOIN grades g ON e.grade_id = g.grade_id
+        WHERE e.subject_id = %s AND e.is_published = TRUE
+        ORDER BY g.grade_level, t.display_order, t.topic_name
+    """, (subject_id,))
+    
+    topics_data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    # Group topics by grade
+    grouped_topics = {}
+    for topic in topics_data:
+        topic_id, topic_name, display_order, grade_level, grade_display = topic
+        
+        if grade_level not in grouped_topics:
+            grouped_topics[grade_level] = {
+                "grade_level": grade_level,
+                "grade_display": grade_display,
+                "topics": []
+            }
+        
+        grouped_topics[grade_level]["topics"].append({
+            "topic_id": topic_id,
+            "topic_name": topic_name
+        })
+    
+    # Convert to list and sort by grade
+    result = [grouped_topics[grade] for grade in sorted(grouped_topics.keys())]
+    
+    log_activity(user_id, "topics_list_view", f"Viewed {subject} topics", ip, ua)
+    
+    return jsonify({
+        "subject_name": subject.capitalize(),
+        "grouped_topics": result
+    }), 200
+
+@exercise_list_bp.route("/exercises/<subject>/topic/<int:topic_id>", methods=["GET"])
+def exercises_by_topic(subject, topic_id):
+    ip = request.remote_addr
+    ua = request.headers.get('User-Agent', '')
+    
+    if "user_id" not in session:
+        log_activity(None, "exercises_by_topic_failed", "Not logged in", ip, ua)
+        return jsonify({"error": "Not logged in"}), 401
+    
+    user_id = session["user_id"]
+    
+    subject_id = get_subject_id(subject)
+    if not subject_id:
+        log_activity(user_id, "exercises_by_topic_failed", f"Subject not found: {subject}", ip, ua)
+        return jsonify({"error": "Subject not found"}), 404
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get topic name
+    cursor.execute("""
+        SELECT topic_name FROM topics WHERE topic_id = %s
+    """, (topic_id,))
+    
+    topic_result = cursor.fetchone()
+    if not topic_result:
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "Topic not found"}), 404
+    
+    topic_name = topic_result[0]
+    
+    # Get exercises for this topic
+    cursor.execute("""
+        SELECT e.exercise_id, e.exercise_name, e.exercise_title
+        FROM exercises e
+        WHERE e.subject_id = %s AND e.topic_id = %s AND e.is_published = TRUE
+        ORDER BY e.display_order, e.exercise_id
+    """, (subject_id, topic_id))
+    
+    exercises_data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    exercises = []
+    for ex in exercises_data:
+        exercise_id, exercise_name, exercise_title = ex
+        
+        # Format exercise title
+        if not exercise_title:
+            parts = exercise_name.split('_')
+            if len(parts) >= 3 and parts[-2] == 'exercise':
+                topic_part = ' '.join(parts[:-2]).title()
+                exercise_num = parts[-1]
+                formatted_title = f"{topic_part} - Exercise {exercise_num}"
+            else:
+                formatted_title = exercise_name.replace('_', ' ').title()
+        else:
+            formatted_title = exercise_title
+        
+        completed = check_user_completion(user_id, exercise_id)
+        
+        exercises.append({
+            "exercise_id": exercise_id,
+            "exercise_name": exercise_name,
+            "exercise_title": formatted_title,
+            "completed": completed
+        })
+    
+    log_activity(user_id, "exercises_by_topic_view", f"Viewed {topic_name} exercises", ip, ua)
+    
+    return jsonify({
+        "subject_name": subject.capitalize(),
+        "topic_name": topic_name,
+        "exercises": exercises
     }), 200

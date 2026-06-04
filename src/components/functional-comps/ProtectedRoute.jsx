@@ -12,26 +12,36 @@ function ProtectedRoute({ children, requireAdmin = false }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await apiRequest(`/persona/profile`);
+        // Check authentication
+        const authResponse = await apiRequest(`/auth/check-session`);
         
-        if (response.status === 401) {
+        if (authResponse.status === 401) {
           setIsAuthenticated(false);
           setShowMessage(true);
           setTimeout(() => {
             navigate("/login");
           }, 2500);
-        } else if (response.ok) {
-          const data = await response.json();
+          return;
+        }
+        
+        if (authResponse.ok) {
           setIsAuthenticated(true);
-          setIsAdmin(data.is_admin || false);
           
-          // Check if admin access is required
-          if (requireAdmin && !data.is_admin) {
-            setMessage("Admin access required. You do not have permission to view this page.");
-            setShowMessage(true);
-            setTimeout(() => {
-              navigate("/");
-            }, 2500);
+          // Only check admin if required
+          if (requireAdmin) {
+            const adminResponse = await apiRequest(`/auth/check-admin`);
+            if (adminResponse.ok) {
+              const adminData = await adminResponse.json();
+              setIsAdmin(adminData.is_admin);
+              
+              if (!adminData.is_admin) {
+                setMessage("Admin access required. You do not have permission to view this page.");
+                setShowMessage(true);
+                setTimeout(() => {
+                  navigate("/");
+                }, 2500);
+              }
+            }
           }
         } else {
           setIsAuthenticated(false);

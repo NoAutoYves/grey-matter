@@ -41,7 +41,7 @@ function Subjects() {
                 <p>
                   Work through exercises that challenge your grasp of {subject.name.toLowerCase()} principles.
                 </p>
-                <Link to={`/exercises/${subject.path}`} className="subject-btn">
+                <Link to={`/${subject.path}`} className="subject-btn">
                   {subject.name.toUpperCase()}
                 </Link>
               </div>
