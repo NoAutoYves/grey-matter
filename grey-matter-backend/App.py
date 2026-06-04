@@ -49,6 +49,7 @@ def check_session_timeout():
         session.clear()
 
 @app.route("/api/csrf-token", methods=["GET"])
+@limiter.exempt
 def get_csrf_token():
     return jsonify({"csrf_token": generate_csrf()})
 
@@ -84,4 +85,4 @@ def serve_uploads(filename):
     return send_from_directory(upload_folder, filename)
 
 if __name__ == "__main__":
-    app.run(debug=debug_mode, port=5000, host='0.0.0.0')
+    app.run(debug=False, port=5000, host='0.0.0.0')

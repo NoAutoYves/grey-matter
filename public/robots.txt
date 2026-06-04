@@ -1,3 +1,5 @@
+Sitemap: https://greymatterschool.co.za/sitemap.xml
+
 # ---------------------------
 # ALLOW ALL GOOD CRAWLERS
 # ---------------------------

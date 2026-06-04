@@ -10,6 +10,7 @@ import loginIcon from "../assets/images/func-images/login.png";
 import subjectIcon from "../assets/images/func-images/subjects.png";
 import profileIcon from "../assets/images/func-images/profile.png";
 import logoutIcon from "../assets/images/func-images/logout.png";
+import AdUnit from "../components/functional-comps/AdUnit";
 
 function LandingPage(){
     const { showModal } = useModal();
@@ -34,10 +35,8 @@ function LandingPage(){
         <div className="index-page">
 
         {/* AD 1 - BILLBOARD (970x250) - ABOVE NAV (PREMIUM) */}
-        <div className="sponsor-container-landing sponsor-top">
-            <div className="sponsor-placeholder">
-                Advertisement (Billboard - 970x250)
-            </div>
+        <div className="sponsor-container-list sponsor-top">
+            <AdUnit adSlot="5743773116" />
         </div>
 
         <nav className="landing-nav">
