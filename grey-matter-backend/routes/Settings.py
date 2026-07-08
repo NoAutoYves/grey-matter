@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, session
 from email_validator import validate_email, EmailNotValidError
 from password_validator import PasswordValidator
-from routes.db import get_db_connection
+from routes.db import get_db_connection, return_db_connection
 import bcrypt
 import phonenumbers
 import os  
@@ -16,13 +16,15 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads', 'avatars')
 def log_activity(user_id, action, details, ip_address, user_agent):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO activity_logs (user_id, action, details, ip_address, user_agent)
-        VALUES (%s, %s, %s, %s, %s)
-    """, (user_id, action, details, ip_address, user_agent))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    try:
+        cursor.execute("""
+            INSERT INTO activity_logs (user_id, action, details, ip_address, user_agent)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (user_id, action, details, ip_address, user_agent))
+        conn.commit()
+    finally:
+        cursor.close()
+        return_db_connection(conn)
 
 @settings_bp.route("/changePassword", methods=["POST"])
 def changePassword():
@@ -47,61 +49,59 @@ def changePassword():
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT password FROM users WHERE user_id = %s", (user_id,))
-    result = cursor.fetchone()
     
-    # Check if user exists
-    if not result:
-        cursor.close()
-        conn.close()
-        log_activity(user_id, "change_password_failed", "User not found in database", ip, ua)
-        return jsonify({"error": "User not found"}), 404
-    
-    stored_hash = result[0]
-    
-    # Validate new password strength
-    schema = PasswordValidator().min(8).has().uppercase().has().lowercase().has().digits()
-    errors = []
-    if not schema.validate(new_password):
-        if len(new_password) < 8:
-            errors.append("min length 8")
-        if len(new_password) > 100:
-            errors.append("max length 100")
-        if not any(c.isupper() for c in new_password):
-            errors.append("uppercase required")
-        if not any(c.islower() for c in new_password):
-            errors.append("lowercase required")
-        if not any(c.isdigit() for c in new_password):
-            errors.append("digit required")
-        if " " in new_password:
-            errors.append("no spaces allowed")
+    try:
+        cursor.execute("SELECT password_hash FROM users WHERE user_id = %s", (user_id,))
+        result = cursor.fetchone()
         
+        # Check if user exists
+        if not result:
+            log_activity(user_id, "change_password_failed", "User not found in database", ip, ua)
+            return jsonify({"error": "User not found"}), 404
+        
+        stored_hash = result[0]
+        
+        # Validate new password strength
+        schema = PasswordValidator().min(8).has().uppercase().has().lowercase().has().digits()
+        errors = []
+        if not schema.validate(new_password):
+            if len(new_password) < 8:
+                errors.append("min length 8")
+            if len(new_password) > 100:
+                errors.append("max length 100")
+            if not any(c.isupper() for c in new_password):
+                errors.append("uppercase required")
+            if not any(c.islower() for c in new_password):
+                errors.append("lowercase required")
+            if not any(c.isdigit() for c in new_password):
+                errors.append("digit required")
+            if " " in new_password:
+                errors.append("no spaces allowed")
+            
+            log_activity(user_id, "change_password_failed", f"Weak password attempt - rules failed: {errors}", ip, ua)
+            return jsonify({
+                "error": "Password does not meet requirements",
+                "failed_rules": errors
+            }), 400
+        
+        # Verify current password matches stored hash
+        if not bcrypt.checkpw(current_password.encode('utf-8'), stored_hash.encode('utf-8')):
+            log_activity(user_id, "change_password_failed", "Incorrect current password provided", ip, ua)
+            return jsonify({"error": "Current password is incorrect"}), 401
+        
+        # Hash the new password
+        new_hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+        
+        # Update database
+        cursor.execute("UPDATE users SET password_hash = %s, updated_at = NOW() WHERE user_id = %s", (new_hashed.decode('utf-8'), user_id))
+        conn.commit()
+        
+        log_activity(user_id, "change_password_success", "Password changed successfully", ip, ua)
+        return jsonify({"success": True, "message": "Password changed successfully"}), 200
+    
+    finally:
         cursor.close()
-        conn.close()
-        log_activity(user_id, "change_password_failed", f"Weak password attempt - rules failed: {errors}", ip, ua)
-        return jsonify({
-            "error": "Password does not meet requirements",
-            "failed_rules": errors
-        }), 400
-    
-    # Verify current password matches stored hash
-    if not bcrypt.checkpw(current_password.encode('utf-8'), stored_hash.encode('utf-8')):
-        cursor.close()
-        conn.close()
-        log_activity(user_id, "change_password_failed", "Incorrect current password provided", ip, ua)
-        return jsonify({"error": "Current password is incorrect"}), 401
-    
-    # Hash the new password
-    new_hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-    
-    # Update database
-    cursor.execute("UPDATE users SET password = %s, updated_at = NOW() WHERE user_id = %s", (new_hashed.decode('utf-8'), user_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-    log_activity(user_id, "change_password_success", "Password changed successfully", ip, ua)
-    return jsonify({"success": True, "message": "Password changed successfully"}), 200
+        return_db_connection(conn)
 
 @settings_bp.route('/deleteAccount', methods=['POST'])
 def deleteAccount():
@@ -139,16 +139,14 @@ def deleteAccount():
         # Clear session
         session.pop('user_id', None)
         
-        cursor.close()
-        conn.close()
-        
         return jsonify({"success": True, "message": "Account deleted successfully"}), 200
     except Exception as e:
         conn.rollback()
-        cursor.close()
-        conn.close()
         log_activity(user_id, "delete_account_failed", f"Error during deletion: {str(e)}", ip, ua)
         return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        return_db_connection(conn)
         
 @settings_bp.route('/updateEmail', methods=['POST'])
 def updateEmail():
@@ -178,20 +176,21 @@ def updateEmail():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT user_id FROM users WHERE email = %s AND user_id != %s", (new_email, user_id))
-    if cursor.fetchone():
+    try:
+        cursor.execute("SELECT user_id FROM users WHERE email = %s AND user_id != %s", (new_email, user_id))
+        if cursor.fetchone():
+            log_activity(user_id, "update_email_failed", f"Email already in use: {new_email}", ip, ua)
+            return jsonify({"error": "Email already in use"}), 400
+        
+        cursor.execute("UPDATE users SET email = %s, updated_at = NOW() WHERE user_id = %s", (new_email, user_id))
+        conn.commit()
+        
+        log_activity(user_id, "update_email_success", f"Email changed to {new_email}", ip, ua)
+        return jsonify({"success": True, "email": new_email}), 200
+    
+    finally:
         cursor.close()
-        conn.close()
-        log_activity(user_id, "update_email_failed", f"Email already in use: {new_email}", ip, ua)
-        return jsonify({"error": "Email already in use"}), 400
-    
-    cursor.execute("UPDATE users SET email = %s, updated_at = NOW() WHERE user_id = %s", (new_email, user_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-    log_activity(user_id, "update_email_success", f"Email changed to {new_email}", ip, ua)
-    return jsonify({"success": True, "email": new_email}), 200
+        return_db_connection(conn)
 
 @settings_bp.route('/changeUsername', methods=['POST'])
 def changeUsername():
@@ -214,24 +213,23 @@ def changeUsername():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT user_id FROM users WHERE username = %s AND user_id != %s", (new_username, user_id))
-    if cursor.fetchone():
-        cursor.close()
-        conn.close()
-        log_activity(user_id, "change_username_failed", f"Username already taken: {new_username}", ip, ua)
-        return jsonify({"error": "Username already taken"}), 400
-    
     try:
+        cursor.execute("SELECT user_id FROM users WHERE username = %s AND user_id != %s", (new_username, user_id))
+        if cursor.fetchone():
+            log_activity(user_id, "change_username_failed", f"Username already taken: {new_username}", ip, ua)
+            return jsonify({"error": "Username already taken"}), 400
+        
         cursor.execute("UPDATE users SET username = %s, updated_at = NOW() WHERE user_id = %s", (new_username, user_id))
         conn.commit()
-        cursor.close()
-        conn.close()
+        
         log_activity(user_id, "change_username_success", f"Username changed to {new_username}", ip, ua)
         return jsonify({"success": True, "username": new_username}), 200
     except Exception as e:
-        conn.close()
         log_activity(user_id, "change_username_failed", f"Database error: {str(e)}", ip, ua)
         return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        return_db_connection(conn)
 
 @settings_bp.route("/editAvatar", methods=["POST"])
 def editAvatar():
@@ -270,13 +268,16 @@ def editAvatar():
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET avatar = %s, updated_at = NOW() WHERE user_id = %s", (db_path, user_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
     
-    log_activity(user_id, "edit_avatar_success", f"Avatar uploaded: {db_path}", ip, ua)
-    return jsonify({"success": True, "avatar": db_path}), 200
+    try:
+        cursor.execute("UPDATE users SET avatar = %s, updated_at = NOW() WHERE user_id = %s", (db_path, user_id))
+        conn.commit()
+        
+        log_activity(user_id, "edit_avatar_success", f"Avatar uploaded: {db_path}", ip, ua)
+        return jsonify({"success": True, "avatar": db_path}), 200
+    finally:
+        cursor.close()
+        return_db_connection(conn)
 
 @settings_bp.route("/updateInfo", methods=["POST"])
 def updateInfo():
@@ -311,15 +312,15 @@ def updateInfo():
         
         cursor.execute("UPDATE users SET updated_at = NOW() WHERE user_id = %s", (user_id,))
         conn.commit()
-        cursor.close()
-        conn.close()
         
         log_activity(user_id, "update_info_success", f"Updated: {', '.join(updated_fields) if updated_fields else 'nothing'}", ip, ua)
         return jsonify({"success": True, "message": "Profile updated"}), 200
     except Exception as e:
-        conn.close()
         log_activity(user_id, "update_info_failed", f"Database error: {str(e)}", ip, ua)
         return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        return_db_connection(conn)
 
 @settings_bp.route("/updatePhoneNumber", methods=['POST'])
 def updatePhoneNumber():
@@ -365,11 +366,12 @@ def updatePhoneNumber():
             (formatted_phone, country_code, user_id)
         )
         conn.commit()
-        cursor.close()
-        conn.close()
+        
         log_activity(user_id, "update_phone_success", f"Phone updated to {formatted_phone} (country: {country_code})", ip, ua)
         return jsonify({"success": True, "message": "Phone number updated"}), 200
     except Exception as e:
-        conn.close()
         log_activity(user_id, "update_phone_failed", f"Database error: {str(e)}", ip, ua)
         return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        return_db_connection(conn)

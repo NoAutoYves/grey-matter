@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 import bcrypt
 import secrets
 import os
-from routes.db import get_db_connection
+from routes.db import get_db_connection, return_db_connection
 from email_validator import validate_email, EmailNotValidError
 from password_validator import PasswordValidator
 import smtplib
@@ -36,13 +36,15 @@ password_schema \
 def log_activity(user_id, action, details, ip_address, user_agent):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO activity_logs (user_id, action, details, ip_address, user_agent)
-        VALUES (%s, %s, %s, %s, %s)
-    """, (user_id, action, details, ip_address, user_agent))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    try:
+        cursor.execute("""
+            INSERT INTO activity_logs (user_id, action, details, ip_address, user_agent)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (user_id, action, details, ip_address, user_agent))
+        conn.commit()
+    finally:
+        cursor.close()
+        return_db_connection(conn)
 
 @auth_bp.route("/signup", methods=["POST"])
 @limiter.limit("3 per hour")
@@ -105,30 +107,31 @@ def signup():
     
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    try:
+        cursor.execute("SELECT user_id FROM users WHERE email = %s", (email,))
+        existing = cursor.fetchone()
 
-    cursor.execute("SELECT user_id FROM users WHERE email = %s", (email,))
-    existing = cursor.fetchone()
+        if existing:
+            log_activity(None, "signup_failed", f"Email already exists: {email}", ip, ua)
+            return jsonify({"error": "Email already exists"}), 400
+        
+        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    if existing:
+        cursor.execute("""
+            INSERT INTO users (email, first_name, last_name, password_hash, username)
+            VALUES (%s, %s, %s, %s, %s) RETURNING user_id
+        """, (email, first_name, last_name, hashed.decode('utf-8'), username))
+        
+        user_id = cursor.fetchone()[0]
+        conn.commit()
+
+        log_activity(user_id, "signup_success", f"User created with email {email}", ip, ua)
+        return jsonify({"message": "User created successfully", "user_id": user_id}), 201
+    
+    finally:
         cursor.close()
-        conn.close()
-        log_activity(None, "signup_failed", f"Email already exists: {email}", ip, ua)
-        return jsonify({"error": "Email already exists"}), 400
-    
-    hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
-    cursor.execute("""
-        INSERT INTO users (email, first_name, last_name, password_hash, username)
-        VALUES (%s, %s, %s, %s, %s) RETURNING user_id
-    """, (email, first_name, last_name, hashed.decode('utf-8'), username))
-    
-    user_id = cursor.fetchone()[0]
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    log_activity(user_id, "signup_success", f"User created with email {email}", ip, ua)
-    return jsonify({"message": "User created successfully", "user_id": user_id}), 201
+        return_db_connection(conn)
 
 @auth_bp.route("/login", methods=["POST"])
 @limiter.limit("5 per minute")
@@ -149,31 +152,33 @@ def login():
 
         conn = get_db_connection()
         cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT user_id, password_hash, email FROM users WHERE email = %s", (email,))
+            user = cursor.fetchone()
 
-        cursor.execute("SELECT user_id, password_hash, email FROM users WHERE email = %s", (email,))
-        user = cursor.fetchone()
-        cursor.close()
-        conn.close()
+            if not user:
+                log_activity(None, "login_failed", f"User not found: {email}", ip, ua)
+                return jsonify({"error": "Invalid email or password"}), 401
 
-        if not user:
-            log_activity(None, "login_failed", f"User not found: {email}", ip, ua)
-            return jsonify({"error": "Invalid email or password"}), 401
+            user_id, hashed_pw, email = user
 
-        user_id, hashed_pw, email = user
-
-        if bcrypt.checkpw(password.encode('utf-8'), hashed_pw.encode('utf-8')):
-            if remember:
-                session.permanent = True
-                session.permanent_session_lifetime = timedelta(days=30)
+            if bcrypt.checkpw(password.encode('utf-8'), hashed_pw.encode('utf-8')):
+                if remember:
+                    session.permanent = True
+                    session.permanent_session_lifetime = timedelta(days=30)
+                else:
+                    session.permanent = False
+                
+                session['user_id'] = user_id
+                log_activity(user_id, "login_success", f"User {email} logged in", ip, ua)
+                return jsonify({"message": "Login successful", "user_id": user_id, "email": email}), 200
             else:
-                session.permanent = False
-            
-            session['user_id'] = user_id
-            log_activity(user_id, "login_success", f"User {email} logged in", ip, ua)
-            return jsonify({"message": "Login successful", "user_id": user_id, "email": email}), 200
-        else:
-            log_activity(None, "login_failed", f"Invalid password for {email}", ip, ua)
-            return jsonify({"error": "Invalid email or password"}), 401
+                log_activity(None, "login_failed", f"Invalid password for {email}", ip, ua)
+                return jsonify({"error": "Invalid email or password"}), 401
+        finally:
+            cursor.close()
+            return_db_connection(conn)
         
     except Exception:
         import traceback
@@ -219,48 +224,45 @@ def forgot_password():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT user_id FROM users WHERE email = %s", (email,))
-    user = cursor.fetchone()
-    
-    if not user:
-        cursor.close()
-        conn.close()
-        log_activity(None, "forgot_password_request", f"Email not found: {email}", ip, ua)
-        return jsonify({"message": "If an account exists, a reset link will be sent"}), 200
-    
-    user_id = user[0]
-    
-    # Generate reset token
-    reset_token = secrets.token_urlsafe(32)
-    reset_token_expires = datetime.now() + timedelta(hours=1)
-    
-    cursor.execute("""
-        UPDATE users 
-        SET reset_token = %s, reset_token_expires = %s 
-        WHERE user_id = %s
-    """, (reset_token, reset_token_expires, user_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-    # Use HARDCODED frontend URL (no IPs)
-    reset_link = f"{FRONTEND_URL}/reset-password?token={reset_token}"
-    
-    log_activity(user_id, "forgot_password_request", f"Reset token generated for {email}", ip, ua)
-    
     try:
-        smtp_server = BREVO_SMTP_SERVER
-        smtp_port = BREVO_SMTP_PORT
-        smtp_username = BREVO_SMTP_USERNAME
-        smtp_password = BREVO_SMTP_PASSWORD
-        sender_email = SENDER_EMAIL
+        cursor.execute("SELECT user_id FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
         
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = email
-        msg['Subject'] = "Reset Your Grey Matter Password"
+        if not user:
+            log_activity(None, "forgot_password_request", f"Email not found: {email}", ip, ua)
+            return jsonify({"message": "If an account exists, a reset link will be sent"}), 200
         
-        body = f"""Hello,
+        user_id = user[0]
+        
+        # Generate reset token
+        reset_token = secrets.token_urlsafe(32)
+        reset_token_expires = datetime.now() + timedelta(hours=1)
+        
+        cursor.execute("""
+            UPDATE users 
+            SET reset_token = %s, reset_token_expires = %s 
+            WHERE user_id = %s
+        """, (reset_token, reset_token_expires, user_id))
+        conn.commit()
+        
+        # Use HARDCODED frontend URL (no IPs)
+        reset_link = f"{FRONTEND_URL}/reset-password?token={reset_token}"
+        
+        log_activity(user_id, "forgot_password_request", f"Reset token generated for {email}", ip, ua)
+        
+        try:
+            smtp_server = BREVO_SMTP_SERVER
+            smtp_port = BREVO_SMTP_PORT
+            smtp_username = BREVO_SMTP_USERNAME
+            smtp_password = BREVO_SMTP_PASSWORD
+            sender_email = SENDER_EMAIL
+            
+            msg = MIMEMultipart()
+            msg['From'] = sender_email
+            msg['To'] = email
+            msg['Subject'] = "Reset Your Grey Matter Password"
+            
+            body = f"""Hello,
 
 You requested to reset your password for your Grey Matter account.
 
@@ -272,21 +274,25 @@ If you did not request this, please ignore this email.
 
 Regards,
 Grey Matter Team"""
-        msg.attach(MIMEText(body, 'plain'))
+            msg.attach(MIMEText(body, 'plain'))
+            
+            server = smtplib.SMTP(smtp_server, smtp_port)
+            server.starttls()
+            server.login(smtp_username, smtp_password)
+            server.send_message(msg)
+            server.quit()
+            
+            log_activity(user_id, "reset_email_sent", f"Reset email sent to {email}", ip, ua)
+            
+        except Exception as e:
+            log_activity(user_id, "reset_email_failed", f"Failed to send email to {email}: {str(e)}", ip, ua)
+            print(f"Email error: {e}")
         
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_username, smtp_password)
-        server.send_message(msg)
-        server.quit()
-        
-        log_activity(user_id, "reset_email_sent", f"Reset email sent to {email}", ip, ua)
-        
-    except Exception as e:
-        log_activity(user_id, "reset_email_failed", f"Failed to send email to {email}: {str(e)}", ip, ua)
-        print(f"Email error: {e}")
+        return jsonify({"message": "If an account exists, a reset link will be sent"}), 200
     
-    return jsonify({"message": "If an account exists, a reset link will be sent"}), 200
+    finally:
+        cursor.close()
+        return_db_connection(conn)
 
 @auth_bp.route("/reset-password", methods=["POST"])
 @limiter.limit("5 per hour")
@@ -332,35 +338,36 @@ def reset_password():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("""
-        SELECT user_id FROM users 
-        WHERE reset_token = %s AND reset_token_expires > NOW()
-    """, (token,))
+    try:
+        cursor.execute("""
+            SELECT user_id FROM users 
+            WHERE reset_token = %s AND reset_token_expires > NOW()
+        """, (token,))
+        
+        user = cursor.fetchone()
+        
+        if not user:
+            log_activity(None, "reset_password_failed", "Invalid or expired token", ip, ua)
+            return jsonify({"error": "Invalid or expired reset token"}), 400
+        
+        user_id = user[0]
+        
+        hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+        
+        cursor.execute("""
+            UPDATE users 
+            SET password_hash = %s, reset_token = NULL, reset_token_expires = NULL
+            WHERE user_id = %s
+        """, (hashed.decode('utf-8'), user_id))
+        
+        conn.commit()
+        
+        log_activity(user_id, "reset_password_success", "Password reset successfully", ip, ua)
+        return jsonify({"message": "Password reset successfully"}), 200
     
-    user = cursor.fetchone()
-    
-    if not user:
+    finally:
         cursor.close()
-        conn.close()
-        log_activity(None, "reset_password_failed", "Invalid or expired token", ip, ua)
-        return jsonify({"error": "Invalid or expired reset token"}), 400
-    
-    user_id = user[0]
-    
-    hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-    
-    cursor.execute("""
-        UPDATE users 
-        SET password_hash = %s, reset_token = NULL, reset_token_expires = NULL
-        WHERE user_id = %s
-    """, (hashed.decode('utf-8'), user_id))
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-    log_activity(user_id, "reset_password_success", "Password reset successfully", ip, ua)
-    return jsonify({"message": "Password reset successfully"}), 200
+        return_db_connection(conn)
 
 @auth_bp.route("/check-session", methods=["GET"])
 def check_session():
@@ -377,10 +384,11 @@ def check_admin():
     user_id = session["user_id"]
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT is_admin FROM users WHERE user_id = %s", (user_id,))
-    result = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    
-    is_admin = result[0] if result else False
-    return jsonify({"is_admin": is_admin}), 200
+    try:
+        cursor.execute("SELECT is_admin FROM users WHERE user_id = %s", (user_id,))
+        result = cursor.fetchone()
+        is_admin = result[0] if result else False
+        return jsonify({"is_admin": is_admin}), 200
+    finally:
+        cursor.close()
+        return_db_connection(conn)
