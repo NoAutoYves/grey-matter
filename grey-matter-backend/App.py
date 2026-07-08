@@ -14,8 +14,16 @@ from routes.Exercise import exercise_bp
 from routes.Contact import contact_bp
 from routes.Admin import admin_bp
 from routes.Results import results_bp
+from routes.db_pool import close_all_connections
+import atexit
+import logging
+from psycopg2 import OperationalError
+import signal
 
 load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -39,6 +47,52 @@ app.config['WTF_CSRF_CHECK_DEFAULT'] = False
 limiter.init_app(app)
 csrf.init_app(app)
 
+# Request timeout - prevents hanging requests
+REQUEST_TIMEOUT_SECONDS = 30
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Request exceeded time limit")
+
+@app.before_request
+def set_timeout():
+    if not debug_mode:
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(REQUEST_TIMEOUT_SECONDS)
+
+@app.after_request
+def clear_timeout(response):
+    if not debug_mode:
+        signal.alarm(0)
+    return response
+
+@app.errorhandler(TimeoutError)
+def handle_timeout(e):
+    return jsonify({
+        "error": "Request timed out",
+        "degraded": True,
+        "message": "The request took too long. Please try again."
+    }), 504
+
+# Database failure fallback
+@app.errorhandler(OperationalError)
+def handle_db_failure(e):
+    logger.error(f"Database error: {e}")
+    return jsonify({
+        "error": "Service temporarily unavailable",
+        "degraded": True,
+        "message": "We're experiencing high traffic. Please try again later."
+    }), 503
+
+# Catch-all error handler - prevents app from crashing completely
+@app.errorhandler(Exception)
+def handle_any_error(e):
+    logger.error(f"Unhandled error: {e}")
+    return jsonify({
+        "error": "Something went wrong",
+        "degraded": True,
+        "message": "We've been notified. Please try again later."
+    }), 500
+
 @app.before_request
 def check_session_timeout():
     if request.endpoint in ['serve_uploads', 'static', 'get_csrf_token']:
@@ -54,7 +108,9 @@ def get_csrf_token():
 
 @app.errorhandler(429)
 def rate_limit_handler(e):
-    return jsonify({"error": "Too many requests. Please slow down and try again later."}), 429
+    return jsonify({
+        "error": "Too many requests. Please slow down and try again later."
+    }), 429
 
 @app.errorhandler(400)
 def csrf_error_handler(e):
@@ -83,5 +139,16 @@ def serve_uploads(filename):
     upload_folder = os.path.join(BASE_DIR, 'uploads')
     return send_from_directory(upload_folder, filename)
 
+atexit.register(close_all_connections)
+
+# Health check for monitoring
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    return jsonify({
+        "status": "healthy",
+        "degraded": False,
+        "timestamp": datetime.now().isoformat()
+    }), 200
+
 if __name__ == "__main__":
-    app.run(debug=False, port=5000, host='0.0.0.0')
+    app.run(debug=debug_mode, port=5000, host='0.0.0.0')
