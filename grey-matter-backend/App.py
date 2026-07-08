@@ -27,6 +27,9 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+# Allow URLs with and without trailing slashes
+app.url_map.strict_slashes = False
+
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 if not app.secret_key:
     raise ValueError("FLASK_SECRET_KEY environment variable is not set")
@@ -44,11 +47,11 @@ app.config['WTF_CSRF_TIME_LIMIT'] = 3600
 app.config['WTF_CSRF_SSL_STRICT'] = False
 app.config['WTF_CSRF_CHECK_DEFAULT'] = False
 
+REQUEST_TIMEOUT_SECONDS = 30
+LONG_PROCESS_TIMEOUT_SECONDS = 120
+
 limiter.init_app(app)
 csrf.init_app(app)
-
-# Request timeout - prevents hanging requests
-REQUEST_TIMEOUT_SECONDS = 30
 
 def timeout_handler(signum, frame):
     raise TimeoutError("Request exceeded time limit")
@@ -57,7 +60,10 @@ def timeout_handler(signum, frame):
 def set_timeout():
     if not debug_mode:
         signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(REQUEST_TIMEOUT_SECONDS)
+        if request.endpoint and 'contact' in request.endpoint:
+            signal.alarm(LONG_PROCESS_TIMEOUT_SECONDS)
+        else:
+            signal.alarm(REQUEST_TIMEOUT_SECONDS)
 
 @app.after_request
 def clear_timeout(response):
@@ -73,7 +79,6 @@ def handle_timeout(e):
         "message": "The request took too long. Please try again."
     }), 504
 
-# Database failure fallback
 @app.errorhandler(OperationalError)
 def handle_db_failure(e):
     logger.error(f"Database error: {e}")
@@ -83,7 +88,6 @@ def handle_db_failure(e):
         "message": "We're experiencing high traffic. Please try again later."
     }), 503
 
-# Catch-all error handler - prevents app from crashing completely
 @app.errorhandler(Exception)
 def handle_any_error(e):
     logger.error(f"Unhandled error: {e}")
@@ -141,7 +145,6 @@ def serve_uploads(filename):
 
 atexit.register(close_all_connections)
 
-# Health check for monitoring
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({

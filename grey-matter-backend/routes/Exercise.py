@@ -3,8 +3,30 @@ from routes.db import get_db_connection, return_db_connection
 import json
 from utils.sanitise import sanitize_text
 from routes.Extensions import limiter
+import signal
+from functools import wraps
 
 exercise_bp = Blueprint('exercise', __name__)
+
+processing_submissions = set()
+SUBMISSION_TIMEOUT = 45
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Submission timed out")
+
+def with_timeout(seconds):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(seconds)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+        return wrapper
+    return decorator
 
 def log_activity(user_id, action, details, ip_address, user_agent):
     conn = get_db_connection()
@@ -30,14 +52,12 @@ def get_exercise(subject, exercise_id):
     
     user_id = session['user_id']
     
-    # Sanitize subject parameter
     subject = sanitize_text(subject, max_length=50)
     
     conn = get_db_connection()
     cursor = conn.cursor()
     
     try:
-        # Get subject_id from subject name
         cursor.execute("SELECT subject_id FROM subjects WHERE LOWER(subject_name) = LOWER(%s)", (subject,))
         subject_result = cursor.fetchone()
         
@@ -45,7 +65,6 @@ def get_exercise(subject, exercise_id):
             log_activity(user_id, "get_exercise_failed", f"Subject not found: {subject}", ip, ua)
             return jsonify({"error": "Subject not found"}), 404
         
-        # Verify exercise exists and belongs to this subject
         cursor.execute("""
             SELECT exercise_id FROM exercises 
             WHERE exercise_id = %s AND subject_id = %s AND is_published = TRUE
@@ -56,7 +75,6 @@ def get_exercise(subject, exercise_id):
             log_activity(user_id, "get_exercise_failed", f"Exercise {exercise_id} not found for subject {subject}", ip, ua)
             return jsonify({"error": "Exercise not found"}), 404
         
-        # Get all questions for this exercise including image data
         cursor.execute("""
             SELECT question_text, option_a, option_b, option_c, option_d, correct_answer, 
                    encode(image_data, 'base64') as image_base64, image_mime_type
@@ -81,7 +99,6 @@ def get_exercise(subject, exercise_id):
                 "correct_answer": correct_answer
             }
             
-            # Add image as data URL if exists
             if image_base64 and image_mime_type:
                 question_obj["image_data"] = f"data:{image_mime_type};base64,{image_base64}"
             
@@ -115,7 +132,6 @@ def save_results():
     breakdown = data.get('breakdown', [])
     answers = data.get('answers', {})
     
-    # SANITIZE NOTES - this is user input
     if notes and notes != "No notes taken.":
         notes = sanitize_text(notes, max_length=5000)
     
@@ -130,7 +146,6 @@ def save_results():
             "breakdown": breakdown
         })
         
-        # Check if record exists
         cursor.execute("""
             SELECT progress_id, retake_count FROM user_progress 
             WHERE user_id = %s AND exercise_id = %s
@@ -139,7 +154,6 @@ def save_results():
         existing = cursor.fetchone()
         
         if existing:
-            # Update existing record
             progress_id = existing[0]
             retake_count = existing[1] + 1
             
@@ -153,7 +167,6 @@ def save_results():
             
             log_activity(user_id, "exercise_retake", f"Retake #{retake_count} of exercise {exercise_id} - Score: {score}/{total_questions}", ip, ua)
         else:
-            # Insert new record
             cursor.execute("""
                 INSERT INTO user_progress (user_id, exercise_id, score, total_questions, 
                                            percentage, time_taken_seconds, answers, retake_count)
@@ -163,9 +176,7 @@ def save_results():
             
             log_activity(user_id, "exercise_completed", f"Completed exercise {exercise_id} - Score: {score}/{total_questions}", ip, ua)
         
-        # Save notes (already sanitized)
         if notes and notes != "No notes taken.":
-            # Check if note exists
             cursor.execute("""
                 SELECT note_id FROM user_notes 
                 WHERE user_id = %s AND exercise_id = %s
@@ -214,7 +225,6 @@ def get_exercise_results(exercise_id):
     cursor = conn.cursor()
     
     try:
-        # Get progress
         cursor.execute("""
             SELECT score, total_questions, percentage, time_taken_seconds, answers, 
                    completed_at, retake_count
@@ -230,7 +240,6 @@ def get_exercise_results(exercise_id):
         
         score, total_questions, percentage, time_taken_seconds, answers, completed_at, retake_count = result
         
-        # Get notes
         cursor.execute("""
             SELECT note_text FROM user_notes 
             WHERE user_id = %s AND exercise_id = %s
@@ -238,7 +247,6 @@ def get_exercise_results(exercise_id):
         note_result = cursor.fetchone()
         notes = note_result[0] if note_result else "No notes taken."
         
-        # Parse answers JSON
         breakdown = []
         if answers:
             answers_data = json.loads(answers) if isinstance(answers, str) else answers
@@ -261,13 +269,8 @@ def get_exercise_results(exercise_id):
         cursor.close()
         return_db_connection(conn)
 
-# ============================================================
-# BATCHED ENDPOINTS
-# ============================================================
-
 @exercise_bp.route("/exercise/batch-data/<int:exercise_id>", methods=["GET"])
 def get_exercise_batch_data(exercise_id):
-    """Get exercise, questions, and user progress in ONE request"""
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
     
@@ -281,7 +284,6 @@ def get_exercise_batch_data(exercise_id):
     cursor = conn.cursor()
     
     try:
-        # Get exercise details
         cursor.execute("""
             SELECT exercise_id, exercise_name, exercise_title, total_questions, passing_score
             FROM exercises 
@@ -292,7 +294,6 @@ def get_exercise_batch_data(exercise_id):
         if not exercise:
             return jsonify({"error": "Exercise not found"}), 404
         
-        # Get all questions with images
         cursor.execute("""
             SELECT question_id, question_text, option_a, option_b, option_c, option_d, 
                    correct_answer, marks, display_order,
@@ -304,7 +305,6 @@ def get_exercise_batch_data(exercise_id):
         
         questions_data = cursor.fetchall()
         
-        # Get user progress if exists
         cursor.execute("""
             SELECT score, total_questions, percentage, time_taken_seconds, answers, 
                    completed_at, retake_count
@@ -314,7 +314,6 @@ def get_exercise_batch_data(exercise_id):
         
         progress = cursor.fetchone()
         
-        # Format questions
         questions = []
         for q in questions_data:
             (q_id, q_text, opt_a, opt_b, opt_c, opt_d, correct, marks, 
@@ -334,7 +333,6 @@ def get_exercise_batch_data(exercise_id):
             
             questions.append(question_obj)
         
-        # Format progress
         progress_data = None
         if progress:
             score, total_q, percentage, time_taken, answers, completed_at, retake_count = progress
@@ -368,7 +366,6 @@ def get_exercise_batch_data(exercise_id):
 @exercise_bp.route("/exercise/batch-submit", methods=["POST"])
 @limiter.limit("5 per minute")
 def batch_submit_exercise():
-    """Submit complete exercise with all answers at once"""
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
     
@@ -379,136 +376,157 @@ def batch_submit_exercise():
     user_id = session['user_id']
     data = request.get_json()
     
-    # Validate required fields
     required = ['exercise_id', 'answers', 'time_taken_seconds']
     if not all(k in data for k in required):
         return jsonify({"error": "Missing required fields"}), 400
     
     exercise_id = data['exercise_id']
-    answers = data['answers']  # List of {question_id, selected_option}
+    answers = data['answers']
     time_taken_seconds = data.get('time_taken_seconds', 0)
     notes = data.get('notes')
     breakdown = data.get('breakdown', [])
     
-    # Sanitize notes
-    if notes and notes != "No notes taken.":
-        notes = sanitize_text(notes, max_length=5000)
+    submission_key = f"{user_id}_{exercise_id}"
     
-    total_questions = len(answers)
-    correct_count = 0
+    if submission_key in processing_submissions:
+        log_activity(user_id, "duplicate_submission_blocked", f"Duplicate submission for exercise {exercise_id}", ip, ua)
+        return jsonify({
+            "error": "Your submission is already being processed",
+            "degraded": True,
+            "message": "Please wait a moment and try again"
+        }), 409
     
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    processing_submissions.add(submission_key)
     
     try:
-        # Get correct answers for all questions at once
-        question_ids = [a['question_id'] for a in answers]
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(SUBMISSION_TIMEOUT)
         
-        # Use ANY for PostgreSQL array
-        cursor.execute("""
-            SELECT question_id, correct_answer 
-            FROM questions 
-            WHERE question_id = ANY(%s)
-        """, (question_ids,))
-        
-        correct_answers = {row[0]: row[1] for row in cursor.fetchall()}
-        
-        # Calculate score
-        for answer in answers:
-            q_id = answer['question_id']
-            selected = answer.get('selected_option', '')
-            if q_id in correct_answers and selected == correct_answers[q_id]:
-                correct_count += 1
-        
-        score = correct_count
-        percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
-        
-        answers_json = json.dumps({
-            "answers": {a['question_id']: a.get('selected_option', '') for a in answers},
-            "breakdown": breakdown
-        })
-        
-        # Check if user already completed this exercise
-        cursor.execute("""
-            SELECT progress_id, retake_count FROM user_progress 
-            WHERE user_id = %s AND exercise_id = %s
-        """, (user_id, exercise_id))
-        
-        existing = cursor.fetchone()
-        
-        if existing:
-            progress_id = existing[0]
-            retake_count = existing[1] + 1
-            
-            cursor.execute("""
-                UPDATE user_progress 
-                SET score = %s, total_questions = %s, percentage = %s, 
-                    time_taken_seconds = %s, answers = %s, completed_at = NOW(), 
-                    retake_count = %s
-                WHERE progress_id = %s
-            """, (score, total_questions, percentage, time_taken_seconds, 
-                  answers_json, retake_count, progress_id))
-            
-            log_activity(user_id, "exercise_retake_batch", 
-                        f"Retake #{retake_count} of exercise {exercise_id} - Score: {score}/{total_questions}", ip, ua)
-        else:
-            cursor.execute("""
-                INSERT INTO user_progress (user_id, exercise_id, score, total_questions, 
-                                           percentage, time_taken_seconds, answers, retake_count)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, 1)
-                RETURNING progress_id
-            """, (user_id, exercise_id, score, total_questions, percentage, 
-                  time_taken_seconds, answers_json))
-            
-            progress_id = cursor.fetchone()[0]
-            
-            log_activity(user_id, "exercise_completed_batch", 
-                        f"Completed exercise {exercise_id} - Score: {score}/{total_questions}", ip, ua)
-        
-        # Save notes if provided
         if notes and notes != "No notes taken.":
+            notes = sanitize_text(notes, max_length=5000)
+        
+        total_questions = len(answers)
+        correct_count = 0
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        try:
+            question_ids = [a['question_id'] for a in answers]
+            
             cursor.execute("""
-                SELECT note_id FROM user_notes 
+                SELECT question_id, correct_answer 
+                FROM questions 
+                WHERE question_id = ANY(%s)
+            """, (question_ids,))
+            
+            correct_answers = {row[0]: row[1] for row in cursor.fetchall()}
+            
+            for answer in answers:
+                q_id = answer['question_id']
+                selected = answer.get('selected_option', '')
+                if q_id in correct_answers and selected == correct_answers[q_id]:
+                    correct_count += 1
+            
+            score = correct_count
+            percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
+            
+            answers_json = json.dumps({
+                "answers": {a['question_id']: a.get('selected_option', '') for a in answers},
+                "breakdown": breakdown
+            })
+            
+            cursor.execute("""
+                SELECT progress_id, retake_count FROM user_progress 
                 WHERE user_id = %s AND exercise_id = %s
             """, (user_id, exercise_id))
             
-            note_exists = cursor.fetchone()
+            existing = cursor.fetchone()
             
-            if note_exists:
+            if existing:
+                progress_id = existing[0]
+                retake_count = existing[1] + 1
+                
                 cursor.execute("""
-                    UPDATE user_notes 
-                    SET note_text = %s, created_at = NOW()
-                    WHERE user_id = %s AND exercise_id = %s
-                """, (notes, user_id, exercise_id))
+                    UPDATE user_progress 
+                    SET score = %s, total_questions = %s, percentage = %s, 
+                        time_taken_seconds = %s, answers = %s, completed_at = NOW(), 
+                        retake_count = %s
+                    WHERE progress_id = %s
+                """, (score, total_questions, percentage, time_taken_seconds, 
+                      answers_json, retake_count, progress_id))
+                
+                log_activity(user_id, "exercise_retake_batch", 
+                            f"Retake #{retake_count} of exercise {exercise_id} - Score: {score}/{total_questions}", ip, ua)
             else:
                 cursor.execute("""
-                    INSERT INTO user_notes (user_id, exercise_id, note_text, created_at)
-                    VALUES (%s, %s, %s, NOW())
-                """, (user_id, exercise_id, notes))
+                    INSERT INTO user_progress (user_id, exercise_id, score, total_questions, 
+                                               percentage, time_taken_seconds, answers, retake_count)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, 1)
+                    RETURNING progress_id
+                """, (user_id, exercise_id, score, total_questions, percentage, 
+                      time_taken_seconds, answers_json))
+                
+                progress_id = cursor.fetchone()[0]
+                
+                log_activity(user_id, "exercise_completed_batch", 
+                            f"Completed exercise {exercise_id} - Score: {score}/{total_questions}", ip, ua)
             
-            log_activity(user_id, "notes_saved_batch", f"Saved notes for exercise {exercise_id}", ip, ua)
-        
-        conn.commit()
-        
-        return jsonify({
-            "success": True,
-            "progress_id": progress_id,
-            "score": score,
-            "total_questions": total_questions,
-            "percentage": round(percentage, 2)
-        }), 200
-        
-    except Exception as e:
-        conn.rollback()
-        log_activity(user_id, "batch_submit_failed", f"Error: {str(e)}", ip, ua)
-        return jsonify({"error": str(e)}), 500
+            if notes and notes != "No notes taken.":
+                cursor.execute("""
+                    SELECT note_id FROM user_notes 
+                    WHERE user_id = %s AND exercise_id = %s
+                """, (user_id, exercise_id))
+                
+                note_exists = cursor.fetchone()
+                
+                if note_exists:
+                    cursor.execute("""
+                        UPDATE user_notes 
+                        SET note_text = %s, created_at = NOW()
+                        WHERE user_id = %s AND exercise_id = %s
+                    """, (notes, user_id, exercise_id))
+                else:
+                    cursor.execute("""
+                        INSERT INTO user_notes (user_id, exercise_id, note_text, created_at)
+                        VALUES (%s, %s, %s, NOW())
+                    """, (user_id, exercise_id, notes))
+                
+                log_activity(user_id, "notes_saved_batch", f"Saved notes for exercise {exercise_id}", ip, ua)
+            
+            conn.commit()
+            
+            signal.alarm(0)
+            
+            return jsonify({
+                "success": True,
+                "progress_id": progress_id,
+                "score": score,
+                "total_questions": total_questions,
+                "percentage": round(percentage, 2)
+            }), 200
+            
+        except TimeoutError:
+            log_activity(user_id, "batch_submit_timeout", f"Submission timed out for exercise {exercise_id}", ip, ua)
+            return jsonify({
+                "error": "Submission took too long",
+                "degraded": True,
+                "message": "Please try again"
+            }), 408
+        except Exception as e:
+            conn.rollback()
+            log_activity(user_id, "batch_submit_failed", f"Error: {str(e)}", ip, ua)
+            return jsonify({"error": str(e)}), 500
+        finally:
+            signal.alarm(0)
+            cursor.close()
+            return_db_connection(conn)
+    
     finally:
-        cursor.close()
-        return_db_connection(conn)
+        processing_submissions.discard(submission_key)
 
 @exercise_bp.route("/exercise/batch-results", methods=["POST"])
 def batch_get_results():
-    """Get results for multiple exercises in ONE request"""
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
     
@@ -527,7 +545,6 @@ def batch_get_results():
     cursor = conn.cursor()
     
     try:
-        # Get progress for all exercises
         cursor.execute("""
             SELECT exercise_id, score, total_questions, percentage, time_taken_seconds, 
                    answers, completed_at, retake_count
@@ -551,7 +568,6 @@ def batch_get_results():
                 "retake_count": retake_count
             }
         
-        # Return even for exercises with no results (null values)
         final_results = {}
         for ex_id in exercise_ids:
             final_results[ex_id] = results_dict.get(ex_id, None)

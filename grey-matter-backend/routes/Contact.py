@@ -5,6 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from routes.db import get_db_connection, return_db_connection
 from utils.sanitise import sanitize_text, sanitize_email
 import os
+import threading
 
 contact_bp = Blueprint('contact', __name__)
 
@@ -27,7 +28,6 @@ def log_activity(user_id, action, details, ip_address, user_agent):
         cursor.close()
         return_db_connection(conn)
 
-# Email queue fallback when Brevo fails
 def queue_email_for_retry(to_email, subject, body, retry_count=0):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -40,6 +40,27 @@ def queue_email_for_retry(to_email, subject, body, retry_count=0):
     finally:
         cursor.close()
         return_db_connection(conn)
+
+def send_email_background(to_email, subject, body, name, user_id, ip, ua):
+    """Send email in background thread"""
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = SENDER_EMAIL
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        msg['Reply-To'] = to_email
+        msg.attach(MIMEText(body, 'plain'))
+        
+        server = smtplib.SMTP(BREVO_SMTP_SERVER, BREVO_SMTP_PORT, timeout=10)
+        server.starttls()
+        server.login(BREVO_SMTP_USERNAME, BREVO_SMTP_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+        
+        log_activity(user_id, "contact_success", f"Background email sent to {to_email}", ip, ua)
+    except Exception as e:
+        log_activity(user_id, "contact_background_failed", f"Background email failed: {str(e)}", ip, ua)
+        queue_email_for_retry(to_email, subject, body)
 
 @contact_bp.route("/contact", methods=["POST"])
 def contact():
@@ -70,53 +91,22 @@ def contact():
         log_activity(user_id, "contact_failed", "Brevo credentials not configured", ip, ua)
         return jsonify({"error": "Email service not configured"}), 500
     
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = SENDER_EMAIL
-        msg['To'] = SENDER_EMAIL
-        msg['Subject'] = f"Contact Form: {name}"
-        msg['Reply-To'] = email
-        
-        body = f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
-        msg.attach(MIMEText(body, 'plain'))
-        
-        server = smtplib.SMTP(BREVO_SMTP_SERVER, BREVO_SMTP_PORT, timeout=10)
-        server.starttls()
-        server.login(BREVO_SMTP_USERNAME, BREVO_SMTP_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        
-        log_activity(user_id, "contact_success", f"Contact form submitted by {name} ({email})", ip, ua)
-        return jsonify({"success": True, "message": "Email sent successfully"}), 200
-        
-    except smtplib.SMTPAuthenticationError as e:
-        log_activity(user_id, "contact_failed", f"SMTP Authentication error: {str(e)}", ip, ua)
-        # Queue email for retry instead of failing
-        queue_email_for_retry(SENDER_EMAIL, f"Contact Form: {name} (QUEUED)", body)
-        return jsonify({
-            "success": True,
-            "degraded": True,
-            "message": "Your message was received but email delivery is delayed. We'll respond shortly."
-        }), 200
-        
-    except smtplib.SMTPException as e:
-        log_activity(user_id, "contact_failed", f"SMTP error: {str(e)}", ip, ua)
-        queue_email_for_retry(SENDER_EMAIL, f"Contact Form: {name} (QUEUED)", body)
-        return jsonify({
-            "success": True,
-            "degraded": True,
-            "message": "Your message was received but email delivery is delayed. We'll respond shortly."
-        }), 200
-        
-    except Exception as e:
-        log_activity(user_id, "contact_failed", f"Email error: {str(e)}", ip, ua)
-        print(f"Email error: {e}")
-        queue_email_for_retry(SENDER_EMAIL, f"Contact Form: {name} (QUEUED)", body)
-        return jsonify({
-            "success": True,
-            "degraded": True,
-            "message": "Your message was received but email delivery is delayed. We'll respond shortly."
-        }), 200
+    body = f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
+    subject = f"Contact Form: {name}"
+    
+    # Send email in background thread
+    thread = threading.Thread(
+        target=send_email_background,
+        args=(SENDER_EMAIL, subject, body, name, user_id, ip, ua)
+    )
+    thread.daemon = True
+    thread.start()
+    
+    log_activity(user_id, "contact_submitted", f"Contact form queued by {name} ({email})", ip, ua)
+    return jsonify({
+        "success": True,
+        "message": "Your message has been received. We'll get back to you shortly."
+    }), 200
 
 @contact_bp.route("/feedback", methods=["POST"])
 def submit_feedback():

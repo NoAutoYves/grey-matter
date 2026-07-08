@@ -15,13 +15,10 @@ limiter = Limiter(
     strategy="fixed-window",
 )
 
-# Bypass rate limiting in development or for specific conditions
 @limiter.request_filter
 def bypass_rate_limits():
-    # Bypass in development mode
     if os.environ.get("FLASK_DEBUG", "False").lower() == "true":
         return True
-    # Bypass for health check endpoint
     from flask import request
     if request and request.path == '/api/health':
         return True
