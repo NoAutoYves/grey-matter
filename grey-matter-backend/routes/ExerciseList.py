@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, session, request
 from routes.db import get_db_connection
+from routes.Extensions import limiter
 
 exercise_list_bp = Blueprint("exercise_list", __name__)
 
@@ -300,4 +301,140 @@ def exercises_by_topic(subject, topic_id):
         "subject_name": subject.capitalize(),
         "topic_name": topic_name,
         "exercises": exercises
+    }), 200
+
+# ============================================================
+# BATCH ENDPOINTS
+# ============================================================
+
+@exercise_list_bp.route("/exercises/batch/progress", methods=["POST"])
+@limiter.limit("30 per minute")
+def batch_get_exercise_progress():
+    """Get completion status for multiple exercises in one request"""
+    ip = request.remote_addr
+    ua = request.headers.get('User-Agent', '')
+    
+    if "user_id" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    
+    user_id = session["user_id"]
+    data = request.get_json()
+    
+    exercise_ids = data.get('exercise_ids', [])
+    
+    if not exercise_ids:
+        return jsonify({"error": "No exercise IDs provided"}), 400
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get all progress for these exercises in one query
+    cursor.execute("""
+        SELECT exercise_id, score, total_questions, percentage, completed_at, retake_count
+        FROM user_progress 
+        WHERE user_id = %s AND exercise_id = ANY(%s)
+    """, (user_id, exercise_ids))
+    
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    progress_dict = {}
+    for r in results:
+        exercise_id, score, total_q, percentage, completed_at, retake_count = r
+        progress_dict[exercise_id] = {
+            "score": score,
+            "total_questions": total_q,
+            "percentage": percentage,
+            "completed_at": completed_at.isoformat() if completed_at else None,
+            "retake_count": retake_count,
+            "completed": True
+        }
+    
+    # Include exercises with no progress (not completed)
+    final_results = {}
+    for ex_id in exercise_ids:
+        if ex_id in progress_dict:
+            final_results[ex_id] = progress_dict[ex_id]
+        else:
+            final_results[ex_id] = {
+                "completed": False,
+                "score": None,
+                "total_questions": None,
+                "percentage": None,
+                "completed_at": None,
+                "retake_count": 0
+            }
+    
+    log_activity(user_id, "batch_progress_fetched", f"Fetched progress for {len(exercise_ids)} exercises", ip, ua)
+    
+    return jsonify({
+        "progress": final_results
+    }), 200
+
+@exercise_list_bp.route("/exercises/batch/subject-stats", methods=["GET"])
+def batch_subject_stats():
+    """Get all subjects with exercise counts and completion stats in one request"""
+    ip = request.remote_addr
+    ua = request.headers.get('User-Agent', '')
+    
+    if "user_id" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    
+    user_id = session["user_id"]
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get all subjects with exercise counts
+    cursor.execute("""
+        SELECT s.subject_id, s.subject_name, s.subject_code, s.icon,
+               COUNT(e.exercise_id) as total_exercises
+        FROM subjects s
+        LEFT JOIN exercises e ON s.subject_id = e.subject_id AND e.is_published = TRUE
+        WHERE s.is_active = TRUE
+        GROUP BY s.subject_id, s.subject_name, s.subject_code, s.icon
+        ORDER BY s.display_order, s.subject_name
+    """)
+    
+    subjects_data = cursor.fetchall()
+    
+    # Get user progress across all subjects
+    cursor.execute("""
+        SELECT e.subject_id, COUNT(up.progress_id) as completed_count
+        FROM user_progress up
+        JOIN exercises e ON up.exercise_id = e.exercise_id
+        WHERE up.user_id = %s AND e.is_published = TRUE
+        GROUP BY e.subject_id
+    """, (user_id,))
+    
+    progress_data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    # Build progress map
+    progress_map = {}
+    for p in progress_data:
+        progress_map[p[0]] = p[1]
+    
+    # Build response
+    subjects = []
+    for s in subjects_data:
+        subject_id, subject_name, subject_code, icon, total_exercises = s
+        completed_count = progress_map.get(subject_id, 0)
+        
+        subjects.append({
+            "subject_id": subject_id,
+            "subject_name": subject_name,
+            "subject_code": subject_code,
+            "icon": icon,
+            "total_exercises": total_exercises,
+            "completed_exercises": completed_count,
+            "progress_percentage": round((completed_count / total_exercises * 100), 1) if total_exercises > 0 else 0
+        })
+    
+    log_activity(user_id, "batch_subject_stats", "Fetched subject stats", ip, ua)
+    
+    return jsonify({
+        "subjects": subjects
     }), 200

@@ -4,7 +4,7 @@ import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { apiRequest } from "../utils/api";
+import { api } from "../utils/api";
 
 function ViewResults() {
   const location = useLocation();
@@ -27,7 +27,7 @@ function ViewResults() {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const response = await apiRequest(`/api/results/${exerciseId}`);
+        const response = await api.get(`/api/exercise/results/${exerciseId}`);
         const data = await response.json();
         
         if (response.ok) {
@@ -80,8 +80,8 @@ function ViewResults() {
       <FuncHeader />
       
       <section className="results-container">
-        <h2 className="results-title">Exercise Completed</h2>
-        <p className="results-subtitle">Here’s how you did:</p>
+        <h2 className="results-title">Exercise Results</h2>
+        <p className="results-subtitle">Here's how you did:</p>
 
         <div className="results-summary">
           <div className="summary-box">

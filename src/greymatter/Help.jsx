@@ -51,11 +51,11 @@ function Help() {
       <FuncHeader />
 
       {/* AD 1 - LEADERBOARD (below header, above profile container) */}
-      <div className="sponsor-container-profile sponsor-top">
+      {/* <div className="sponsor-container-profile sponsor-top">
         <div className="sponsor-placeholder">
           Advertisement (Leaderboard - 728x90)
         </div>
-      </div>
+      </div> */}
       
       <div className="info-container policy-container">
         <h1>Help & Frequently Asked Questions (FAQ)</h1>
@@ -81,11 +81,11 @@ function Help() {
       </div>
 
       {/* AD 2 - BILLBOARD (after profile container, before footer) */}
-      <div className="sponsor-container-profile sponsor-billboard">
+      {/* <div className="sponsor-container-profile sponsor-billboard">
         <div className="sponsor-placeholder">
           Advertisement (Large Rectangle - 336x280)
         </div>
-      </div>
+      </div> */}
 
       <FuncFooter />
     </div>

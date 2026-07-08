@@ -35,9 +35,11 @@ function LandingPage(){
         <div className="index-page">
 
         {/* AD 1 - BILLBOARD (970x250) - ABOVE NAV (PREMIUM) */}
-        <div className="sponsor-container-list sponsor-top">
-            <AdUnit adSlot="5743773116" />
-        </div>
+        {/* <div className="sponsor-container-landing sponsor-top">
+            <div className="sponsor-placeholder">
+                Advertisement (Billboard - 970x250)
+            </div>
+        </div> */}
 
         <nav className="landing-nav">
             <Link to="/login"><img src={loginIcon} alt="Login" className="nav-img"/>LOGIN</Link>
@@ -53,20 +55,20 @@ function LandingPage(){
         <LandingSubjects/>
 
         {/* AD 2 - LARGE RECTANGLE (336x280) - BETWEEN SUBJECTS AND SOCIAL MEDIA */}
-        <div className="sponsor-container-landing sponsor-billboard">
+        {/* <div className="sponsor-container-landing sponsor-billboard">
             <div className="sponsor-placeholder">
                 Advertisement (Large Rectangle - 336x280)
             </div>
-        </div>
+        </div> */}
 
         <SocialMedia/>
 
         {/* AD 3 - LEADERBOARD (728x90) - BEFORE FOOTER LINKS */}
-        <div className="sponsor-container-landing sponsor-footer">
+        {/* <div className="sponsor-container-landing sponsor-footer">
             <div className="sponsor-placeholder">
                 Advertisement (Leaderboard - 728x90)
             </div>
-        </div>
+        </div> */}
 
         <footer>
             <div className="footer-links">

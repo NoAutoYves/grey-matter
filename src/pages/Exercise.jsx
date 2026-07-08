@@ -4,7 +4,7 @@ import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { apiRequest } from "../utils/api";
+import { api } from "../utils/api";  // <-- CHANGED: import api instead of apiRequest
 import MathRenderer from "../components/functional-comps/MathRenderer";
 
 function Exercise() {
@@ -66,7 +66,7 @@ function Exercise() {
     const handleBeforeUnload = (e) => {
       if (Object.keys(answered).length > 0 && !dataLoaded) {
         e.preventDefault();
-        e.returnValue = "Your quiz progress will be lost. Are you sure you want to leave?";
+        e.returnValue = "Your exercise progress will be lost. Are you sure you want to leave?";
         return e.returnValue;
       }
     };
@@ -99,21 +99,43 @@ function Exercise() {
     return `${minutes}:${seconds}`;
   };
 
-  // Fetch exercise data - UPDATED to use apiRequest
+  // ============================================================
+  // UPDATED: Fetch exercise data using BATCH endpoint
+  // ============================================================
   useEffect(() => {
     const fetchExercise = async () => {
-      const response = await apiRequest(`/api/exercise/${subject}/${exerciseId}`, {
-        credentials: 'include'
-      });
-      const data = await response.json();
-      setExerciseData(data);
-      
-      // Load saved progress after data is loaded
-      loadProgress();
-      setDataLoaded(true);
+      try {
+        // Use batch endpoint - gets exercise + questions in ONE request
+        const response = await api.batch.getExerciseData(parseInt(exerciseId));
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Transform questions to match expected format
+          const formattedQuestions = data.questions.map(q => ({
+            question_text: q.question_text,
+            options: q.options,
+            correct_answer: q.correct_answer,
+            image_url: q.image_data || null,  // image_data is already a data URL
+            question_id: q.question_id
+          }));
+          
+          setExerciseData(formattedQuestions);
+          
+          // Load saved progress after data is loaded
+          loadProgress();
+          setDataLoaded(true);
+        } else {
+          console.error("Failed to load exercise:", data.error);
+        }
+      } catch (error) {
+        console.error("Error fetching exercise:", error);
+      }
     };
-    fetchExercise();
-  }, [subject, exerciseId]);
+    
+    if (exerciseId) {
+      fetchExercise();
+    }
+  }, [exerciseId]);
 
   const handleAnswer = (selectedLetter, correctLetter) => {
     if (answered[currentQuestion]) return;
@@ -170,28 +192,40 @@ function Exercise() {
             answersObj[i] = newAnswered[i];
           }
           
-          // Save results - UPDATED to use apiRequest
-          const saveToDatabase = async () => {
+          // Format answers for batch submission
+          const formattedAnswers = Object.entries(newAnswered).map(([index, letter]) => ({
+            question_id: exerciseData[parseInt(index)].question_id || parseInt(index) + 1,
+            selected_option: letter
+          }));
+          
+          // ============================================================
+          // UPDATED: Submit using BATCH endpoint
+          // ============================================================
+          const submitExercise = async () => {
             try {
-              const response = await apiRequest(`/api/exercise/save-results`, {
-                method: "POST",
-                body: JSON.stringify({
-                  exercise_id: exerciseId,
-                  score: finalScore,
-                  total_questions: totalQuestions,
-                  time_taken_seconds: timeTaken,
-                  notes: notes,
-                  breakdown: breakdown,
-                  answers: answersObj
-                })
-              });
-              if (!response.ok) console.error("Failed to save results");
+              const response = await api.batch.submitExercise(
+                parseInt(exerciseId),
+                formattedAnswers,
+                timeTaken,
+                notes,
+                breakdown
+              );
+              
+              const data = await response.json();
+              
+              if (response.ok) {
+                console.log("Exercise submitted successfully:", data);
+              } else {
+                console.error("Failed to submit exercise:", data.error);
+              }
             } catch (error) {
-              console.error("Error saving results:", error);
+              console.error("Error submitting exercise:", error);
             }
           };
-          saveToDatabase();
           
+          submitExercise();
+          
+          // Store results in localStorage for results page
           localStorage.setItem("finalScore", finalScore);
           localStorage.setItem("totalQuestions", totalQuestions);
           localStorage.setItem("timeTaken", timeTaken);

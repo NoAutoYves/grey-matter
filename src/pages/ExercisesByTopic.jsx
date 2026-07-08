@@ -78,11 +78,11 @@ function ExercisesByTopic() {
     <div className={`quiz-list-page ${subject}`}>
       <FuncHeader />
       
-      <div className="sponsor-container-list sponsor-top">
+      {/* <div className="sponsor-container-list sponsor-top">
         <div className="sponsor-placeholder">
           Advertisement
         </div>
-      </div>
+      </div> */}
       
       <section className="quiz-list-container">
         <button className="back-button" onClick={() => navigate(`/${subject}`)}>
@@ -145,11 +145,11 @@ function ExercisesByTopic() {
 
       <SocialMedia />
       
-      <div className="sponsor-container-list sponsor-billboard">
+      {/* <div className="sponsor-container-list sponsor-billboard">
         <div className="sponsor-placeholder">
           Advertisement
         </div>
-      </div>
+      </div> */}
       
       <FuncFooter />
     </div>

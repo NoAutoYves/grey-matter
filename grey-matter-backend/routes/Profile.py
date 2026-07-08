@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, session, request
 from routes.db import get_db_connection
+from routes.Extensions import limiter
 import os
 from utils.sanitise import sanitize_text, sanitize_username, sanitize_bio
 
@@ -254,3 +255,154 @@ def update_avatar():
     log_activity(user_id, "avatar_update_success", f"Uploaded avatar: {db_path}", ip, ua)
     
     return jsonify({"success": True, "avatar": db_path}), 200
+
+# ============================================================
+# BATCH ENDPOINTS
+# ============================================================
+
+@profile_bp.route("/profile/batch-stats", methods=["GET"])
+@limiter.limit("30 per minute")
+def batch_profile_stats():
+    """Get profile, stats, notes, and activities in one request"""
+    ip = request.remote_addr
+    ua = request.headers.get('User-Agent', '')
+    
+    if 'user_id' not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    
+    user_id = session['user_id']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get user data
+    cursor.execute("""
+        SELECT first_name, last_name, username, bio, avatar, phone, country, is_admin
+        FROM users WHERE user_id = %s
+    """, (user_id,))
+    
+    user = cursor.fetchone()
+    
+    if not user:
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "User not found"}), 404
+    
+    first_name, last_name, username, bio, avatar, phone, country, is_admin = user
+    
+    # Get stats
+    cursor.execute("""
+        SELECT COUNT(*) as total_exercises, 
+               COALESCE(AVG(percentage), 0) as avg_score,
+               COALESCE(AVG(time_taken_seconds), 0) as avg_time
+        FROM user_progress WHERE user_id = %s
+    """, (user_id,))
+    
+    stats = cursor.fetchone()
+    total_exercises = stats[0] or 0
+    average_score = round(stats[1], 2) if stats[1] else 0
+    average_time = int(stats[2]) if stats[2] else 0
+    avg_time_formatted = f"{average_time // 60}:{average_time % 60:02d}" if average_time > 0 else "0:00"
+    
+    # Get saved notes
+    cursor.execute("""
+        SELECT un.note_text, un.created_at, e.exercise_title
+        FROM user_notes un
+        JOIN exercises e ON un.exercise_id = e.exercise_id
+        WHERE un.user_id = %s 
+        ORDER BY un.created_at DESC LIMIT 10
+    """, (user_id,))
+    
+    notes_rows = cursor.fetchall()
+    saved_notes = []
+    for note in notes_rows:
+        saved_notes.append({
+            "note": note[0],
+            "exercise_title": note[2],
+            "created_at": note[1].strftime("%Y-%m-%d %H:%M") if note[1] else None
+        })
+    
+    # Get recent activities
+    cursor.execute("""
+        SELECT e.exercise_title, up.score, up.total_questions, up.completed_at 
+        FROM user_progress up
+        JOIN exercises e ON up.exercise_id = e.exercise_id
+        WHERE up.user_id = %s 
+        ORDER BY up.completed_at DESC LIMIT 10
+    """, (user_id,))
+    
+    activities_rows = cursor.fetchall()
+    recent_activities = []
+    for activity in activities_rows:
+        exercise_title, score, total_questions, completed_at = activity
+        recent_activities.append({
+            "action": f"{exercise_title} - Score: {score}/{total_questions}",
+            "created_at": completed_at.strftime("%Y-%m-%d %H:%M") if completed_at else None
+        })
+    
+    cursor.close()
+    conn.close()
+    
+    log_activity(user_id, "batch_profile_stats", "Fetched batch profile stats", ip, ua)
+    
+    return jsonify({
+        "user": {
+            "first_name": first_name or "",
+            "last_name": last_name or "",
+            "username": username or "",
+            "bio": bio or "",
+            "avatar": avatar or "",
+            "phone": phone or "",
+            "country": country or "",
+            "is_admin": is_admin or False
+        },
+        "stats": {
+            "total_exercises": total_exercises,
+            "average_score": average_score,
+            "average_time": avg_time_formatted
+        },
+        "saved_notes": saved_notes,
+        "recent_activities": recent_activities
+    }), 200
+
+@profile_bp.route("/profile/batch-avatars", methods=["POST"])
+@limiter.limit("20 per minute")
+def batch_get_avatars():
+    """Get avatars for multiple users in one request"""
+    ip = request.remote_addr
+    ua = request.headers.get('User-Agent', '')
+    
+    if 'user_id' not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    
+    data = request.get_json()
+    user_ids = data.get('user_ids', [])
+    
+    if not user_ids:
+        return jsonify({"error": "No user IDs provided"}), 400
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT user_id, avatar, username
+        FROM users
+        WHERE user_id = ANY(%s)
+    """, (user_ids,))
+    
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    avatars = {}
+    for user_id, avatar, username in results:
+        avatars[user_id] = {
+            "avatar": avatar or "",
+            "username": username
+        }
+    
+    log_activity(user_id, "batch_avatars_fetched", f"Fetched avatars for {len(user_ids)} users", ip, ua)
+    
+    return jsonify({
+        "avatars": avatars
+    }), 200

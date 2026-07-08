@@ -15,7 +15,7 @@ import editIcon from "../assets/images/func-images/edit-icon.png";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import ImageCropper from "../components/functional-comps/ImageCropper";
-import { apiRequest } from "../utils/api";
+import { api } from "../utils/api";
 
 function Profile() {
   const { user } = useContext(UserContext);
@@ -65,24 +65,30 @@ function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await apiRequest(`/api/persona/profile`);
+        const response = await api.get('/api/persona/profile/batch-stats');
         const data = await response.json();
+        
         if (response.ok) {
           setProfileData({
-            first_name: data.first_name || "", last_name: data.last_name || "",
-            username: data.username || "", bio: data.bio || "", avatar: data.avatar || "",
-            total_exercises: data.total_exercises || 0, average_score: data.average_score || 0,
-            average_time: data.average_time || "0:00", saved_notes: data.saved_notes || [],
+            first_name: data.user.first_name || "", 
+            last_name: data.user.last_name || "",
+            username: data.user.username || "", 
+            bio: data.user.bio || "", 
+            avatar: data.user.avatar || "",
+            total_exercises: data.stats.total_exercises || 0, 
+            average_score: data.stats.average_score || 0,
+            average_time: data.stats.average_time || "0:00", 
+            saved_notes: data.saved_notes || [],
             recent_activities: data.recent_activities || []
           });
           setEditForm({ 
-            username: data.username || "", 
-            bio: data.bio || "",
-            first_name: data.first_name || "",
-            last_name: data.last_name || ""
+            username: data.user.username || "", 
+            bio: data.user.bio || "",
+            first_name: data.user.first_name || "",
+            last_name: data.user.last_name || ""
           });
-          setEmail(data.email || "");
-          setPhoneNumber(data.phone || "");
+          setEmail(data.user.email || "");
+          setPhoneNumber(data.user.phone || "");
           setAvatarRefreshKey(Date.now());
         }
       } catch (error) {
@@ -115,9 +121,7 @@ function Profile() {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("avatar", selectedFile);
-    const response = await apiRequest(`/api/persona/profile/avatar`, {
-      method: "POST", body: formData
-    });
+    const response = await api.post('/api/persona/profile/avatar', formData);
     const data = await response.json();
     if (response.ok) {
       setProfileData(prev => ({ ...prev, avatar: data.avatar }));
@@ -136,18 +140,20 @@ function Profile() {
   // Personal info save
   const handlePersonalInfoSave = async () => {
     // Save username and bio
-    const response1 = await apiRequest(`/api/persona/profile/edit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ username: editForm.username, bio: editForm.bio })
-    });
+    const response1 = await api.post('/api/persona/profile/edit', 
+      new URLSearchParams({ username: editForm.username, bio: editForm.bio }),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      }
+    );
     
     // Save first name and last name
-    const response2 = await apiRequest(`/api/updateInfo`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ first_name: editForm.first_name, last_name: editForm.last_name, bio: editForm.bio })
-    });
+    const response2 = await api.post('/api/updateInfo',
+      new URLSearchParams({ first_name: editForm.first_name, last_name: editForm.last_name, bio: editForm.bio }),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      }
+    );
     
     if (response1.ok && response2.ok) {
       setProfileData(prev => ({ 
@@ -167,11 +173,12 @@ function Profile() {
   // Email update
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    const response = await apiRequest(`/api/updateEmail`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ email })
-    });
+    const response = await api.post('/api/updateEmail',
+      new URLSearchParams({ email }),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      }
+    );
     const data = await response.json();
     showMessage(data.success ? "Email updated successfully" : (data.error || "Failed to update email"));
   };
@@ -179,11 +186,12 @@ function Profile() {
   // Phone update
   const handlePhoneSubmit = async (e) => {
     e.preventDefault();
-    const response = await apiRequest(`/api/updatePhoneNumber`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ phone: phoneNumber })
-    });
+    const response = await api.post('/api/updatePhoneNumber',
+      new URLSearchParams({ phone: phoneNumber }),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      }
+    );
     const data = await response.json();
     showMessage(data.success ? "Phone number updated successfully" : (data.error || "Failed to update phone"));
   };
@@ -195,11 +203,12 @@ function Profile() {
       showMessage("New passwords do not match");
       return;
     }
-    const response = await apiRequest(`/api/changePassword`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ current_password: currentPassword, new_password: newPassword })
-    });
+    const response = await api.post('/api/changePassword',
+      new URLSearchParams({ current_password: currentPassword, new_password: newPassword }),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      }
+    );
     const data = await response.json();
     if (response.ok) {
       showMessage("Password changed successfully");
@@ -217,7 +226,7 @@ function Profile() {
     showModal(
       "Are you sure you want to permanently delete your account?",
       async () => {
-        const response = await apiRequest(`/api/deleteAccount`, { method: "POST" });
+        const response = await api.post('/api/deleteAccount');
         if (response.ok) window.location.href = "/login";
         else showMessage((await response.json()).error || "Failed to delete account");
       },
@@ -255,13 +264,6 @@ function Profile() {
   return (
     <div className="profile-page">
       <FuncHeader />
-      
-      {/* AD 1 - LEADERBOARD (below header, above profile container) */}
-      <div className="sponsor-container-profile sponsor-top">
-        <div className="sponsor-placeholder">
-          Advertisement (Leaderboard - 728x90)
-        </div>
-      </div>
       
       <section className="profile-container">
         {/* Profile Header with Edit Avatar Icon */}
@@ -336,13 +338,6 @@ function Profile() {
           />
         )}
       </section>
-      
-      {/* AD 2 - BILLBOARD (after profile container, before footer) */}
-      <div className="sponsor-container-profile sponsor-billboard">
-        <div className="sponsor-placeholder">
-          Advertisement (Large Rectangle - 336x280)
-        </div>
-      </div>
       
       <FuncFooter />
       <MessageModal isOpen={messageModalOpen} message={messageText} onClose={() => setMessageModalOpen(false)} />

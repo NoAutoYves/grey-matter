@@ -4,7 +4,7 @@ import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { apiRequest } from "../utils/api";
+import { api } from "../utils/api";
 
 function ExerciseCompleted() {
   const location = useLocation();
@@ -44,16 +44,13 @@ function ExerciseCompleted() {
     setFeedbackError("");
     
     try {
-      const response = await apiRequest(`/api/feedback`, {
-        method: "POST",
-        body: JSON.stringify({
-          exercise_id: exerciseId,
-          rating: rating,
-          feedback: feedbackText,
-          score: score,
-          total_questions: total,
-          time_taken_seconds: timeTaken
-        })
+      const response = await api.post('/api/feedback', {
+        exercise_id: exerciseId,
+        rating: rating,
+        feedback: feedbackText,
+        score: score,
+        total_questions: total,
+        time_taken_seconds: timeTaken
       });
       
       if (response.ok) {
@@ -63,7 +60,8 @@ function ExerciseCompleted() {
           setFeedbackSubmitted(false);
         }, 3000);
       } else {
-        setFeedbackError("Failed to submit feedback. Please try again.");
+        const data = await response.json();
+        setFeedbackError(data.error || "Failed to submit feedback. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting feedback:", error);
@@ -107,61 +105,45 @@ function ExerciseCompleted() {
     setNotes(storedNotes);
     setBreakdown(storedBreakdown);
     
-    // Save results to database with retry logic
     const saveResults = async (retryCount = 0) => {
       const maxRetries = 3;
       
       try {
-        const response = await apiRequest(`/api/exercise/save-results`, {
-          method: "POST",
-          body: JSON.stringify({
-            exercise_id: exerciseId,
-            score: storedScore,
-            total_questions: storedTotal,
-            time_taken_seconds: storedTime,
-            notes: storedNotes,
-            answers: {}
-          })
-        });
+        const formattedAnswers = storedBreakdown.map((item, index) => ({
+          question_id: index + 1,
+          selected_option: item.selected || ''
+        }));
         
-        if (response.ok && isMounted) {
-          // Verify the response contains success
-          const result = await response.json();
-          if (result.success === true) {
-            // Only mark as saved after successful DB save and confirmation
-            sessionStorage.setItem(`exercise_saved_${exerciseId}`, "true");
-            console.log("Results saved successfully");
-            setSaveError(false);
-          } else {
-            throw new Error("Save failed - server returned error");
-          }
+        const response = await api.batch.submitExercise(
+          parseInt(exerciseId),
+          formattedAnswers,
+          storedTime,
+          storedNotes,
+          storedBreakdown
+        );
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success && isMounted) {
+          sessionStorage.setItem(`exercise_saved_${exerciseId}`, "true");
+          console.log("Results saved successfully:", result);
+          setSaveError(false);
         } else {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          throw new Error(result.error || "Save failed - server returned error");
         }
       } catch (error) {
         console.error(`Save attempt ${retryCount + 1} failed:`, error);
         
         if (retryCount < maxRetries - 1 && isMounted) {
-          // Wait longer between retries (1s, 2s, 3s)
           const delay = (retryCount + 1) * 1000;
           console.log(`Retrying in ${delay}ms...`);
           setTimeout(() => saveResults(retryCount + 1), delay);
         } else if (isMounted) {
-          // All retries failed
           console.error("Failed to save results after all retries");
           setSaveError(true);
         }
       } finally {
-        if (isMounted && !sessionStorage.getItem(`exercise_saved_${exerciseId}`)) {
-          // Only set saving false if we're not waiting for a save that hasn't happened yet
-          // Wait a bit before giving up
-          setTimeout(() => {
-            if (isMounted && !sessionStorage.getItem(`exercise_saved_${exerciseId}`)) {
-              setSaving(false);
-              setLoading(false);
-            }
-          }, 2000);
-        } else if (isMounted) {
+        if (isMounted) {
           setSaving(false);
           setLoading(false);
         }
@@ -201,9 +183,16 @@ function ExerciseCompleted() {
     <div className="results-page">
       <FuncHeader />
       
+      {/* AD 1 - TOP LEADERBOARD */}
+      <div className="sponsor-container-results sponsor-top">
+        <div className="sponsor-placeholder">
+          Advertisement (Leaderboard - 728x90)
+        </div>
+      </div>
+      
       <section className="results-container">
         <h2 className="results-title">Exercise Completed</h2>
-        <p className="results-subtitle">Here’s how you did:</p>
+        <p className="results-subtitle">Here's how you did:</p>
 
         {/* Save Error Warning */}
         {saveError && (
@@ -309,6 +298,13 @@ function ExerciseCompleted() {
           <Link to="/" className="action-btn">Return Home</Link>
         </div>
       </section>
+      
+      {/* AD 2 - BILLBOARD */}
+      <div className="sponsor-container-results sponsor-billboard">
+        <div className="sponsor-placeholder">
+          Advertisement (Large Rectangle - 336x280)
+        </div>
+      </div>
       
       <FuncFooter />
     </div>

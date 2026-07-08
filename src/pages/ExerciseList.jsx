@@ -6,7 +6,7 @@ import { UserContext } from "../context/UserContext";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import SocialMedia from "../components/Landing/LandingSocialMedia";
-import { apiRequest } from "../utils/api";
+import { api } from "../utils/api";
 
 function ExerciseList() {
   const { subject } = useParams();
@@ -19,9 +19,7 @@ function ExerciseList() {
   useEffect(() => {
     const fetchTopics = async () => {
       try {
-        const response = await apiRequest(`/api/exercises/${subject}/topics`, {
-          credentials: 'include'
-        });
+        const response = await api.get(`/api/exercises/${subject}/topics`);
         const data = await response.json();
         
         if (response.ok) {
@@ -64,11 +62,11 @@ function ExerciseList() {
     <div className={`quiz-list-page ${subject}`}>
       <FuncHeader />
       
-      <div className="sponsor-container-list sponsor-top">
+      {/* <div className="sponsor-container-list sponsor-top">
         <div className="sponsor-placeholder">
           Advertisement
         </div>
-      </div>
+      </div> */}
       
       <section className="quiz-list-container">
         <h2 className="quiz-list-title">{subjectName} Topics</h2>
@@ -100,11 +98,11 @@ function ExerciseList() {
 
       <SocialMedia />
       
-      <div className="sponsor-container-list sponsor-billboard">
+      {/* <div className="sponsor-container-list sponsor-billboard">
         <div className="sponsor-placeholder">
           Advertisement
         </div>
-      </div>
+      </div> */}
       
       <FuncFooter />
     </div>

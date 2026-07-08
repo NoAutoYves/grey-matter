@@ -4,7 +4,7 @@ import FuncHeader from "../components/functional-comps/FuncHeader";
 function Careers() {
   const positions = [
     { title: "Full Stack Developer", type: "Remote", description: "Help us build and maintain our learning platform." },
-    { title: "Content Creator", type: "Hybrid", description: "Create engaging quiz content for commerce subjects." },
+    { title: "Content Creator", type: "Hybrid", description: "Create engaging exercise content for commerce subjects." },
     { title: "Customer Support Specialist", type: "Remote", description: "Assist students and educators with platform questions." },
     { title: "Marketing Manager", type: "On-site", description: "Lead our growth and outreach initiatives." }
   ];
@@ -22,11 +22,11 @@ function Careers() {
       <FuncHeader />
 
       {/* AD 1 - LEADERBOARD (below header, above profile container) */}
-      <div className="sponsor-container-profile sponsor-top">
+      {/* <div className="sponsor-container-profile sponsor-top">
         <div className="sponsor-placeholder">
           Advertisement (Leaderboard - 728x90)
         </div>
-      </div>
+      </div> */}
       
       <div className="info-container">
         <h1>Careers at Grey Matter</h1>
@@ -55,11 +55,11 @@ function Careers() {
       </div>
 
       {/* AD 2 - BILLBOARD (after profile container, before footer) */}
-      <div className="sponsor-container-profile sponsor-billboard">
+      {/* <div className="sponsor-container-profile sponsor-billboard">
         <div className="sponsor-placeholder">
           Advertisement (Large Rectangle - 336x280)
         </div>
-      </div>
+      </div> */}
 
       <FuncFooter />
     </div>

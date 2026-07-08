@@ -90,13 +90,6 @@ function Login(){
         <div className="login-page">
           <FuncHeader />
           
-          {/* AD 1 - LEADERBOARD (below header) */}
-          <div className="sponsor-container sponsor-top">
-            <div className="sponsor-placeholder">
-              Advertisement (Leaderboard - 728x90)
-            </div>
-          </div>
-          
           <div className="login-container">
             <h2 className="login-title">Reset Password</h2>
             <p className="login-subtitle">Enter your email to receive a reset link</p>
@@ -142,19 +135,6 @@ function Login(){
     <>
       <div className="login-page">
         <FuncHeader />
-
-        {/* AD 1 - LEADERBOARD (below header) */}
-        <div className="sponsor-container sponsor-top">
-          <div className="sponsor-placeholder">
-            Advertisement (Leaderboard - 728x90)
-          </div>
-        </div>
-        {/* AD 2 - LEADERBOARD (for tablets) */}
-        <div className="sponsor-container-login sponsor-top">
-          <div className="sponsor-placeholder">
-            Advertisement (Leaderboard - 728x90)
-          </div>
-        </div>
         
         <div className="login-wrapper">
           <div className="login-container">
@@ -211,23 +191,9 @@ function Login(){
               </p>
             </form>
           </div>
-
-          {/* AD 2 - SKYSCRAPER (right sidebar) */}
-          <div className="sponsor-container sponsor-skyscraper-right">
-            <div className="sponsor-placeholder">
-              Advertisement (Skyscraper - 160x600)
-            </div>
-          </div>
         </div>
 
         <SocialMedia/>
-
-        {/* AD 1 - BILLBOARD (970x250) - ABOVE NAV (PREMIUM) */}
-        <div className="sponsor-container-login sponsor-billboard">
-            <div className="sponsor-placeholder">
-                Advertisement (Billboard - 970x250)
-            </div>
-        </div>
 
         <FuncFooter />
       </div>

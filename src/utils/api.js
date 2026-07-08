@@ -3,7 +3,7 @@ let csrfToken = null;
 
 // Base URL configuration
 const BASE_URL = 'https://greymatterschool.co.za';
-// const BASE_URL = 'http://localhost:5000';
+//const BASE_URL = 'http://localhost:5000';
 const API_BASE_URL = `${BASE_URL}/api`;
 
 // Get CSRF token from backend
@@ -110,5 +110,58 @@ export const api = {
         body: JSON.stringify(body),
         headers: { 'Content-Type': 'application/json', ...options.headers }
     }),
-    delete: (url, options = {}) => apiRequest(url, { ...options, method: 'DELETE' })
+    delete: (url, options = {}) => apiRequest(url, { ...options, method: 'DELETE' }),
+
+    // ============================================================
+    // NEW BATCH METHODS
+    // ============================================================
+    batch: {
+        /**
+         * Get exercise, questions, and user progress in ONE request
+         * @param {number} exerciseId - The exercise ID
+         * @returns {Promise<Response>} - Response with { exercise, questions, progress }
+         */
+        getExerciseData: (exerciseId) => {
+            return apiRequest(`/api/exercise/batch-data/${exerciseId}`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+        },
+
+        /**
+         * Submit entire exercise at once
+         * @param {number} exerciseId - The exercise ID
+         * @param {Array} answers - Array of { question_id, selected_option }
+         * @param {number} timeTaken - Time taken in seconds
+         * @param {string} notes - User notes (optional)
+         * @param {Array} breakdown - Array of question breakdown (optional)
+         * @returns {Promise<Response>} - Response with { success, progress_id, score, total_questions, percentage }
+         */
+        submitExercise: (exerciseId, answers, timeTaken, notes = "No notes taken.", breakdown = []) => {
+            return apiRequest('/api/exercise/batch-submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    exercise_id: exerciseId,
+                    answers: answers,
+                    time_taken_seconds: timeTaken,
+                    notes: notes,
+                    breakdown: breakdown
+                })
+            });
+        },
+
+        /**
+         * Get results for multiple exercises in ONE request
+         * @param {Array} exerciseIds - Array of exercise IDs
+         * @returns {Promise<Response>} - Response with { results: { exerciseId: { score, total_questions, percentage, ... } } }
+         */
+        getResults: (exerciseIds) => {
+            return apiRequest('/api/exercise/batch-results', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ exercise_ids: exerciseIds })
+            });
+        }
+    }
 };

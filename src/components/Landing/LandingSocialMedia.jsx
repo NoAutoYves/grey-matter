@@ -8,13 +8,13 @@ function SocialMedia() {
         <section className="social">
             <p className="social-title"><b>FOLLOW US ON</b></p>
             <div className="social-links">
-                <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer">
+                <a href="https://web.facebook.com/profile.php?id=61591544020692" target="_blank" rel="noopener noreferrer">
                     <img src={facebook} alt="Facebook" />
                 </a>
                 <a href="https://x.com/GreyMatter43836" target="_blank" rel="noopener noreferrer">
                     <img src={twitter} alt="Twitter" />
                 </a>
-                <a href="https://instagram.com/greymatterschool" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.instagram.com/greymatterschool1/" target="_blank" rel="noopener noreferrer">
                     <img src={instagram} alt="Instagram" />
                 </a>
                 <a href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer">

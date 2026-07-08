@@ -1,35 +1,62 @@
 server {
-    listen 80;
-    server_name 18.132.41.103;
+    listen 443 ssl;
+    server_name greymatterschool.co.za www.greymatterschool.co.za;
+    
+    # SSL certificates (you already have these)
+    ssl_certificate /etc/ssl/certs/your-cert.pem;
+    ssl_certificate_key /etc/ssl/private/your-key.pem;
 
-    root /var/www/greymatter-frontend/dist;
+    # SECURITY HEADERS - ADD THESE
+    
+    # HSTS - Force HTTPS (1 year)
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    
+    # XSS Protection (CSP)
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://greymatterschool.co.za; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://greymatterschool.co.za; connect-src 'self' https://greymatterschool.co.za https://api.brevo.com; frame-ancestors 'self';" always;
+    
+    # Prevent clickjacking
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    
+    # Prevent MIME sniffing
+    add_header X-Content-Type-Options "nosniff" always;
+    
+    # Control referrer info
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    
+    # Control browser features
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=()" always;
+    
+    # Hide server version
+    server_tokens off;
+
+    # ============================================
+    # YOUR EXISTING CONFIG BELOW
+    # ============================================
+    
+    root /var/www/greymatterschool;
     index index.html;
 
     location / {
-        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ @flask;
     }
 
-    location /api/ {
+    location @flask {
         proxy_pass http://127.0.0.1:5000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    location /auth/ {
-        proxy_pass http://127.0.0.1:5000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
+    # Static files
+    location /static/ {
+        alias /var/www/greymatterschool/static/;
     }
+}
 
-    # Remove the trailing slash or change it to /persona (no slash)
-    location /persona {
-        proxy_pass http://127.0.0.1:5000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-
-    location /uploads/ {
-        alias /var/www/greymatter/uploads/;
-    }
+# Redirect HTTP to HTTPS
+server {
+    listen 80;
+    server_name greymatterschool.co.za www.greymatterschool.co.za;
+    return 301 https://$server_name$request_uri;
 }

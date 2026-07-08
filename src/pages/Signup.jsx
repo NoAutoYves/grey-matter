@@ -44,20 +44,6 @@ function Signup() {
       <div className="signup-page" style={{ position: 'relative' }}>
         <FuncHeader />
 
-        {/* AD 1 - LEADERBOARD (visible on all devices) */}
-        <div className="sponsor-container sponsor-top">
-          <div className="sponsor-placeholder">
-            Advertisement (Leaderboard - 728x90)
-          </div>
-        </div>
-
-        {/* AD 2 - BILLBOARD (visible on tablet only - hidden on desktop) */}
-        <div className="sponsor-container-login sponsor-billboard">
-          <div className="sponsor-placeholder">
-            Advertisement (Billboard - 970x250)
-          </div>
-        </div>
-
         <div className="signup-wrapper">
           <div className="signup-container">
             <h2 className="signup-title">Sign Up</h2>
@@ -134,23 +120,16 @@ function Signup() {
               </p>
             </form>
           </div>
-
-          {/* AD 3 - SKYSCRAPER (desktop only) */}
-          <div className="sponsor-container sponsor-skyscraper-right">
-            <div className="sponsor-placeholder">
-              Advertisement (Skyscraper - 160x600)
-            </div>
-          </div>
         </div>
 
         <SocialMedia />
 
         {/* AD 1 - BILLBOARD (970x250) - ABOVE NAV (PREMIUM) */}
-        <div className="sponsor-container-login sponsor-billboard">
+        {/* <div className="sponsor-container-login sponsor-billboard">
             <div className="sponsor-placeholder">
                 Advertisement (Billboard - 970x250)
             </div>
-        </div>
+        </div> */}
         
         <FuncFooter />
       </div>
