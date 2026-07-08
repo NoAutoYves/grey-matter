@@ -264,7 +264,7 @@ def update_avatar():
 # ============================================================
 
 @profile_bp.route("/profile/batch-stats", methods=["GET"])
-@limiter.limit("30 per minute")
+#@limiter.limit("30 per minute")
 def batch_profile_stats():
     """Get profile, stats, notes, and activities in one request"""
     ip = request.remote_addr
@@ -369,7 +369,7 @@ def batch_profile_stats():
         return_db_connection(conn)
 
 @profile_bp.route("/profile/batch-avatars", methods=["POST"])
-@limiter.limit("20 per minute")
+#@limiter.limit("20 per minute")
 def batch_get_avatars():
     """Get avatars for multiple users in one request"""
     ip = request.remote_addr

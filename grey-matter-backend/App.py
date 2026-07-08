@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import timedelta, datetime
 from flask import Flask, send_from_directory, jsonify, session, request
 from flask_cors import CORS
@@ -18,7 +19,10 @@ from routes.db_pool import close_all_connections
 import atexit
 import logging
 from psycopg2 import OperationalError
-import signal
+
+# Only import signal on Unix systems
+if sys.platform != 'win32':
+    import signal
 
 load_dotenv()
 
@@ -53,31 +57,33 @@ LONG_PROCESS_TIMEOUT_SECONDS = 120
 limiter.init_app(app)
 csrf.init_app(app)
 
-def timeout_handler(signum, frame):
-    raise TimeoutError("Request exceeded time limit")
+# Only define timeout handlers on Unix systems
+if sys.platform != 'win32':
+    def timeout_handler(signum, frame):
+        raise TimeoutError("Request exceeded time limit")
 
-@app.before_request
-def set_timeout():
-    if not debug_mode:
-        signal.signal(signal.SIGALRM, timeout_handler)
-        if request.endpoint and 'contact' in request.endpoint:
-            signal.alarm(LONG_PROCESS_TIMEOUT_SECONDS)
-        else:
-            signal.alarm(REQUEST_TIMEOUT_SECONDS)
+    @app.before_request
+    def set_timeout():
+        if not debug_mode:
+            signal.signal(signal.SIGALRM, timeout_handler)
+            if request.endpoint and 'contact' in request.endpoint:
+                signal.alarm(LONG_PROCESS_TIMEOUT_SECONDS)
+            else:
+                signal.alarm(REQUEST_TIMEOUT_SECONDS)
 
-@app.after_request
-def clear_timeout(response):
-    if not debug_mode:
-        signal.alarm(0)
-    return response
+    @app.after_request
+    def clear_timeout(response):
+        if not debug_mode:
+            signal.alarm(0)
+        return response
 
-@app.errorhandler(TimeoutError)
-def handle_timeout(e):
-    return jsonify({
-        "error": "Request timed out",
-        "degraded": True,
-        "message": "The request took too long. Please try again."
-    }), 504
+    @app.errorhandler(TimeoutError)
+    def handle_timeout(e):
+        return jsonify({
+            "error": "Request timed out",
+            "degraded": True,
+            "message": "The request took too long. Please try again."
+        }), 504
 
 @app.errorhandler(OperationalError)
 def handle_db_failure(e):

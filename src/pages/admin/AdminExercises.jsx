@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { apiRequest } from "../../utils/api";
+import { api } from "../../utils/api";
+import styles from './AdminExercises.module.css';
 
 function AdminExercises() {
   const [exercises, setExercises] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  // Form state
   const [gradeId, setGradeId] = useState("");
   const [subjectId, setSubjectId] = useState("");
   const [termId, setTermId] = useState("");
@@ -15,12 +15,10 @@ function AdminExercises() {
   const [exerciseTitle, setExerciseTitle] = useState("");
   const [questions, setQuestions] = useState([]);
   
-  // Dropdown options
   const [grades, setGrades] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [terms, setTerms] = useState([]);
   
-  // File input refs for each question
   const fileInputRefs = useRef({});
 
   useEffect(() => {
@@ -30,7 +28,7 @@ function AdminExercises() {
 
   const fetchExercises = async () => {
     try {
-      const response = await apiRequest(`/api/admin/exercises`);
+      const response = await api.get('/api/admin/exercises');
       const data = await response.json();
       if (response.ok) {
         setExercises(data.exercises);
@@ -45,9 +43,9 @@ function AdminExercises() {
   const fetchDropdownOptions = async () => {
     try {
       const [gradesRes, subjectsRes, termsRes] = await Promise.all([
-        apiRequest(`/api/admin/grades`),
-        apiRequest(`/api/admin/subjects`),
-        apiRequest(`/api/admin/terms`)
+        api.get('/api/admin/grades'),
+        api.get('/api/admin/subjects'),
+        api.get('/api/admin/terms')
       ]);
       
       const gradesData = await gradesRes.json();
@@ -86,13 +84,11 @@ function AdminExercises() {
   const handleImageUpload = (index, file) => {
     if (!file) return;
     
-    // Check file size (max 200KB)
     if (file.size > 200 * 1024) {
       alert("Image too large. Please use images under 200KB.");
       return;
     }
     
-    // Check file type
     if (!file.type.startsWith('image/')) {
       alert("Please upload an image file.");
       return;
@@ -121,7 +117,6 @@ function AdminExercises() {
       return;
     }
     
-    // Validate all questions have text and options
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
       if (!q.text.trim()) {
@@ -157,10 +152,7 @@ function AdminExercises() {
     };
     
     try {
-      const response = await apiRequest(`/api/admin/exercises`, {
-        method: "POST",
-        body: JSON.stringify(exerciseData)
-      });
+      const response = await api.post('/api/admin/exercises', exerciseData);
       
       if (response.ok) {
         alert("Exercise created successfully!");
@@ -190,9 +182,7 @@ function AdminExercises() {
   const deleteExercise = async (exerciseId) => {
     if (confirm("Delete this exercise? All questions will be removed.")) {
       try {
-        const response = await apiRequest(`/api/admin/exercises/${exerciseId}`, {
-          method: "DELETE"
-        });
+        const response = await api.delete(`/api/admin/exercises/${exerciseId}`);
         if (response.ok) {
           fetchExercises();
         }
@@ -202,23 +192,34 @@ function AdminExercises() {
     }
   };
 
-  if (loading) return <div className="admin-loading">Loading exercises...</div>;
+  const togglePublish = async (exerciseId, currentStatus) => {
+    try {
+      const response = await api.put(`/api/admin/exercises/${exerciseId}/publish`, { is_published: !currentStatus });
+      if (response.ok) {
+        fetchExercises();
+      }
+    } catch (error) {
+      console.error("Failed to toggle publish status:", error);
+    }
+  };
+
+  if (loading) return <div className={styles.loading}>Loading exercises...</div>;
 
   return (
-    <div className="admin-exercises">
-      <div className="admin-header">
-        <h1>Exercise Management</h1>
-        <button className="admin-btn primary" onClick={() => setShowForm(!showForm)}>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Exercise Management</h1>
+        <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancel" : "Add New Exercise"}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="exercise-form">
-          <h2>Create New Exercise</h2>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <h2 className={styles.formTitle}>Create New Exercise</h2>
           
-          <div className="form-row">
-            <div className="form-group">
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
               <label>Grade *</label>
               <select value={gradeId} onChange={(e) => setGradeId(e.target.value)} required>
                 <option value="">Select Grade</option>
@@ -226,7 +227,7 @@ function AdminExercises() {
               </select>
             </div>
             
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label>Subject *</label>
               <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} required>
                 <option value="">Select Subject</option>
@@ -235,8 +236,8 @@ function AdminExercises() {
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
               <label>Term *</label>
               <select value={termId} onChange={(e) => setTermId(e.target.value)} required>
                 <option value="">Select Term</option>
@@ -244,7 +245,7 @@ function AdminExercises() {
               </select>
             </div>
             
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label>Topic (Optional)</label>
               <input 
                 type="text" 
@@ -255,8 +256,8 @@ function AdminExercises() {
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
               <label>Exercise Name (for URL) *</label>
               <input 
                 type="text" 
@@ -265,10 +266,10 @@ function AdminExercises() {
                 placeholder="e.g., algebra_basics_1" 
                 required 
               />
-              <small>Use underscores, no spaces. Example: accounting_exercise_1</small>
+              <span className={styles.hint}>Use underscores, no spaces. Example: accounting_exercise_1</span>
             </div>
             
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label>Exercise Title (display name) *</label>
               <input 
                 type="text" 
@@ -280,13 +281,13 @@ function AdminExercises() {
             </div>
           </div>
 
-          <div className="questions-section">
+          <div className={styles.questionsSection}>
             <h3>Questions (10 required)</h3>
             {questions.map((q, idx) => (
-              <div key={idx} className="question-card">
-                <div className="question-header">
+              <div key={idx} className={styles.questionCard}>
+                <div className={styles.questionHeader}>
                   <h4>Question {idx + 1}</h4>
-                  <button type="button" className="remove-btn" onClick={() => removeQuestion(idx)}>Remove</button>
+                  <button type="button" className={styles.removeBtn} onClick={() => removeQuestion(idx)}>Remove</button>
                 </div>
                 
                 <input 
@@ -297,8 +298,7 @@ function AdminExercises() {
                   required 
                 />
                 
-                {/* Image upload section */}
-                <div className="image-upload-section">
+                <div className={styles.imageUploadSection}>
                   <label>Diagram/Image (optional, max 200KB):</label>
                   <input 
                     type="file" 
@@ -307,14 +307,14 @@ function AdminExercises() {
                     onChange={(e) => handleImageUpload(idx, e.target.files[0])}
                   />
                   {q.image_base64 && (
-                    <div className="image-preview">
+                    <div className={styles.imagePreview}>
                       <img src={q.image_base64} alt="Preview" />
-                      <button type="button" onClick={() => removeImage(idx)} className="remove-image-btn">Remove Image</button>
+                      <button type="button" onClick={() => removeImage(idx)} className={styles.removeImageBtn}>Remove Image</button>
                     </div>
                   )}
                 </div>
                 
-                <div className="options-row">
+                <div className={styles.optionsRow}>
                   <input type="text" placeholder="Option A" value={q.option_a} onChange={(e) => updateQuestion(idx, 'option_a', e.target.value)} required />
                   <input type="text" placeholder="Option B" value={q.option_b} onChange={(e) => updateQuestion(idx, 'option_b', e.target.value)} required />
                   <input type="text" placeholder="Option C" value={q.option_c} onChange={(e) => updateQuestion(idx, 'option_c', e.target.value)} required />
@@ -331,39 +331,62 @@ function AdminExercises() {
               </div>
             ))}
             {questions.length < 10 && (
-              <button type="button" className="add-question-btn" onClick={addQuestion}>
+              <button type="button" className={styles.addQuestionBtn} onClick={addQuestion}>
                 Add Question ({questions.length}/10)
               </button>
             )}
           </div>
 
-          <button type="submit" className="submit-btn" disabled={questions.length !== 10}>
+          <button type="submit" className={styles.submitBtn} disabled={questions.length !== 10}>
             Create Exercise
           </button>
         </form>
       )}
 
-      <table className="admin-table">
-        <thead>
-          <tr><th>ID</th><th>Title</th><th>Subject</th><th>Grade</th><th>Term</th><th>Questions</th><th>Published</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-          {exercises.map((ex) => (
-            <tr key={ex.exercise_id}>
-              <td>{ex.exercise_id}</td>
-              <td>{ex.exercise_title}</td>
-              <td>{ex.subject_name}</td>
-              <td>Grade {ex.grade_level}</td>
-              <td>{ex.term_name}</td>
-              <td>{ex.question_count}</td>
-              <td>{ex.is_published ? "Yes" : "No"}</td>
-              <td>
-                <button className="admin-btn delete" onClick={() => deleteExercise(ex.exercise_id)}>Delete</button>
-              </td>
+      <div className={styles.tableContainer}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Subject</th>
+              <th>Grade</th>
+              <th>Term</th>
+              <th>Questions</th>
+              <th>Published</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {exercises.map((ex) => (
+              <tr key={ex.exercise_id}>
+                <td>{ex.exercise_id}</td>
+                <td>{ex.exercise_title}</td>
+                <td>{ex.subject_name}</td>
+                <td>Grade {ex.grade_level}</td>
+                <td>{ex.term_name}</td>
+                <td>{ex.question_count}</td>
+                <td>
+                  <span className={`${styles.badge} ${ex.is_published ? styles.badgeYes : styles.badgeNo}`}>
+                    {ex.is_published ? "Yes" : "No"}
+                  </span>
+                </td>
+                <td className={styles.actionsCell}>
+                  <button 
+                    className={`${styles.btn} ${ex.is_published ? styles.btnDanger : styles.btnSuccess}`}
+                    onClick={() => togglePublish(ex.exercise_id, ex.is_published)}
+                  >
+                    {ex.is_published ? "Unpublish" : "Publish"}
+                  </button>
+                  <button className={`${styles.btn} ${styles.btnDanger}`} onClick={() => deleteExercise(ex.exercise_id)}>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

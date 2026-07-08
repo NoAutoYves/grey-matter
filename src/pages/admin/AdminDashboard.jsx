@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { apiRequest } from "../../utils/api";
+import { api } from "../../utils/api";
+import styles from './AdminDashboard.module.css';
 
 function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -13,7 +14,7 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await apiRequest(`/api/admin/stats`);
+        const response = await api.get('/api/admin/stats');
         const data = await response.json();
         if (response.ok) {
           setStats(data);
@@ -27,27 +28,31 @@ function AdminDashboard() {
     fetchStats();
   }, []);
 
-  if (loading) return <div className="admin-loading">Loading dashboard...</div>;
+  if (loading) return <div className={styles.loading}>Loading dashboard...</div>;
 
   return (
-    <div className="admin-dashboard">
-      <h1>Dashboard</h1>
-      <div className="admin-stats-grid">
-        <div className="admin-stat-card">
+    <div className={styles.container}>
+      <h1 className={styles.title}>Dashboard</h1>
+      <div className={styles.statsGrid}>
+        <div className={styles.statCard}>
           <h3>Total Users</h3>
-          <p>{stats.total_users}</p>
+          <p className={styles.number}>{stats.total_users}</p>
+          <div className={styles.subtext}>Registered accounts</div>
         </div>
-        <div className="admin-stat-card">
+        <div className={styles.statCard}>
           <h3>Total Exercises</h3>
-          <p>{stats.total_exercises}</p>
+          <p className={styles.number}>{stats.total_exercises}</p>
+          <div className={styles.subtext}>Available exercises</div>
         </div>
-        <div className="admin-stat-card">
+        <div className={styles.statCard}>
           <h3>Exercises Completed</h3>
-          <p>{stats.total_completions}</p>
+          <p className={styles.number}>{stats.total_completions}</p>
+          <div className={styles.subtext}>Total completions</div>
         </div>
-        <div className="admin-stat-card">
+        <div className={styles.statCard}>
           <h3>Average Score</h3>
-          <p>{stats.avg_score}%</p>
+          <p className={styles.number}>{stats.avg_score}%</p>
+          <div className={styles.subtext}>Across all exercises</div>
         </div>
       </div>
     </div>

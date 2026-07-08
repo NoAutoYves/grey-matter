@@ -2,8 +2,8 @@
 let csrfToken = null;
 
 // Base URL configuration
-const BASE_URL = 'https://greymatterschool.co.za';
-//const BASE_URL = 'http://localhost:5000';
+// const BASE_URL = 'https://greymatterschool.co.za';
+const BASE_URL = 'http://localhost:5000';
 const API_BASE_URL = `${BASE_URL}/api`;
 
 // Get CSRF token from backend

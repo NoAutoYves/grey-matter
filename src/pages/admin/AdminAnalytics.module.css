@@ -1,0 +1,269 @@
+/* AdminAnalytics.module.css */
+
+.container {
+    padding: 0;
+    background: transparent;
+    min-height: 100vh;
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e0e0e0;
+    margin-bottom: 25px;
+    position: relative;
+    display: inline-block;
+}
+
+.title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: #6846ff;
+    border-radius: 3px;
+}
+
+/* Summary Cards */
+.summaryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.summaryCard {
+    background: linear-gradient(135deg, #2a2a2e, #35353b);
+    border: 1px solid #44444a;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.summaryCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: #6846ff;
+}
+
+.summaryCard h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a0a0a0;
+    margin-bottom: 8px;
+}
+
+.summaryCard .number {
+    font-size: 32px;
+    font-weight: 700;
+    color: #6846ff;
+    margin: 5px 0;
+}
+
+.summaryCard .label {
+    font-size: 12px;
+    color: #888;
+}
+
+/* Analytics Sections */
+.section {
+    background: #35353b;
+    border: 1px solid #44444a;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.section h2 {
+    font-size: 18px;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.section h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: #6846ff;
+}
+
+/* Chart Containers */
+.chartContainer {
+    width: 100%;
+    min-height: 300px;
+}
+
+/* Tables */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'noto', sans-serif;
+}
+
+.table thead {
+    background: #2a2a2e;
+}
+
+.table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    color: #6846ff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #44444a;
+}
+
+.table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #44444a;
+    font-size: 14px;
+    color: #c0c0c0;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background: rgba(104, 70, 255, 0.08);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Rank Column */
+.rankColumn {
+    font-weight: 700;
+    color: #6846ff;
+    text-align: center;
+    width: 60px;
+}
+
+/* User Email */
+.userEmail {
+    color: #8a6eff;
+    font-weight: 500;
+}
+
+/* Score Badge */
+.scoreBadge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.scoreHigh {
+    background: rgba(40, 167, 69, 0.2);
+    color: #5cb85c;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.scoreMedium {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.scoreLow {
+    background: rgba(229, 57, 53, 0.2);
+    color: #e53935;
+    border: 1px solid rgba(229, 57, 53, 0.3);
+}
+
+/* Action Badge */
+.actionBadge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    background: rgba(104, 70, 255, 0.15);
+    color: #8a6eff;
+    border: 1px solid rgba(104, 70, 255, 0.2);
+}
+
+/* Details Text */
+.detailsText {
+    color: #888;
+    font-size: 13px;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Time Column */
+.timeColumn {
+    color: #888;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+    font-size: 16px;
+}
+
+/* No Data */
+.noData {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .summaryGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .summaryCard .number {
+        font-size: 24px;
+    }
+    
+    .section {
+        padding: 15px;
+    }
+    
+    .table {
+        font-size: 13px;
+        min-width: 600px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .summaryGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .title {
+        font-size: 22px;
+    }
+    
+    .section h2 {
+        font-size: 16px;
+    }
+}

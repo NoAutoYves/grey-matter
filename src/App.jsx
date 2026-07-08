@@ -29,6 +29,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminExercises from "./pages/admin/AdminExercises";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminUserFeedback from "./pages/admin/AdminUserFeedback";
 
 function App() {
   // REMOVE this entire checkSession useEffect - ProtectedRoute handles this already!
@@ -74,6 +75,7 @@ function App() {
         <Route path="users" element={<AdminUsers />} />
         <Route path="exercises" element={<AdminExercises />} />
         <Route path="analytics" element={<AdminAnalytics />} />
+        <Route path="feedback" element={<AdminUserFeedback />} />
       </Route>
     </Routes>
   );

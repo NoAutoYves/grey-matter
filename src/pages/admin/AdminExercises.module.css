@@ -1,0 +1,496 @@
+/* AdminExercises.module.css */
+
+.container {
+    padding: 0;
+    background: transparent;
+    min-height: 100vh;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e0e0e0;
+    position: relative;
+    display: inline-block;
+    margin: 0;
+}
+
+.title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: #6846ff;
+    border-radius: 3px;
+}
+
+/* Buttons */
+.btn {
+    background: rgba(104, 70, 255, 0.15);
+    color: #8a6eff;
+    border: 1px solid rgba(104, 70, 255, 0.3);
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'noto', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background: #6846ff;
+    color: white;
+    border-color: #6846ff;
+}
+
+.btnPrimary {
+    background: #6846ff;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    font-weight: 600;
+}
+
+.btnPrimary:hover {
+    background: #5535cc;
+    box-shadow: 0 2px 8px rgba(104, 70, 255, 0.4);
+}
+
+.btnDanger {
+    background: rgba(229, 57, 53, 0.15);
+    color: #e53935;
+    border-color: rgba(229, 57, 53, 0.3);
+}
+
+.btnDanger:hover {
+    background: #e53935;
+    color: white;
+    border-color: #e53935;
+}
+
+.btnSuccess {
+    background: rgba(40, 167, 69, 0.15);
+    color: #5cb85c;
+    border-color: rgba(40, 167, 69, 0.3);
+}
+
+.btnSuccess:hover {
+    background: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+/* Form */
+.form {
+    background: #35353b;
+    border: 1px solid #44444a;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.formTitle {
+    font-size: 20px;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.formTitle::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: #6846ff;
+}
+
+.formRow {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.formGroup {
+    flex: 1;
+    min-width: 200px;
+}
+
+.formGroup label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #a0a0a0;
+    margin-bottom: 5px;
+}
+
+.formGroup input,
+.formGroup select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #44444a;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #2a2a2e;
+    color: #e0e0e0;
+    font-family: 'noto', sans-serif;
+    transition: border-color 0.3s ease;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+    outline: none;
+    border-color: #6846ff;
+}
+
+.formGroup .hint {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+/* Questions Section */
+.questionsSection {
+    margin-top: 20px;
+}
+
+.questionsSection h3 {
+    font-size: 18px;
+    color: #e0e0e0;
+    margin-bottom: 16px;
+}
+
+/* Question Card */
+.questionCard {
+    background: #2a2a2e;
+    border: 1px solid #44444a;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.questionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.questionHeader h4 {
+    color: #6846ff;
+    font-size: 16px;
+    margin: 0;
+}
+
+.removeBtn {
+    background: rgba(229, 57, 53, 0.15);
+    color: #e53935;
+    border: 1px solid rgba(229, 57, 53, 0.3);
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'noto', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.removeBtn:hover {
+    background: #e53935;
+    color: white;
+}
+
+/* Image Upload */
+.imageUploadSection {
+    margin: 10px 0 12px 0;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+}
+
+.imageUploadSection label {
+    font-size: 13px;
+    color: #a0a0a0;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.imageUploadSection input[type="file"] {
+    font-size: 12px;
+    padding: 5px;
+    background: transparent;
+    border: none;
+    color: #c0c0c0;
+}
+
+.imagePreview {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.imagePreview img {
+    max-width: 100px;
+    max-height: 60px;
+    border-radius: 4px;
+    border: 1px solid #44444a;
+}
+
+.removeImageBtn {
+    background: rgba(229, 57, 53, 0.15);
+    color: #e53935;
+    border: 1px solid rgba(229, 57, 53, 0.3);
+    padding: 3px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'noto', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.removeImageBtn:hover {
+    background: #e53935;
+    color: white;
+}
+
+/* Options Row */
+.optionsRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.optionsRow input {
+    padding: 8px 10px;
+    border: 1px solid #44444a;
+    border-radius: 4px;
+    font-size: 13px;
+    background: #35353b;
+    color: #e0e0e0;
+    font-family: 'noto', sans-serif;
+}
+
+.optionsRow input:focus {
+    outline: none;
+    border-color: #6846ff;
+}
+
+/* Add Question Button */
+.addQuestionBtn {
+    background: rgba(104, 70, 255, 0.15);
+    color: #8a6eff;
+    border: 1px solid rgba(104, 70, 255, 0.3);
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'noto', sans-serif;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.addQuestionBtn:hover {
+    background: #6846ff;
+    color: white;
+    border-color: #6846ff;
+}
+
+/* Submit Button */
+.submitBtn {
+    background: #6846ff;
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'noto', sans-serif;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.submitBtn:hover {
+    background: #5535cc;
+    box-shadow: 0 2px 8px rgba(104, 70, 255, 0.4);
+}
+
+.submitBtn:disabled {
+    background: #44444a;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Table Container */
+.tableContainer {
+    background: #35353b;
+    border-radius: 12px;
+    border: 1px solid #44444a;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'noto', sans-serif;
+}
+
+.table thead {
+    background: #2a2a2e;
+}
+
+.table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    color: #6846ff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #44444a;
+    white-space: nowrap;
+}
+
+.table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #44444a;
+    font-size: 14px;
+    color: #c0c0c0;
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background: rgba(104, 70, 255, 0.08);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badgeYes {
+    background: rgba(40, 167, 69, 0.2);
+    color: #5cb85c;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.badgeNo {
+    background: rgba(229, 57, 53, 0.2);
+    color: #e53935;
+    border: 1px solid rgba(229, 57, 53, 0.3);
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+    font-size: 16px;
+}
+
+/* Actions Cell */
+.actionsCell {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.actionsCell button {
+    margin: 0 3px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .table {
+        font-size: 13px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 10px 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .formRow {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .formGroup {
+        min-width: 100%;
+    }
+    
+    .optionsRow {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .tableContainer {
+        overflow-x: auto;
+    }
+    
+    .table {
+        font-size: 12px;
+        min-width: 700px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 8px 10px;
+    }
+    
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .title {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .optionsRow {
+        grid-template-columns: 1fr;
+    }
+    
+    .form {
+        padding: 16px;
+    }
+    
+    .questionCard {
+        padding: 12px;
+    }
+    
+    .btnPrimary {
+        width: 100%;
+        text-align: center;
+    }
+}

@@ -1,0 +1,382 @@
+/* AdminUsers.module.css */
+
+.container {
+    padding: 0;
+    background: transparent;
+    min-height: 100vh;
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e0e0e0;
+    margin-bottom: 25px;
+    position: relative;
+    display: inline-block;
+}
+
+.title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: #6846ff;
+    border-radius: 3px;
+}
+
+/* Table Container - Fix overflow to allow dropdown */
+.tableContainer {
+    background: #35353b;
+    border-radius: 12px;
+    border: 1px solid #44444a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    overflow: visible;
+    position: relative;
+}
+
+/* Table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'noto', sans-serif;
+}
+
+.table thead {
+    background: #2a2a2e;
+}
+
+.table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    color: #6846ff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #44444a;
+    white-space: nowrap;
+}
+
+.table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #44444a;
+    font-size: 14px;
+    color: #c0c0c0;
+    vertical-align: middle;
+}
+
+/* Make table rows and cells allow overflow for dropdown */
+.table tbody tr,
+.table tbody td {
+    overflow: visible !important;
+    position: relative;
+}
+
+.table tbody tr:hover {
+    background: rgba(104, 70, 255, 0.08);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Column Specific */
+.idColumn {
+    color: #888;
+    font-weight: 500;
+    width: 60px;
+    text-align: center;
+}
+
+.emailColumn {
+    color: #8a6eff;
+    font-weight: 500;
+    min-width: 150px;
+}
+
+.nameColumn {
+    color: #e0e0e0;
+    min-width: 120px;
+}
+
+.usernameColumn {
+    color: #c0c0c0;
+    min-width: 100px;
+}
+
+/* Status Badges */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badgeYes {
+    background: rgba(40, 167, 69, 0.2);
+    color: #5cb85c;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.badgeNo {
+    background: rgba(229, 57, 53, 0.2);
+    color: #e53935;
+    border: 1px solid rgba(229, 57, 53, 0.3);
+}
+
+.badgeAdmin {
+    background: rgba(104, 70, 255, 0.2);
+    color: #8a6eff;
+    border: 1px solid rgba(104, 70, 255, 0.3);
+}
+
+/* Date Column */
+.dateColumn {
+    color: #888;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* Actions Cell - Make it position relative for dropdown */
+.actionsCell {
+    position: relative !important;
+    text-align: center;
+    min-width: 120px;
+    overflow: visible !important;
+}
+
+/* Dropdown */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    z-index: 10;
+}
+
+.dropdownBtn {
+    background: rgba(104, 70, 255, 0.15);
+    color: #8a6eff;
+    border: 1px solid rgba(104, 70, 255, 0.3);
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'noto', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.dropdownBtn:hover {
+    background: #6846ff;
+    color: white;
+    border-color: #6846ff;
+}
+
+.dropdownMenu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: #2a2a2e;
+    border: 1px solid #6846ff;
+    border-radius: 8px;
+    min-width: 200px;
+    z-index: 99999;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    padding: 4px 0;
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 16px;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #c0c0c0;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'noto', sans-serif;
+    transition: all 0.2s ease;
+}
+
+.dropdownItem:hover {
+    background: rgba(104, 70, 255, 0.15);
+    color: #8a6eff;
+}
+
+.dropdownItem .icon {
+    font-size: 16px;
+    width: 24px;
+    text-align: center;
+}
+
+.dropdownItemDelete {
+    color: #e53935;
+}
+
+.dropdownItemDelete:hover {
+    background: rgba(229, 57, 53, 0.15);
+    color: #e53935;
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+    font-size: 16px;
+}
+
+/* No Users */
+.noUsers {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 16px;
+}
+
+/* Modals */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+}
+
+.modalContent {
+    background: #2a2a2e;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid #44444a;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.modalLarge {
+    max-width: 800px;
+}
+
+.modalContent h2 {
+    font-size: 22px;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.modalContent h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: #6846ff;
+}
+
+.modalClose {
+    background: #6846ff;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'noto', sans-serif;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.modalClose:hover {
+    background: #5535cc;
+    box-shadow: 0 2px 8px rgba(104, 70, 255, 0.4);
+}
+
+/* User Details */
+.userDetails {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 20px;
+}
+
+.userDetails p {
+    margin: 6px 0;
+    color: #c0c0c0;
+    font-size: 14px;
+}
+
+.userDetails strong {
+    color: #6846ff;
+    font-weight: 600;
+}
+
+.userDetails .fullWidth {
+    grid-column: 1 / -1;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .table {
+        font-size: 13px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 10px 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .tableContainer {
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+    
+    .table {
+        font-size: 12px;
+        min-width: 800px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 8px 10px;
+    }
+    
+    .modalContent {
+        padding: 1.5rem;
+        width: 95%;
+    }
+    
+    .userDetails {
+        grid-template-columns: 1fr;
+    }
+    
+    .title {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dropdownMenu {
+        right: -20px;
+        min-width: 180px;
+    }
+    
+    .modalContent {
+        padding: 1rem;
+    }
+}

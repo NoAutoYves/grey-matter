@@ -351,7 +351,7 @@ def exercises_by_topic(subject, topic_id):
         return_db_connection(conn)
 
 @exercise_list_bp.route("/exercises/batch/progress", methods=["POST"])
-@limiter.limit("30 per minute")
+#@limiter.limit("30 per minute")
 def batch_get_exercise_progress():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')

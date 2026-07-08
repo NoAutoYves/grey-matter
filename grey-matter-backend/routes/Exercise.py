@@ -5,25 +5,32 @@ from utils.sanitise import sanitize_text
 from routes.Extensions import limiter
 import signal
 from functools import wraps
+import sys
 
 exercise_bp = Blueprint('exercise', __name__)
 
 processing_submissions = set()
 SUBMISSION_TIMEOUT = 45
 
-def timeout_handler(signum, frame):
-    raise TimeoutError("Submission timed out")
+# Only define signal handlers on Unix systems
+if sys.platform != 'win32':
+    def timeout_handler(signum, frame):
+        raise TimeoutError("Submission timed out")
 
 def with_timeout(seconds):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(seconds)
-            try:
+            if sys.platform != 'win32':
+                signal.signal(signal.SIGALRM, timeout_handler)
+                signal.alarm(seconds)
+                try:
+                    result = func(*args, **kwargs)
+                finally:
+                    signal.alarm(0)
+            else:
+                # On Windows, just run the function without timeout
                 result = func(*args, **kwargs)
-            finally:
-                signal.alarm(0)
             return result
         return wrapper
     return decorator
@@ -364,7 +371,7 @@ def get_exercise_batch_data(exercise_id):
         return_db_connection(conn)
 
 @exercise_bp.route("/exercise/batch-submit", methods=["POST"])
-@limiter.limit("5 per minute")
+#@limiter.limit("5 per minute")
 def batch_submit_exercise():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
@@ -399,8 +406,10 @@ def batch_submit_exercise():
     processing_submissions.add(submission_key)
     
     try:
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(SUBMISSION_TIMEOUT)
+        # Set timeout on Unix systems only
+        if sys.platform != 'win32':
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(SUBMISSION_TIMEOUT)
         
         if notes and notes != "No notes taken.":
             notes = sanitize_text(notes, max_length=5000)
@@ -496,7 +505,8 @@ def batch_submit_exercise():
             
             conn.commit()
             
-            signal.alarm(0)
+            if sys.platform != 'win32':
+                signal.alarm(0)
             
             return jsonify({
                 "success": True,
@@ -518,7 +528,8 @@ def batch_submit_exercise():
             log_activity(user_id, "batch_submit_failed", f"Error: {str(e)}", ip, ua)
             return jsonify({"error": str(e)}), 500
         finally:
-            signal.alarm(0)
+            if sys.platform != 'win32':
+                signal.alarm(0)
             cursor.close()
             return_db_connection(conn)
     

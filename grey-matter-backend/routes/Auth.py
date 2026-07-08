@@ -47,8 +47,8 @@ def log_activity(user_id, action, details, ip_address, user_agent):
         return_db_connection(conn)
 
 @auth_bp.route("/signup", methods=["POST"])
-@limiter.limit("3 per hour")
-@limiter.limit("10 per day")
+#@limiter.limit("3 per hour")
+#@limiter.limit("10 per day")
 @csrf.exempt
 def signup():
     ip = request.remote_addr
@@ -134,8 +134,8 @@ def signup():
         return_db_connection(conn)
 
 @auth_bp.route("/login", methods=["POST"])
-@limiter.limit("5 per minute")
-@limiter.limit("20 per hour")
+#@limiter.limit("5 per minute")
+#@limiter.limit("20 per hour")
 @csrf.exempt
 def login():   
     ip = request.remote_addr
@@ -201,8 +201,8 @@ def logout():
     return jsonify({"message": "Logged out successfully"}), 200
 
 @auth_bp.route("/forgot-password", methods=["POST"])
-@limiter.limit("3 per hour")
-@limiter.limit("10 per day")
+#@limiter.limit("3 per hour")
+#@limiter.limit("10 per day")
 @csrf.exempt
 def forgot_password():
     ip = request.remote_addr
@@ -295,7 +295,7 @@ Grey Matter Team"""
         return_db_connection(conn)
 
 @auth_bp.route("/reset-password", methods=["POST"])
-@limiter.limit("5 per hour")
+#@limiter.limit("5 per hour")
 @csrf.exempt
 def reset_password():
     ip = request.remote_addr

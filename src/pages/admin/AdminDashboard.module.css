@@ -1,0 +1,110 @@
+/* AdminDashboard.module.css */
+
+.container {
+    padding: 0;
+    background: transparent;
+    min-height: 100vh;
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e0e0e0;
+    margin-bottom: 25px;
+    position: relative;
+    display: inline-block;
+}
+
+.title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: #6846ff;
+    border-radius: 3px;
+}
+
+/* Stats Grid */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.statCard {
+    background: #35353b;
+    border: 1px solid #44444a;
+    border-radius: 12px;
+    padding: 25px 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.statCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    border-color: #6846ff;
+}
+
+.statCard h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a0a0a0;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.statCard .number {
+    font-size: 36px;
+    font-weight: 700;
+    color: #6846ff;
+    margin: 0;
+}
+
+.statCard .subtext {
+    font-size: 13px;
+    color: #666;
+    margin-top: 8px;
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+    font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .statCard .number {
+        font-size: 28px;
+    }
+    
+    .title {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .statCard {
+        padding: 20px;
+    }
+    
+    .statCard .number {
+        font-size: 24px;
+    }
+}

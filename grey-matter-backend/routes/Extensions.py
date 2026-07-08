@@ -4,7 +4,7 @@ from flask_wtf.csrf import CSRFProtect
 import os
 
 if os.environ.get("FLASK_DEBUG", "False").lower() == "true":
-    DEFAULT_LIMITS = ["1000 per day", "200 per hour", "10 per minute"]
+    DEFAULT_LIMITS = ["10000 per day", "1000 per hour", "100 per minute"]
 else:
     DEFAULT_LIMITS = ["200 per day", "50 per hour", "5 per minute"]
 
@@ -13,15 +13,21 @@ limiter = Limiter(
     default_limits=DEFAULT_LIMITS,
     storage_uri="memory://",
     strategy="fixed-window",
+    enabled=not os.environ.get("FLASK_DEBUG", "False").lower() == "true",  # Disable rate limiter in dev
 )
 
-@limiter.request_filter
+#@limiter.request_filter
 def bypass_rate_limits():
+    # Bypass completely in development mode
     if os.environ.get("FLASK_DEBUG", "False").lower() == "true":
         return True
+    
     from flask import request
     if request and request.path == '/api/health':
         return True
+    if request and request.path == '/api/csrf-token':
+        return True
+    
     return False
 
 csrf = CSRFProtect()
