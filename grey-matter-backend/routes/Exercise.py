@@ -12,7 +12,6 @@ exercise_bp = Blueprint('exercise', __name__)
 processing_submissions = set()
 SUBMISSION_TIMEOUT = 45
 
-# Only define signal handlers on Unix systems
 if sys.platform != 'win32':
     def timeout_handler(signum, frame):
         raise TimeoutError("Submission timed out")
@@ -29,7 +28,6 @@ def with_timeout(seconds):
                 finally:
                     signal.alarm(0)
             else:
-                # On Windows, just run the function without timeout
                 result = func(*args, **kwargs)
             return result
         return wrapper
@@ -84,7 +82,8 @@ def get_exercise(subject, exercise_id):
         
         cursor.execute("""
             SELECT question_text, option_a, option_b, option_c, option_d, correct_answer, 
-                   encode(image_data, 'base64') as image_base64, image_mime_type
+                   encode(image_data, 'base64') as image_base64, image_mime_type,
+                   image_url
             FROM questions
             WHERE exercise_id = %s
             ORDER BY display_order, question_id
@@ -98,12 +97,13 @@ def get_exercise(subject, exercise_id):
         
         questions = []
         for q in questions_data:
-            question_text, opt_a, opt_b, opt_c, opt_d, correct_answer, image_base64, image_mime_type = q
+            question_text, opt_a, opt_b, opt_c, opt_d, correct_answer, image_base64, image_mime_type, image_url = q
             
             question_obj = {
                 "question_text": question_text,
                 "options": [opt_a, opt_b, opt_c, opt_d],
-                "correct_answer": correct_answer
+                "correct_answer": correct_answer,
+                "image_url": image_url
             }
             
             if image_base64 and image_mime_type:
@@ -304,7 +304,8 @@ def get_exercise_batch_data(exercise_id):
         cursor.execute("""
             SELECT question_id, question_text, option_a, option_b, option_c, option_d, 
                    correct_answer, marks, display_order,
-                   encode(image_data, 'base64') as image_base64, image_mime_type
+                   encode(image_data, 'base64') as image_base64, image_mime_type,
+                   image_url
             FROM questions
             WHERE exercise_id = %s
             ORDER BY display_order, question_id
@@ -324,7 +325,7 @@ def get_exercise_batch_data(exercise_id):
         questions = []
         for q in questions_data:
             (q_id, q_text, opt_a, opt_b, opt_c, opt_d, correct, marks, 
-             display_order, image_base64, image_mime_type) = q
+             display_order, image_base64, image_mime_type, image_url) = q
             
             question_obj = {
                 "question_id": q_id,
@@ -332,7 +333,8 @@ def get_exercise_batch_data(exercise_id):
                 "options": [opt_a, opt_b, opt_c, opt_d],
                 "correct_answer": correct,
                 "marks": marks,
-                "display_order": display_order
+                "display_order": display_order,
+                "image_url": image_url
             }
             
             if image_base64 and image_mime_type:
@@ -371,7 +373,7 @@ def get_exercise_batch_data(exercise_id):
         return_db_connection(conn)
 
 @exercise_bp.route("/exercise/batch-submit", methods=["POST"])
-#@limiter.limit("5 per minute")
+@limiter.limit("5 per minute")
 def batch_submit_exercise():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
@@ -406,7 +408,6 @@ def batch_submit_exercise():
     processing_submissions.add(submission_key)
     
     try:
-        # Set timeout on Unix systems only
         if sys.platform != 'win32':
             signal.signal(signal.SIGALRM, timeout_handler)
             signal.alarm(SUBMISSION_TIMEOUT)
@@ -431,19 +432,54 @@ def batch_submit_exercise():
             
             correct_answers = {row[0]: row[1] for row in cursor.fetchall()}
             
+            # ========== FIX: Compare answers properly ==========
             for answer in answers:
                 q_id = answer['question_id']
-                selected = answer.get('selected_option', '')
-                if q_id in correct_answers and selected == correct_answers[q_id]:
-                    correct_count += 1
+                selected = answer.get('selected_option', '').strip()
+                correct = correct_answers.get(q_id, '').strip()
+                
+                # Debug logging
+                print(f"Comparing: '{selected}' vs '{correct}' for question {q_id}")
+                
+                if q_id in correct_answers:
+                    # Direct match
+                    if selected == correct:
+                        correct_count += 1
+                    # Handle case where correct is a letter and selected is text
+                    elif len(correct) == 1 and correct.isalpha():
+                        # Check if selected starts with the letter (e.g., "B" vs "B) Option text")
+                        if selected.startswith(correct) or selected == correct:
+                            correct_count += 1
+                    # Handle case where selected is a letter and correct is text
+                    elif len(selected) == 1 and selected.isalpha():
+                        if correct.startswith(selected) or correct == selected:
+                            correct_count += 1
+            # ========== END FIX ==========
             
             score = correct_count
             percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
             
+            # ========== FIX: Properly serialize JSON ==========
+            # Ensure breakdown is serializable
+            breakdown_serializable = []
+            for item in breakdown:
+                if isinstance(item, dict):
+                    # Make sure all values are JSON serializable
+                    serialized_item = {}
+                    for key, value in item.items():
+                        if isinstance(value, (str, int, float, bool, list, dict, type(None))):
+                            serialized_item[key] = value
+                        else:
+                            serialized_item[key] = str(value)
+                    breakdown_serializable.append(serialized_item)
+                else:
+                    breakdown_serializable.append(str(item))
+            
             answers_json = json.dumps({
-                "answers": {a['question_id']: a.get('selected_option', '') for a in answers},
-                "breakdown": breakdown
+                "answers": {str(a['question_id']): a.get('selected_option', '') for a in answers},
+                "breakdown": breakdown_serializable
             })
+            # ========== END FIX ==========
             
             cursor.execute("""
                 SELECT progress_id, retake_count FROM user_progress 

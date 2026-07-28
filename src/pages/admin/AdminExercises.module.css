@@ -426,6 +426,34 @@
     margin: 0 3px;
 }
 
+.imageUploadWrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.uploadStatus {
+    color: #ffc107;
+    font-size: 13px;
+}
+
+.uploadStatusSuccess {
+    color: #5cb85c;
+    font-size: 13px;
+}
+
+.uploadStatusError {
+    color: #e53935;
+    font-size: 13px;
+}
+
+.imageFilename {
+    font-size: 11px;
+    color: #888;
+    word-break: break-all;
+}
+
 /* Responsive */
 @media (max-width: 992px) {
     .table {

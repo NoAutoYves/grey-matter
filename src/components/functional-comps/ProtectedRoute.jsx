@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiRequest } from "../../utils/api";
+import { apiRequest, checkSession } from "../../utils/api";
 
 function ProtectedRoute({ children, requireAdmin = false }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -12,10 +12,10 @@ function ProtectedRoute({ children, requireAdmin = false }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Check authentication
-        const authResponse = await apiRequest(`/auth/check-session`);
+        // Use cached session check - prevents rate limiting
+        const sessionData = await checkSession();
         
-        if (authResponse.status === 401) {
+        if (!sessionData.authenticated) {
           setIsAuthenticated(false);
           setShowMessage(true);
           setTimeout(() => {
@@ -24,31 +24,24 @@ function ProtectedRoute({ children, requireAdmin = false }) {
           return;
         }
         
-        if (authResponse.ok) {
-          setIsAuthenticated(true);
-          
-          // Only check admin if required
-          if (requireAdmin) {
-            const adminResponse = await apiRequest(`/auth/check-admin`);
-            if (adminResponse.ok) {
-              const adminData = await adminResponse.json();
-              setIsAdmin(adminData.is_admin);
-              
-              if (!adminData.is_admin) {
-                setMessage("Admin access required. You do not have permission to view this page.");
-                setShowMessage(true);
-                setTimeout(() => {
-                  navigate("/");
-                }, 2500);
-              }
+        // User is authenticated
+        setIsAuthenticated(true);
+        
+        // Only check admin if required
+        if (requireAdmin) {
+          const adminResponse = await apiRequest(`/auth/check-admin`);
+          if (adminResponse.ok) {
+            const adminData = await adminResponse.json();
+            setIsAdmin(adminData.is_admin);
+            
+            if (!adminData.is_admin) {
+              setMessage("Admin access required. You do not have permission to view this page.");
+              setShowMessage(true);
+              setTimeout(() => {
+                navigate("/");
+              }, 2500);
             }
           }
-        } else {
-          setIsAuthenticated(false);
-          setShowMessage(true);
-          setTimeout(() => {
-            navigate("/login");
-          }, 2500);
         }
       } catch (err) {
         console.error("Auth check failed:", err);

@@ -4,7 +4,7 @@ import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { api } from "../utils/api";  // <-- CHANGED: import api instead of apiRequest
+import { api, BASE_URL } from "../utils/api";
 import MathRenderer from "../components/functional-comps/MathRenderer";
 
 function Exercise() {
@@ -27,7 +27,6 @@ function Exercise() {
   const notesRef = useRef(null);
   const answeredRef = useRef(answered);
 
-  // Save progress to localStorage
   const saveProgress = () => {
     const progress = {
       answered,
@@ -40,7 +39,6 @@ function Exercise() {
     localStorage.setItem(`exercise_progress_${exerciseId}`, JSON.stringify(progress));
   };
 
-  // Load progress from localStorage
   const loadProgress = () => {
     const saved = localStorage.getItem(`exercise_progress_${exerciseId}`);
     if (saved) {
@@ -56,12 +54,10 @@ function Exercise() {
     }
   };
 
-  // Clear progress after quiz completion
   const clearProgress = () => {
     localStorage.removeItem(`exercise_progress_${exerciseId}`);
   };
 
-  // Warn before leaving if quiz is in progress
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (Object.keys(answered).length > 0 && !dataLoaded) {
@@ -74,7 +70,6 @@ function Exercise() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [answered, dataLoaded]);
 
-  // Save progress whenever state changes
   useEffect(() => {
     if (exerciseId && exerciseData.length > 0 && Object.keys(answered).length > 0) {
       saveProgress();
@@ -85,7 +80,6 @@ function Exercise() {
     answeredRef.current = answered;
   }, [answered]);
 
-  // Timer
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setSecondsElapsed(prev => prev + 1);
@@ -99,29 +93,22 @@ function Exercise() {
     return `${minutes}:${seconds}`;
   };
 
-  // ============================================================
-  // UPDATED: Fetch exercise data using BATCH endpoint
-  // ============================================================
   useEffect(() => {
     const fetchExercise = async () => {
       try {
-        // Use batch endpoint - gets exercise + questions in ONE request
         const response = await api.batch.getExerciseData(parseInt(exerciseId));
         const data = await response.json();
         
         if (response.ok) {
-          // Transform questions to match expected format
           const formattedQuestions = data.questions.map(q => ({
             question_text: q.question_text,
             options: q.options,
             correct_answer: q.correct_answer,
-            image_url: q.image_data || null,  // image_data is already a data URL
+            image_url: q.image_url || null,
             question_id: q.question_id
           }));
           
           setExerciseData(formattedQuestions);
-          
-          // Load saved progress after data is loaded
           loadProgress();
           setDataLoaded(true);
         } else {
@@ -192,17 +179,31 @@ function Exercise() {
             answersObj[i] = newAnswered[i];
           }
           
-          // Format answers for batch submission
-          const formattedAnswers = Object.entries(newAnswered).map(([index, letter]) => ({
-            question_id: exerciseData[parseInt(index)].question_id || parseInt(index) + 1,
-            selected_option: letter
-          }));
+          // ========== FIXED: Use proper question_id from exerciseData ==========
+          const formattedAnswers = Object.entries(newAnswered)
+            .map(([index, letter]) => {
+              const questionId = exerciseData[parseInt(index)]?.question_id;
+              
+              // Log warning if question_id is missing
+              if (!questionId) {
+                console.warn(`Missing question_id for index ${index}, skipping this answer`);
+                return null;
+              }
+              
+              return {
+                question_id: questionId,
+                selected_option: letter
+              };
+            })
+            .filter(Boolean); // Remove any null entries
+          // ========== END FIX ==========
           
-          // ============================================================
-          // UPDATED: Submit using BATCH endpoint
-          // ============================================================
           const submitExercise = async () => {
             try {
+              // Log what we're submitting for debugging
+              console.log("Submitting answers:", formattedAnswers);
+              console.log("Exercise data:", exerciseData);
+              
               const response = await api.batch.submitExercise(
                 parseInt(exerciseId),
                 formattedAnswers,
@@ -225,7 +226,6 @@ function Exercise() {
           
           submitExercise();
           
-          // Store results in localStorage for results page
           localStorage.setItem("finalScore", finalScore);
           localStorage.setItem("totalQuestions", totalQuestions);
           localStorage.setItem("timeTaken", timeTaken);
@@ -311,14 +311,12 @@ function Exercise() {
           </div>
 
           <div className="quiz-box">
-            {/* Question text with math rendering */}
             <h2><MathRenderer text={currentQ.question_text} /></h2>
             
-            {/* Question image (if exists) */}
             {currentQ.image_url && (
               <div className="question-image-container">
                 <img 
-                  src={currentQ.image_url} 
+                  src={`${BASE_URL}${currentQ.image_url}`} 
                   alt="Question diagram" 
                   className="question-image"
                   loading="lazy"
@@ -330,7 +328,6 @@ function Exercise() {
               </div>
             )}
             
-            {/* Options grid with math rendering */}
             <div className="options-grid">
               {currentQ.options.map((option, idx) => {
                 const letter = String.fromCharCode(65 + idx);

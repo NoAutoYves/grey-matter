@@ -1,9 +1,15 @@
 // utils/api.js
 let csrfToken = null;
 
+// Session cache
+let sessionCache = null;
+let sessionCacheTime = 0;
+const SESSION_CACHE_TTL = 60000; // 1 minute
+
 // Base URL configuration
-// const BASE_URL = 'https://greymatterschool.co.za';
-const BASE_URL = 'http://localhost:5000';
+// export const BASE_URL = 'http://localhost:5000';
+export const BASE_URL = 'https://greymatterschool.co.za';
+
 const API_BASE_URL = `${BASE_URL}/api`;
 
 // Get CSRF token from backend
@@ -21,11 +27,43 @@ export async function fetchCSRFToken() {
     }
 }
 
+// Cached session check - prevents rate limiting
+export async function checkSession() {
+    const now = Date.now();
+    
+    // Return cached result if still fresh
+    if (sessionCache && (now - sessionCacheTime) < SESSION_CACHE_TTL) {
+        return sessionCache;
+    }
+    
+    try {
+        const response = await fetch(`${BASE_URL}/auth/check-session`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            sessionCache = { authenticated: true, user_id: data.user_id };
+        } else {
+            sessionCache = { authenticated: false };
+        }
+        
+        sessionCacheTime = now;
+        return sessionCache;
+    } catch (error) {
+        console.error('Session check failed:', error);
+        sessionCache = { authenticated: false };
+        sessionCacheTime = now;
+        return sessionCache;
+    }
+}
+
 // Main API request function
 export async function apiRequest(url, options = {}) {
     const method = options.method || 'GET';
     
-    // Add CSRF token for state-changing requests
     if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
         if (!csrfToken) {
             await fetchCSRFToken();
@@ -35,38 +73,31 @@ export async function apiRequest(url, options = {}) {
             'X-CSRFToken': csrfToken
         };
         
-        // ONLY set Content-Type to JSON if no Content-Type is specified AND body is not URLSearchParams
         if (!options.headers['Content-Type'] && !(options.body instanceof URLSearchParams) && !(options.body instanceof FormData)) {
             options.headers['Content-Type'] = 'application/json';
         }
     }
     
-    // Build the full URL correctly
     let fullUrl;
     if (url.startsWith('/api/')) {
-        // If it's already an API path
         fullUrl = `${BASE_URL}${url}`;
     } else if (url.startsWith('/')) {
-        // If it's a relative path (like /auth/login)
         fullUrl = `${BASE_URL}${url}`;
     } else {
-        // If it's a relative path without leading slash
         fullUrl = `${BASE_URL}/${url}`;
     }
     
-    console.log('API Request URL:', fullUrl, 'Method:', method); // Debug log
+    console.log('API Request URL:', fullUrl, 'Method:', method);
     
     const response = await fetch(fullUrl, {
         ...options,
         credentials: 'include'
     });
     
-    // Handle 401 Unauthorized - just throw error without redirect
     if (response.status === 401) {
         throw new Error('Session expired');
     }
     
-    // If CSRF token expired (400 error), refresh and retry once
     if (response.status === 400) {
         const text = await response.text();
         if (text.includes('CSRF')) {
@@ -74,7 +105,6 @@ export async function apiRequest(url, options = {}) {
             options.headers['X-CSRFToken'] = csrfToken;
             const retryResponse = await fetch(fullUrl, { ...options, credentials: 'include' });
             
-            // Check for session expiration on retry
             if (retryResponse.status === 401) {
                 throw new Error('Session expired');
             }
@@ -92,7 +122,6 @@ export const api = {
         const isFormData = body instanceof FormData;
         const headers = { ...options.headers };
         
-        // Don't set Content-Type for FormData - browser will set it with boundary
         if (isFormData) {
             delete headers['Content-Type'];
         }
@@ -112,15 +141,7 @@ export const api = {
     }),
     delete: (url, options = {}) => apiRequest(url, { ...options, method: 'DELETE' }),
 
-    // ============================================================
-    // NEW BATCH METHODS
-    // ============================================================
     batch: {
-        /**
-         * Get exercise, questions, and user progress in ONE request
-         * @param {number} exerciseId - The exercise ID
-         * @returns {Promise<Response>} - Response with { exercise, questions, progress }
-         */
         getExerciseData: (exerciseId) => {
             return apiRequest(`/api/exercise/batch-data/${exerciseId}`, {
                 method: 'GET',
@@ -128,15 +149,6 @@ export const api = {
             });
         },
 
-        /**
-         * Submit entire exercise at once
-         * @param {number} exerciseId - The exercise ID
-         * @param {Array} answers - Array of { question_id, selected_option }
-         * @param {number} timeTaken - Time taken in seconds
-         * @param {string} notes - User notes (optional)
-         * @param {Array} breakdown - Array of question breakdown (optional)
-         * @returns {Promise<Response>} - Response with { success, progress_id, score, total_questions, percentage }
-         */
         submitExercise: (exerciseId, answers, timeTaken, notes = "No notes taken.", breakdown = []) => {
             return apiRequest('/api/exercise/batch-submit', {
                 method: 'POST',
@@ -151,11 +163,6 @@ export const api = {
             });
         },
 
-        /**
-         * Get results for multiple exercises in ONE request
-         * @param {Array} exerciseIds - Array of exercise IDs
-         * @returns {Promise<Response>} - Response with { results: { exerciseId: { score, total_questions, percentage, ... } } }
-         */
         getResults: (exerciseIds) => {
             return apiRequest('/api/exercise/batch-results', {
                 method: 'POST',

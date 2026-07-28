@@ -85,7 +85,7 @@ def get_exercise_results(exercise_id):
 # ============================================================
 
 @results_bp.route("/results/batch", methods=["POST"])
-#@limiter.limit("30 per minute")
+@limiter.limit("30 per minute")
 def batch_get_results():
     """Get results for multiple exercises in one request"""
     ip = request.remote_addr
@@ -182,7 +182,7 @@ def batch_get_results():
         return_db_connection(conn)
 
 @results_bp.route("/results/recent", methods=["GET"])
-#@limiter.limit("30 per minute")
+@limiter.limit("30 per minute")
 def get_recent_results():
     """Get recent exercise results for dashboard in one request"""
     ip = request.remote_addr
@@ -256,7 +256,7 @@ def get_recent_results():
         return_db_connection(conn)
 
 @results_bp.route("/results/summary", methods=["GET"])
-#@limiter.limit("30 per minute")
+@limiter.limit("30 per minute")
 def get_results_summary():
     """Get overall results summary for dashboard in one request"""
     ip = request.remote_addr

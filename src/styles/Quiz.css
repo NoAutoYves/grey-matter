@@ -8,7 +8,7 @@
   position: relative;
   font-family: 'noto', sans-serif;
   color: black;
-  background-image: url('../assets/images/background-images/MainBG.jpeg');
+  background-image: url('../assets/images/background-images/MainBG.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -19,6 +19,8 @@
   flex-direction: column;
   padding: 1rem;
   gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .quiz-container {
@@ -39,73 +41,88 @@
 .info-box {
   background: rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
-  border-radius: 10px;
-  padding: 0.5rem 0.5rem;
+  border-radius: 12px;
+  padding: 0.6rem 1.2rem;
   text-align: center;
   min-width: 80px;
 }
 
 .info-box h4 {
   margin: 0;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: normal;
+  color: black;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .info-box p {
-  margin: 0;
-  font-size: 0.7rem;
+  margin: 2px 0 0;
+  font-size: 1.1rem;
   font-weight: bold;
+  color: black;
 }
 
 .quiz-box {
   background: rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(12px);
-  border-radius: 10px;
-  padding: 1rem;
-  width: 90%;
+  border-radius: 20px;
+  padding: 1.5rem;
+  width: 100%;
   box-sizing: border-box;
-  margin-left: 20px;
-  margin-right: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .quiz-box h2 {
-  font-size: 1rem;
-  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  margin-bottom: 1.2rem;
   word-wrap: break-word;
   text-align: center;
+  color: black;
 }
 
 .options-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.8rem;
+  gap: 0.7rem;
   margin: 1rem 0;
 }
 
 .option {
-  padding: 0.8rem;
-  border-radius: 10px;
-  border: none;
-  background: rgba(0, 0, 0, 0.15);
-  font-weight: bold;
+  padding: 0.9rem 1.2rem;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 500;
   cursor: pointer;
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  color: black;
+  transition: all 0.15s ease;
+}
+
+.option:hover:not(:disabled) {
+  border-color: rgba(104, 70, 255, 0.6);
+  background: rgba(104, 70, 255, 0.15);
+  transform: translateY(-1px);
 }
 
 .option.correct {
-  background-color: #81C784;
-  color: white;
+  border-color: #00b894;
+  background: rgba(0, 184, 148, 0.25);
+  color: #3ba941;
 }
 
 .option.incorrect {
-  background-color: #E57373;
-  color: white;
+  border-color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.25);
+  color: #E57373;
 }
 
 .option.selected {
-  background-color: #00d431;
-  color: white;
+  border-color: #6846ff;
+  background: #6846ff;
+  color: black;
 }
 
 .quiz-nav {
@@ -116,17 +133,36 @@
 }
 
 .nav-button {
-  padding: 0.5rem 1rem;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(0, 0, 0, 0.1);
-  font-weight: bold;
+  padding: 0.6rem 1.5rem;
+  border-radius: 30px;
+  border: none;
+  background: #6846ff;
+  color: white;
+  font-weight: 600;
   cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+
+.nav-button:hover:not(:disabled) {
+  background: #5535cc;
+  transform: translateY(-1px);
+}
+
+.nav-button:first-child {
+  background: rgba(255, 255, 255, 0.15);
+  color: black;
+  backdrop-filter: blur(5px);
+}
+
+.nav-button:first-child:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .nav-button:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  transform: none;
 }
 
 .notes-sidebar {
@@ -137,196 +173,146 @@
 .notes-box {
   background: rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .notes-box h4 {
   margin: 0 0 0.5rem 0;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  color: black;
 }
 
 #notes {
   width: 100%;
-  height: 150px;
+  height: 120px;
   border-radius: 10px;
-  border: solid rgba(0, 0, 0, 0.51);
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid #6846ff;
+  padding: 0.7rem;
+  background: rgba(255, 255, 255, 0.08);
   resize: vertical;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   box-sizing: border-box;
+  font-family: inherit;
+  color: black;
 }
 
 #notes::placeholder {
-  color: #aaa;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#notes:focus {
+  outline: none;
+  border-color: #6846ff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.question-image-container {
+  text-align: center;
+  margin: 1rem 0;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.question-image {
+  max-width: 70%;
+  max-height: 250px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: white;
+  padding: 0.3rem;
 }
 
 /* Tablet */
-@media (min-width: 768px) and (max-width: 1023px)  {
-  .quiz-page {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    font-family: 'noto', sans-serif;
-    font-size: 1rem;
-    background-image: url('../assets/images/background-images/MainBG.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-
+@media (min-width: 768px) and (max-width: 1023px) {
   .main-layout {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    padding: 20px 20px;
-  }
-
-  .quiz-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 700px;
-  }
-
-  .quiz-info-row {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    margin-bottom: 15px;
-    margin-top: 30px;
-  }
-
-  .info-box {
-    background: rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 10px;
-    padding: 1rem 2.5rem;
-    text-align: center;
-    min-width: 80px;
-  }
-
-  .info-box h4 {
-    margin: 0;
-    font-size: 1rem;
-  }
-
-  .info-box p {
-    margin: 5px 0 0;
-    font-size: 1.3rem;
+    padding: 1.5rem;
+    gap: 1.5rem;
   }
 
   .quiz-box {
-    width: 100%;
-    max-width: 550px;
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 20px;
+    padding: 2rem;
   }
 
   .quiz-box h2 {
-    margin-bottom: 20px;
-    text-align: center;
-    line-height: 1.4;
-    font-size: 1.7rem;
-  }
-
-  .options-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    font-size: 1.4rem;
   }
 
   .option {
-    padding: 12px;
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(8px);
-    cursor: pointer;
-    text-align: center;
-    font-size: 1.2rem;
-  }
-
-  .quiz-nav {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  .nav-button {
-    padding: 8px 14px;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(8px);
-    cursor: pointer;
-    font-size: 0.8rem;
-  }
-
-  .nav-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .notes-sidebar {
-    width: 100%;
-    max-width: 700px;
-    display: flex;
-    justify-content: center;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
   }
 
   .notes-box {
-    width: 100%;
-    max-width: 550px;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    padding: 15px;
+    padding: 1.5rem;
   }
 
-  .notes-box textarea {
-    width: 100%;
-    height: 200px;
-    resize: none;
-    padding: 10px;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(8px);
-    font-size: 0.8rem;
-    box-sizing: border-box;
+  #notes {
+    height: 160px;
+  }
+
+  .question-image {
+    max-height: 300px;
   }
 }
 
-/* Laptop / Desktop - FOURTH STYLE "Sidebar Focus" */
+/* Desktop */
 @media (min-width: 1024px) {
-  .quiz-page {
-    min-height: 100vh;
-    position: relative;
-    font-family: 'noto', sans-serif;
-    color: black;
-    background-image: url('../assets/images/background-images/desktopBG.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-
-  /* NEW: Two-column layout with wide sidebar on LEFT */
   .main-layout {
-    display: flex;
     flex-direction: row;
     padding: 2rem;
     gap: 2rem;
-    max-width: 1600px;
-    margin: 0 auto;
-    width: 95%;
   }
 
-  /* NEW: Notes on LEFT (wide, takes 30%) */
+  .quiz-container {
+    width: 70%;
+    order: 2;
+  }
+
+  .quiz-info-row {
+    justify-content: flex-end;
+  }
+
+  .info-box {
+    padding: 0.4rem 1.2rem;
+    min-width: 70px;
+  }
+
+  .info-box h4 {
+    font-size: 0.6rem;
+  }
+
+  .info-box p {
+    font-size: 1rem;
+  }
+
+  .quiz-box {
+    padding: 2.5rem;
+  }
+
+  .quiz-box h2 {
+    font-size: 1.3rem;
+    text-align: left;
+    padding-left: 0.5rem;
+    border-left: 4px solid #6846ff;
+  }
+
+  .options-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+  }
+
+  .option {
+    text-align: left;
+    padding: 1rem 1.2rem;
+  }
+
+  .quiz-nav {
+    justify-content: space-between;
+  }
+
   .notes-sidebar {
     width: 30%;
     margin-top: 0;
@@ -334,247 +320,44 @@
   }
 
   .notes-box {
-    background: rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(12px);
-    border-radius: 24px;
-    padding: 1.5rem;
-    width: 100%;
-    height: auto;
     position: sticky;
     top: 2rem;
   }
 
-  .notes-box h4 {
-    margin: 0 0 1rem 0;
-    font-size: 1.2rem;
-    text-align: center;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-    padding-bottom: 0.5rem;
-  }
-
   #notes {
-    width: 100%;
-    height: 350px;
-    border-radius: 16px;
-    border: solid 1px #6846ff;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    resize: vertical;
-    font-size: 0.95rem;
-    box-sizing: border-box;
-    line-height: 1.5;
-  }
-
-  #notes:focus {
-    outline: 2px solid #6846ff;
-    background: rgba(255, 255, 255, 0.15);
-  }
-
-  /* NEW: Quiz on RIGHT (takes 70%) */
-  .quiz-container {
-    display: flex;
-    flex-direction: column;
-    width: 70%;
-    order: 2;
-  }
-
-  /* NEW: Stats as minimal badges at top-right of quiz */
-  .quiz-info-row {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .info-box {
-    background: rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(8px);
-    border-radius: 40px;
-    padding: 0.4rem 1rem;
-    text-align: center;
-    min-width: 80px;
-  }
-
-  .info-box h4 {
-    margin: 0;
-    font-size: 0.7rem;
-    font-weight: normal;
-    opacity: 0.8;
-  }
-
-  .info-box p {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: bold;
-  }
-
-  /* NEW: Quiz box with gradient border effect */
-  .quiz-box {
-    background: rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(16px);
-    border-radius: 28px;
-    padding: 2rem;
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-  }
-
-  .quiz-box h2 {
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
-    word-wrap: break-word;
-    text-align: left;
-    padding-left: 1rem;
-    border-left: 4px solid #6846ff;
-  }
-
-  /* NEW: Options as 2x2 grid but with hover effects */
-  .options-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin: 2rem 0;
-  }
-
-  .option {
-    padding: 1.2rem 1rem;
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.2);
-    font-weight: 500;
-    cursor: pointer;
-    text-align: left;
-    font-size: 0.95rem;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* NEW: Hover effect with slide */
-  .option:hover:not(:disabled)::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 4px;
-    background: #6846ff;
-  }
-
-  .option:hover:not(:disabled) {
-    background: rgba(0, 0, 0, 0.35);
-    transform: translateX(4px);
-  }
-
-  .option.correct {
-    background-color: #81C784;
-    color: white;
-  }
-
-  .option.incorrect {
-    background-color: #E57373;
-    color: white;
-  }
-
-  .option.selected {
-    background-color: #6846ff;
-    color: white;
-  }
-
-  /* NEW: Navigation with icons (simulated) */
-  .quiz-nav {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-
-  .nav-button {
-    padding: 0.8rem 1.8rem;
-    border-radius: 40px;
-    border: none;
-    background: rgba(0, 0, 0, 0.2);
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.95rem;
-    backdrop-filter: blur(5px);
-  }
-
-  .nav-button:first-child:hover:not(:disabled) {
-    background: rgba(0, 0, 0, 0.35);
-    transform: translateX(-3px);
-  }
-
-  .nav-button:last-child {
-    background: linear-gradient(135deg, #6846ff, #8a6eff);
-    color: white;
-  }
-
-  .nav-button:last-child:hover:not(:disabled) {
-    filter: brightness(1.1);
-    transform: translateX(3px);
-  }
-
-  .nav-button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  /* NEW: Progress indicator dots */
-  .quiz-progress-dots {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
-  }
-
-  .progress-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.3);
-    transition: all 0.2s;
-  }
-
-  .progress-dot.active {
-    width: 24px;
-    border-radius: 4px;
-    background: #6846ff;
-  }
-
-  .progress-dot.answered {
-    background: rgba(0, 0, 0, 0.6);
-  }
-
-  /* Question image styling */
-  .question-image-container {
-    text-align: center;
-    margin: 1.5rem 0;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    padding: 1rem;
+    height: 450px;
   }
 
   .question-image {
-    max-width: 100%;
-    max-height: 300px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    object-fit: contain;
+    max-height: 350px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 480px) {
+  .quiz-box {
+    padding: 1rem;
   }
 
-  /* For geometry diagrams - ensure they're clear */
-  .question-image-container img {
-    background: white;
-    padding: 0.5rem;
+  .quiz-box h2 {
+    font-size: 0.95rem;
   }
 
-  /* Mobile responsiveness for images */
-  @media (max-width: 768px) {
-    .question-image {
-      max-height: 200px;
-    }
-  }  
+  .option {
+    font-size: 0.8rem;
+    padding: 0.7rem 1rem;
+  }
+
+  .info-box {
+    padding: 0.4rem 0.8rem;
+    min-width: 60px;
+  }
+
+  .info-box p {
+    font-size: 0.9rem;
+  }
+
+  .question-image {
+    max-height: 180px;
+  }
 }

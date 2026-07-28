@@ -54,14 +54,23 @@ def get_profile():
         
         first_name, last_name, username, bio, avatar, phone, country, is_admin = user
         
-        # Fetch user stats from user_progress
+        # ========== FIXED: Only use latest attempt per exercise ==========
         cursor.execute("""
-            SELECT COUNT(*) as total_exercises, 
-                   COALESCE(AVG(percentage), 0) as avg_score,
-                   COALESCE(AVG(time_taken_seconds), 0) as avg_time
-            FROM user_progress 
-            WHERE user_id = %s
+            SELECT 
+                COUNT(*) as total_exercises,
+                COALESCE(AVG(percentage), 0) as avg_score,
+                COALESCE(AVG(time_taken_seconds), 0) as avg_time
+            FROM (
+                SELECT DISTINCT ON (exercise_id) 
+                    exercise_id, 
+                    percentage, 
+                    time_taken_seconds
+                FROM user_progress 
+                WHERE user_id = %s
+                ORDER BY exercise_id, completed_at DESC
+            ) as latest_attempts
         """, (user_id,))
+        # ========== END FIX ==========
         
         stats = cursor.fetchone()
         total_exercises = stats[0] or 0
@@ -90,24 +99,45 @@ def get_profile():
                 "created_at": note[1].strftime("%Y-%m-%d %H:%M") if note[1] else None
             })
         
-        # Fetch recent activities from user_progress joined with exercises
+        # ========== FIXED: Recent activities with grade, subject, exercise_id, topic_id ==========
+        # LIMIT 10 - shows only the latest 10 exercises
         cursor.execute("""
-            SELECT e.exercise_title, up.score, up.total_questions, up.completed_at 
+            SELECT 
+                e.exercise_title, 
+                up.score, 
+                up.total_questions, 
+                up.completed_at,
+                e.exercise_id,
+                e.topic_id,
+                g.grade_level,
+                s.subject_name
             FROM user_progress up
             JOIN exercises e ON up.exercise_id = e.exercise_id
+            JOIN topics t ON e.topic_id = t.topic_id
+            JOIN grades g ON t.grade_id = g.grade_id
+            JOIN subjects s ON t.subject_id = s.subject_id
             WHERE up.user_id = %s 
-            ORDER BY up.completed_at DESC 
+            ORDER BY up.completed_at DESC
             LIMIT 10
         """, (user_id,))
+        # ========== END FIX ==========
+        
         activities_rows = cursor.fetchall()
         
         recent_activities = []
         for activity in activities_rows:
-            exercise_title, score, total_questions, completed_at = activity
+            exercise_title, score, total_questions, completed_at, exercise_id, topic_id, grade_level, subject_name = activity
             action = f"{exercise_title} - Score: {score}/{total_questions}"
             recent_activities.append({
                 "action": action,
-                "created_at": completed_at.strftime("%Y-%m-%d %H:%M") if completed_at else None
+                "created_at": completed_at.strftime("%Y-%m-%d %H:%M") if completed_at else None,
+                "exercise_id": exercise_id,
+                "topic_id": topic_id,
+                "grade": grade_level,
+                "subject": subject_name,
+                "exercise_title": exercise_title,
+                "score": score,
+                "total_questions": total_questions
             })
         
         log_activity(user_id, "profile_view", f"Profile viewed - {total_exercises} exercises completed", ip, ua)
@@ -264,7 +294,7 @@ def update_avatar():
 # ============================================================
 
 @profile_bp.route("/profile/batch-stats", methods=["GET"])
-#@limiter.limit("30 per minute")
+@limiter.limit("30 per minute")
 def batch_profile_stats():
     """Get profile, stats, notes, and activities in one request"""
     ip = request.remote_addr
@@ -292,13 +322,23 @@ def batch_profile_stats():
         
         first_name, last_name, username, bio, avatar, phone, country, is_admin = user
         
-        # Get stats
+        # ========== FIXED: Only use latest attempt per exercise ==========
         cursor.execute("""
-            SELECT COUNT(*) as total_exercises, 
-                   COALESCE(AVG(percentage), 0) as avg_score,
-                   COALESCE(AVG(time_taken_seconds), 0) as avg_time
-            FROM user_progress WHERE user_id = %s
+            SELECT 
+                COUNT(*) as total_exercises,
+                COALESCE(AVG(percentage), 0) as avg_score,
+                COALESCE(AVG(time_taken_seconds), 0) as avg_time
+            FROM (
+                SELECT DISTINCT ON (exercise_id) 
+                    exercise_id, 
+                    percentage, 
+                    time_taken_seconds
+                FROM user_progress 
+                WHERE user_id = %s
+                ORDER BY exercise_id, completed_at DESC
+            ) as latest_attempts
         """, (user_id,))
+        # ========== END FIX ==========
         
         stats = cursor.fetchone()
         total_exercises = stats[0] or 0
@@ -324,22 +364,43 @@ def batch_profile_stats():
                 "created_at": note[1].strftime("%Y-%m-%d %H:%M") if note[1] else None
             })
         
-        # Get recent activities
+        # ========== FIXED: Recent activities with grade, subject, exercise_id, topic_id ==========
+        # LIMIT 10 - shows only the latest 10 exercises
         cursor.execute("""
-            SELECT e.exercise_title, up.score, up.total_questions, up.completed_at 
+            SELECT 
+                e.exercise_title, 
+                up.score, 
+                up.total_questions, 
+                up.completed_at,
+                e.exercise_id,
+                e.topic_id,
+                g.grade_level,
+                s.subject_name
             FROM user_progress up
             JOIN exercises e ON up.exercise_id = e.exercise_id
+            JOIN topics t ON e.topic_id = t.topic_id
+            JOIN grades g ON t.grade_id = g.grade_id
+            JOIN subjects s ON t.subject_id = s.subject_id
             WHERE up.user_id = %s 
-            ORDER BY up.completed_at DESC LIMIT 10
+            ORDER BY up.completed_at DESC
+            LIMIT 10
         """, (user_id,))
+        # ========== END FIX ==========
         
         activities_rows = cursor.fetchall()
         recent_activities = []
         for activity in activities_rows:
-            exercise_title, score, total_questions, completed_at = activity
+            exercise_title, score, total_questions, completed_at, exercise_id, topic_id, grade_level, subject_name = activity
             recent_activities.append({
                 "action": f"{exercise_title} - Score: {score}/{total_questions}",
-                "created_at": completed_at.strftime("%Y-%m-%d %H:%M") if completed_at else None
+                "created_at": completed_at.strftime("%Y-%m-%d %H:%M") if completed_at else None,
+                "exercise_id": exercise_id,
+                "topic_id": topic_id,
+                "grade": grade_level,
+                "subject": subject_name,
+                "exercise_title": exercise_title,
+                "score": score,
+                "total_questions": total_questions
             })
         
         log_activity(user_id, "batch_profile_stats", "Fetched batch profile stats", ip, ua)
@@ -369,7 +430,7 @@ def batch_profile_stats():
         return_db_connection(conn)
 
 @profile_bp.route("/profile/batch-avatars", methods=["POST"])
-#@limiter.limit("20 per minute")
+@limiter.limit("20 per minute")
 def batch_get_avatars():
     """Get avatars for multiple users in one request"""
     ip = request.remote_addr

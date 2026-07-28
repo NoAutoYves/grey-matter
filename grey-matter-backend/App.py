@@ -14,8 +14,13 @@ from routes.Profile import BASE_DIR
 from routes.Exercise import exercise_bp
 from routes.Contact import contact_bp
 from routes.Admin import admin_bp
+from routes.AdminUsers import admin_users_bp
+from routes.AdminExercises import admin_exercises_bp
+from routes.AdminAnalytics import admin_analytics_bp
+from routes.AdminFeedback import admin_feedback_bp
 from routes.Results import results_bp
 from routes.db_pool import close_all_connections
+from routes.Upload import upload_bp
 import atexit
 import logging
 from psycopg2 import OperationalError
@@ -41,7 +46,7 @@ if not app.secret_key:
 debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
 
 app.config['SESSION_PERMANENT'] = True
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=12)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=48)
 app.config['SESSION_REFRESH_EACH_REQUEST'] = True
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
@@ -135,18 +140,27 @@ CORS(app, supports_credentials=True, origins=[
     "http://localhost:5000"
 ])
 
+# Register blueprints
 app.register_blueprint(auth_bp, url_prefix="/auth")
 app.register_blueprint(settings_bp, url_prefix="/api")
 app.register_blueprint(profile_bp, url_prefix="/api/persona")
 app.register_blueprint(exercise_list_bp, url_prefix="/api")
 app.register_blueprint(exercise_bp, url_prefix="/api")
 app.register_blueprint(contact_bp, url_prefix="/api")
-app.register_blueprint(admin_bp, url_prefix="/api")
 app.register_blueprint(results_bp, url_prefix="/api")
+app.register_blueprint(upload_bp)
+
+# Admin blueprints
+app.register_blueprint(admin_bp, url_prefix="/api")               # Dashboard stats, grades, subjects, terms, topics
+app.register_blueprint(admin_users_bp, url_prefix="/api")         # User management
+app.register_blueprint(admin_exercises_bp, url_prefix="/api")     # Exercise CRUD
+app.register_blueprint(admin_analytics_bp, url_prefix="/api")     # Analytics
+app.register_blueprint(admin_feedback_bp, url_prefix="/api")      # Feedback
 
 @app.route('/uploads/<path:filename>')
 def serve_uploads(filename):
     upload_folder = os.path.join(BASE_DIR, 'uploads')
+    # filename will be like "questions/b5c0f6ed45af45bfa21d6224da16c608.jpg"
     return send_from_directory(upload_folder, filename)
 
 atexit.register(close_all_connections)

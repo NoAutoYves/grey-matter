@@ -102,7 +102,7 @@
     font-family: 'noto', sans-serif;
     color: black;
     min-height: 100vh;
-    background-image: url('../assets/images/background-images/MainBG.jpeg');
+    background-image: url('../assets/images/background-images/MainBG.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -272,7 +272,7 @@
     font-family: 'noto', sans-serif;
     color: black;
     min-height: 100vh;
-    background-image: url('../assets/images/background-images/MainBG.jpeg');
+    background-image: url('../assets/images/background-images/MainBG.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -440,7 +440,7 @@
     font-family: 'noto', sans-serif;
     color: black;
     min-height: 100vh;
-    background-image: url('../assets/images/background-images/desktopBG.jpeg');
+    background-image: url('../assets/images/background-images/desktopBG.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

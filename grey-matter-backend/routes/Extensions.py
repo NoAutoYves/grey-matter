@@ -16,7 +16,7 @@ limiter = Limiter(
     enabled=not os.environ.get("FLASK_DEBUG", "False").lower() == "true",  # Disable rate limiter in dev
 )
 
-#@limiter.request_filter
+@limiter.request_filter
 def bypass_rate_limits():
     # Bypass completely in development mode
     if os.environ.get("FLASK_DEBUG", "False").lower() == "true":

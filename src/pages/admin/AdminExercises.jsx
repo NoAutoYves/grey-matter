@@ -9,17 +9,18 @@ function AdminExercises() {
   
   const [gradeId, setGradeId] = useState("");
   const [subjectId, setSubjectId] = useState("");
-  const [termId, setTermId] = useState("");
   const [topicName, setTopicName] = useState("");
+  const [topicUrl, setTopicUrl] = useState("");
   const [exerciseName, setExerciseName] = useState("");
   const [exerciseTitle, setExerciseTitle] = useState("");
   const [questions, setQuestions] = useState([]);
   
   const [grades, setGrades] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [terms, setTerms] = useState([]);
   
   const fileInputRefs = useRef({});
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageUploadProgress, setImageUploadProgress] = useState({});
 
   useEffect(() => {
     fetchExercises();
@@ -42,19 +43,16 @@ function AdminExercises() {
 
   const fetchDropdownOptions = async () => {
     try {
-      const [gradesRes, subjectsRes, termsRes] = await Promise.all([
+      const [gradesRes, subjectsRes] = await Promise.all([
         api.get('/api/admin/grades'),
-        api.get('/api/admin/subjects'),
-        api.get('/api/admin/terms')
+        api.get('/api/admin/subjects')
       ]);
       
       const gradesData = await gradesRes.json();
       const subjectsData = await subjectsRes.json();
-      const termsData = await termsRes.json();
       
       setGrades(gradesData.grades || []);
       setSubjects(subjectsData.subjects || []);
-      setTerms(termsData.terms || []);
     } catch (error) {
       console.error("Failed to fetch dropdown options:", error);
     }
@@ -66,7 +64,10 @@ function AdminExercises() {
       return;
     }
     setQuestions([...questions, {
-      text: "", option_a: "", option_b: "", option_c: "", option_d: "", answer: "", image_base64: ""
+      text: "", option_a: "", option_b: "", option_c: "", option_d: "", answer: "", 
+      image_url: null,
+      image_filename: null,
+      image_base64: ""
     }]);
   };
 
@@ -81,11 +82,11 @@ function AdminExercises() {
     setQuestions(updated);
   };
 
-  const handleImageUpload = (index, file) => {
+  const handleImageUpload = async (index, file) => {
     if (!file) return;
     
-    if (file.size > 200 * 1024) {
-      alert("Image too large. Please use images under 200KB.");
+    if (file.size > 500 * 1024) {
+      alert("Image too large. Please use images under 500KB.");
       return;
     }
     
@@ -94,16 +95,53 @@ function AdminExercises() {
       return;
     }
     
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result;
-      updateQuestion(index, 'image_base64', base64String);
-    };
-    reader.readAsDataURL(file);
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    setUploadingImage(true);
+    setImageUploadProgress(prev => ({ ...prev, [index]: 'uploading' }));
+    
+    try {
+      const response = await api.post('/api/upload/question-image', formData);
+      const data = await response.json();
+      
+      if (response.ok) {
+        const updated = [...questions];
+        updated[index].image_url = data.image_url;
+        updated[index].image_filename = data.filename;
+        updated[index].image_base64 = "";
+        setQuestions(updated);
+        setImageUploadProgress(prev => ({ ...prev, [index]: 'done' }));
+        
+        if (fileInputRefs.current[index]) {
+          fileInputRefs.current[index].value = "";
+        }
+      } else {
+        alert(data.error || 'Failed to upload image');
+        setImageUploadProgress(prev => ({ ...prev, [index]: 'error' }));
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+      alert('Failed to upload image');
+      setImageUploadProgress(prev => ({ ...prev, [index]: 'error' }));
+    } finally {
+      setUploadingImage(false);
+      setTimeout(() => {
+        setImageUploadProgress(prev => {
+          const newState = { ...prev };
+          delete newState[index];
+          return newState;
+        });
+      }, 3000);
+    }
   };
 
   const removeImage = (index) => {
-    updateQuestion(index, 'image_base64', "");
+    const updated = [...questions];
+    updated[index].image_url = null;
+    updated[index].image_filename = null;
+    updated[index].image_base64 = "";
+    setQuestions(updated);
     if (fileInputRefs.current[index]) {
       fileInputRefs.current[index].value = "";
     }
@@ -111,6 +149,16 @@ function AdminExercises() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!topicUrl.trim()) {
+      alert("Topic URL is required. Use format: topicname_grade_X (e.g., equations_grade_10)");
+      return;
+    }
+    
+    if (!topicUrl.match(/^[a-z0-9_]+$/)) {
+      alert("Topic URL must contain only lowercase letters, numbers, and underscores");
+      return;
+    }
     
     if (questions.length !== 10) {
       alert(`Please add ${10 - questions.length} more questions`);
@@ -133,11 +181,17 @@ function AdminExercises() {
       }
     }
     
+    const uploading = Object.values(imageUploadProgress).some(status => status === 'uploading');
+    if (uploading) {
+      alert("Please wait for images to finish uploading before submitting.");
+      return;
+    }
+    
     const exerciseData = {
       grade_id: parseInt(gradeId),
       subject_id: parseInt(subjectId),
-      term_id: parseInt(termId),
       topic_name: topicName.trim() || null,
+      topic_url: topicUrl.trim().toLowerCase(),
       exercise_name: exerciseName.replace(/\s+/g, '_').toLowerCase(),
       exercise_title: exerciseTitle,
       questions: questions.map(q => ({
@@ -147,7 +201,7 @@ function AdminExercises() {
         option_c: q.option_c,
         option_d: q.option_d,
         answer: q.answer,
-        image_base64: q.image_base64 || ""
+        image_url: q.image_url || null
       }))
     };
     
@@ -171,12 +225,13 @@ function AdminExercises() {
   const resetForm = () => {
     setGradeId("");
     setSubjectId("");
-    setTermId("");
     setTopicName("");
+    setTopicUrl("");
     setExerciseName("");
     setExerciseTitle("");
     setQuestions([]);
     fileInputRefs.current = {};
+    setImageUploadProgress({});
   };
 
   const deleteExercise = async (exerciseId) => {
@@ -238,21 +293,28 @@ function AdminExercises() {
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label>Term *</label>
-              <select value={termId} onChange={(e) => setTermId(e.target.value)} required>
-                <option value="">Select Term</option>
-                {terms.map(t => <option key={t.term_id} value={t.term_id}>{t.term_name}</option>)}
-              </select>
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label>Topic (Optional)</label>
+              <label>Topic Name (Optional)</label>
               <input 
                 type="text" 
                 value={topicName} 
                 onChange={(e) => setTopicName(e.target.value)} 
                 placeholder="e.g., Algebra, Ledgers, Supply & Demand"
               />
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label>Topic URL *</label>
+              <input 
+                type="text" 
+                value={topicUrl} 
+                onChange={(e) => setTopicUrl(e.target.value)} 
+                placeholder="e.g., equations_grade_10"
+                required 
+              />
+              <span className={styles.hintWarning}>
+                ⚠️ Must be unique. Use format: topicname_grade_X (e.g., equations_grade_10)
+              </span>
+              <span className={styles.hint}>Lowercase letters, numbers, and underscores only</span>
             </div>
           </div>
 
@@ -299,17 +361,33 @@ function AdminExercises() {
                 />
                 
                 <div className={styles.imageUploadSection}>
-                  <label>Diagram/Image (optional, max 200KB):</label>
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    ref={el => fileInputRefs.current[idx] = el}
-                    onChange={(e) => handleImageUpload(idx, e.target.files[0])}
-                  />
-                  {q.image_base64 && (
+                  <label>Diagram/Image (optional, max 500KB):</label>
+                  <div className={styles.imageUploadWrapper}>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      ref={el => fileInputRefs.current[idx] = el}
+                      onChange={(e) => handleImageUpload(idx, e.target.files[0])}
+                      disabled={uploadingImage}
+                    />
+                    {imageUploadProgress[idx] === 'uploading' && (
+                      <span className={styles.uploadStatus}>⏳ Uploading...</span>
+                    )}
+                    {imageUploadProgress[idx] === 'done' && (
+                      <span className={styles.uploadStatusSuccess}>✅ Uploaded</span>
+                    )}
+                    {imageUploadProgress[idx] === 'error' && (
+                      <span className={styles.uploadStatusError}>❌ Failed</span>
+                    )}
+                  </div>
+                  
+                  {q.image_url && (
                     <div className={styles.imagePreview}>
-                      <img src={q.image_base64} alt="Preview" />
-                      <button type="button" onClick={() => removeImage(idx)} className={styles.removeImageBtn}>Remove Image</button>
+                      <img src={q.image_url} alt="Preview" />
+                      <button type="button" onClick={() => removeImage(idx)} className={styles.removeImageBtn}>
+                        Remove Image
+                      </button>
+                      <span className={styles.imageFilename}>{q.image_filename}</span>
                     </div>
                   )}
                 </div>
@@ -337,8 +415,8 @@ function AdminExercises() {
             )}
           </div>
 
-          <button type="submit" className={styles.submitBtn} disabled={questions.length !== 10}>
-            Create Exercise
+          <button type="submit" className={styles.submitBtn} disabled={questions.length !== 10 || uploadingImage}>
+            {uploadingImage ? "Uploading images..." : "Create Exercise"}
           </button>
         </form>
       )}
@@ -351,7 +429,6 @@ function AdminExercises() {
               <th>Title</th>
               <th>Subject</th>
               <th>Grade</th>
-              <th>Term</th>
               <th>Questions</th>
               <th>Published</th>
               <th>Actions</th>
@@ -364,7 +441,6 @@ function AdminExercises() {
                 <td>{ex.exercise_title}</td>
                 <td>{ex.subject_name}</td>
                 <td>Grade {ex.grade_level}</td>
-                <td>{ex.term_name}</td>
                 <td>{ex.question_count}</td>
                 <td>
                   <span className={`${styles.badge} ${ex.is_published ? styles.badgeYes : styles.badgeNo}`}>

@@ -76,12 +76,12 @@ def fetch_subject_exercises(subject_id):
         cursor.execute("""
             SELECT e.exercise_id, e.exercise_name, e.exercise_title, 
                    g.grade_level, g.display_name,
-                   t.topic_id, t.topic_name, t.display_order as topic_order
+                   t.topic_id, t.topic_name
             FROM exercises e
             JOIN grades g ON e.grade_id = g.grade_id
             LEFT JOIN topics t ON e.topic_id = t.topic_id
             WHERE e.subject_id = %s AND e.is_published = TRUE
-            ORDER BY g.grade_level, t.display_order, e.display_order, e.exercise_id
+            ORDER BY g.grade_level, t.topic_name, e.display_order, e.exercise_id
         """, (subject_id,))
         return cursor.fetchall()
     finally:
@@ -105,22 +105,19 @@ def subject_exercise_list(subject):
         return jsonify({"error": "Subject not found"}), 404
     
     try:
-        # Try to get from cache first
         cache_key = f"subject_exercises_{subject_id}"
         exercises_data = get_cached_or_fetch(cache_key, fetch_subject_exercises, subject_id)
         
         if exercises_data is None:
-            # If cache returned None, fetch directly
             exercises_data = fetch_subject_exercises(subject_id)
             if exercises_data is None:
                 return jsonify({"error": "Unable to load exercises", "degraded": True}), 503
         
-        # Group by grade, then by topic
         result = []
         grades_dict = {}
         
         for ex in exercises_data:
-            exercise_id, exercise_name, exercise_title, grade_level, grade_display, topic_id, topic_name, topic_order = ex
+            exercise_id, exercise_name, exercise_title, grade_level, grade_display, topic_id, topic_name = ex
             
             if not exercise_title:
                 parts = exercise_name.split('_')
@@ -202,7 +199,6 @@ def subject_exercise_list(subject):
     
     except Exception as e:
         log_activity(user_id, "exercise_list_error", f"Error: {str(e)}", ip, ua)
-        # Return cached data if available
         cache_key = f"subject_exercises_{subject_id}"
         if cache_key in exercise_cache:
             cached_data, _ = exercise_cache[cache_key]
@@ -234,21 +230,22 @@ def subject_topics_list(subject):
     cursor = conn.cursor()
     
     try:
+        # Removed t.display_order from SELECT and ORDER BY
         cursor.execute("""
-            SELECT DISTINCT t.topic_id, t.topic_name, t.display_order,
+            SELECT DISTINCT t.topic_id, t.topic_name,
                    g.grade_level, g.display_name as grade_display
             FROM topics t
             JOIN exercises e ON t.topic_id = e.topic_id
             JOIN grades g ON e.grade_id = g.grade_id
             WHERE e.subject_id = %s AND e.is_published = TRUE
-            ORDER BY g.grade_level, t.display_order, t.topic_name
+            ORDER BY g.grade_level, t.topic_name
         """, (subject_id,))
         
         topics_data = cursor.fetchall()
         
         grouped_topics = {}
         for topic in topics_data:
-            topic_id, topic_name, display_order, grade_level, grade_display = topic
+            topic_id, topic_name, grade_level, grade_display = topic
             
             if grade_level not in grouped_topics:
                 grouped_topics[grade_level] = {
@@ -351,7 +348,7 @@ def exercises_by_topic(subject, topic_id):
         return_db_connection(conn)
 
 @exercise_list_bp.route("/exercises/batch/progress", methods=["POST"])
-#@limiter.limit("30 per minute")
+@limiter.limit("30 per minute")
 def batch_get_exercise_progress():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
