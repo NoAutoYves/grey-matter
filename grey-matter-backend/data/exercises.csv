@@ -1,0 +1,26 @@
+exercise_id,subject_id,grade_id,topic_id,exercise_name,exercise_title,total_questions,passing_score,is_published,display_order,created_at,updated_at
+357,6,5,313,electrochemistry_exercise_1,Electrochemistry – Exercise 1,10,70,t,1,2026-07-12 21:10:07.447108,2026-07-12 21:10:07.447108
+358,6,5,313,electrochemistry_exercise_2,Electrochemistry – Exercise 2,10,70,t,2,2026-07-12 21:11:32.334598,2026-07-12 21:11:32.334598
+359,6,5,313,electrochemistry_exercise_3,Electrochemistry – Exercise 3,10,70,t,3,2026-07-12 21:11:43.324994,2026-07-12 21:11:43.324994
+360,6,5,313,electrochemistry_exercise_4,Electrochemistry – Exercise 4,10,70,t,4,2026-07-12 21:11:50.515086,2026-07-12 21:11:50.515086
+361,6,5,313,electrochemistry_exercise_5,Electrochemistry – Exercise 5,10,70,t,5,2026-07-12 21:11:57.8646,2026-07-12 21:11:57.8646
+362,6,5,315,acids_and_bases_exercise_1,Acids and Bases – Exercise 1,10,70,t,1,2026-07-12 21:13:42.163097,2026-07-12 21:13:42.163097
+363,6,5,315,acids_and_bases_exercise_2,Acids and Bases – Exercise 2,10,70,t,2,2026-07-12 21:13:49.17485,2026-07-12 21:13:49.17485
+364,6,5,315,acids_and_bases_exercise_3,Acids and Bases – Exercise 3,10,70,t,3,2026-07-12 21:13:55.544568,2026-07-12 21:13:55.544568
+365,6,5,315,acids_and_bases_exercise_4,Acids and Bases – Exercise 4,10,70,t,4,2026-07-12 21:14:02.265876,2026-07-12 21:14:02.265876
+366,6,5,315,acids_and_bases_exercise_5,Acids and Bases – Exercise 5,10,70,t,5,2026-07-12 21:14:10.714375,2026-07-12 21:14:10.714375
+367,6,5,316,chemical_equilibrium_exercise_1,Chemical Equilibrium – Exercise 1,10,70,t,1,2026-07-12 21:15:21.368192,2026-07-12 21:15:21.368192
+368,6,5,316,chemical_equilibrium_exercise_2,Chemical Equilibrium – Exercise 2,10,70,t,2,2026-07-12 21:15:27.994318,2026-07-12 21:15:27.994318
+369,6,5,316,chemical_equilibrium_exercise_3,Chemical Equilibrium – Exercise 3,10,70,t,3,2026-07-12 21:15:34.324819,2026-07-12 21:15:34.324819
+370,6,5,316,chemical_equilibrium_exercise_4,Chemical Equilibrium – Exercise 4,10,70,t,4,2026-07-12 21:15:40.345796,2026-07-12 21:15:40.345796
+371,6,5,316,chemical_equilibrium_exercise_5,Chemical Equilibrium – Exercise 5,10,70,t,5,2026-07-12 21:15:47.214792,2026-07-12 21:15:47.214792
+372,6,5,317,chlor_alkali_exercise_1,Chlor-Alkali Industry – Exercise 1,10,70,t,1,2026-07-12 21:16:56.177109,2026-07-12 21:16:56.177109
+373,6,5,317,chlor_alkali_exercise_2,Chlor-Alkali Industry – Exercise 2,10,70,t,2,2026-07-12 21:17:05.036139,2026-07-12 21:17:05.036139
+374,6,5,317,chlor_alkali_exercise_3,Chlor-Alkali Industry – Exercise 3,10,70,t,3,2026-07-12 21:17:11.597956,2026-07-12 21:17:11.597956
+375,6,5,317,chlor_alkali_exercise_4,Chlor-Alkali Industry – Exercise 4,10,70,t,4,2026-07-12 21:17:21.055746,2026-07-12 21:17:21.055746
+376,6,5,317,chlor_alkali_exercise_5,Chlor-Alkali Industry – Exercise 5,10,70,t,5,2026-07-12 21:17:27.125183,2026-07-12 21:17:27.125183
+377,6,5,318,doppler_effect_exercise_1,Doppler Effect – Exercise 1,10,70,t,1,2026-07-12 21:18:09.447428,2026-07-12 21:18:09.447428
+378,6,5,318,doppler_effect_exercise_2,Doppler Effect – Exercise 2,10,70,t,2,2026-07-12 21:18:54.095215,2026-07-12 21:18:54.095215
+379,6,5,318,doppler_effect_exercise_3,Doppler Effect – Exercise 3,10,70,t,3,2026-07-12 21:19:00.494802,2026-07-12 21:19:00.494802
+380,6,5,318,doppler_effect_exercise_4,Doppler Effect – Exercise 4,10,70,t,4,2026-07-12 21:19:08.879202,2026-07-12 21:19:08.879202
+381,6,5,318,doppler_effect_exercise_5,Doppler Effect – Exercise 5,10,70,t,5,2026-07-12 21:19:28.317911,2026-07-12 21:19:28.317911

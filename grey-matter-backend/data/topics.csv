@@ -1,0 +1,49 @@
+topic_id,subject_id,topic_name,description,grade_id,topic_url
+321,6,Electrostatics,,5,electrostatics_grade_12
+418,6,Electromagnetism (Grade 11),,4,electromagnetism_grade_11
+427,6,Types of Reactions (Grade 11),,4,types_reactions_grade_11
+436,6,Kinetic Molecular Theory (Grade 10),,3,kinetic_molecular_theory_grade_10
+445,6,The Atom (Grade 10),,3,atom_grade_10
+322,6,Fertiliser Industry,,5,fertiliser_industry_grade_12
+419,6,Electrostatics (Grade 11),,4,electrostatics_grade_11
+428,6,Vectors in Two Dimensions (Grade 11),,4,vectors_two_dimensions_grade_11
+437,6,Magnetism (Grade 10),,3,magnetism_grade_10
+446,6,Transverse Pulses (Grade 10),,3,transverse_pulses_grade_10
+313,6,Electrochemistry,,5,electrochemistry_grade_12
+323,6,Mechanics - Force and Newton's Laws,,5,mechanics_force_newtons_laws_grade_12
+420,6,Energy and Chemical Change (Grade 11),,4,energy_chemical_change_grade_11
+429,6,Atoms and Compounds (Grade 10),,3,atoms_compounds_grade_10
+438,6,Mechanical Energy (Grade 10),,3,mechanical_energy_grade_10
+447,6,Vectors and Scalars (Grade 10),,3,vectors_scalars_grade_10
+315,6,Acids and Bases,,5,acids_and_bases_grade_12
+324,6,Momentum and Impulse,,5,momentum_impulse_grade_12
+421,6,Geometrical Optics (Grade 11),,4,geometrical_optics_grade_11
+430,6,Chemical Bonding (Grade 10),,3,chemical_bonding_grade_10
+439,6,Motion in One Dimension (Grade 10),,3,motion_one_dimension_grade_10
+448,6,Transverse Waves (Grade 10),,3,transverse_waves_grade_10
+316,6,Chemical Equilibrium,,5,chemical_equilibrium_grade_12
+325,6,Rate and Extent of Reactions,,5,rate_extent_reactions_grade_12
+422,6,Ideal Gases (Grade 11),,4,ideal_gases_grade_11
+431,6,Classification of Matter (Grade 10),,3,classification_matter_grade_10
+440,6,The Periodic Table (Grade 10),,3,periodic_table_grade_10
+317,6,Chlor-Alkali Industry,,5,chlor_alkali_grade_12
+326,6,Vertical Projectile Motion,,5,vertical_projectile_motion_grade_12
+423,6,Intermolecular Forces (Grade 11),,4,intermolecular_forces_grade_11
+432,6,Electric Circuits (Grade 10),,3,electric_circuits_grade_10
+441,6,Physical and Chemical Change (Grade 10),,3,physical_chemical_change_grade_10
+318,6,Doppler Effect,,5,doppler_effect_grade_12
+327,6,"Work, Energy, and Power",,5,work_energy_power_grade_12
+415,6,2D and 3D Wavefronts (Grade 11),,4,wavefronts_grade_11
+424,6,Newton's Laws (Grade 11),,4,newtons_laws_grade_11
+433,6,Electromagnetic Radiation (Grade 10),,3,electromagnetic_radiation_grade_10
+442,6,Quantitative Aspects of Chemical Change (Grade 10),,3,quantitative_chemical_change_grade_10
+319,6,Electric Circuits,,5,electric_circuits_grade_12
+416,6,Atomic Combinations (Grade 11),,4,atomic_combinations_grade_11
+425,6,Quantitative Aspects of Chemical Change (Grade 11),,4,quantitative_chemical_change_grade_11
+434,6,Electrostatics (Grade 10),,3,electrostatics_grade_10
+443,6,Reactions in Aqueous Solution (Grade 10),,3,aqueous_solutions_grade_10
+320,6,Electrodynamics,,5,electrodynamics_grade_12
+417,6,Electric Circuits (Grade 11),,4,electric_circuits_grade_11
+426,6,The Lithosphere (Grade 11),,4,lithosphere_grade_11
+435,6,The Hydrosphere (Grade 10),,3,hydrosphere_grade_10
+444,6,Sound (Grade 10),,3,sound_grade_10

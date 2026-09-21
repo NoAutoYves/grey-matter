@@ -36,13 +36,10 @@ def get_topics_data(subject_id, grade_id, topic_name, topic_url):
     """Helper function to handle topic creation/lookup"""
     conn = get_db_connection()
     cursor = conn.cursor()
-    try:
-        print(f"DEBUG: topic_url='{topic_url}', topic_name='{topic_name}'")
-        
+    try:        
         # If topic_url is not provided, generate one
         if not topic_url:
             topic_url = f"topic_{grade_id}_{subject_id}_{int(time.time())}"
-            print(f"DEBUG: Generated topic_url='{topic_url}'")
         
         # If topic_name is not provided, use "General"
         if not topic_name:
@@ -53,7 +50,6 @@ def get_topics_data(subject_id, grade_id, topic_name, topic_url):
         existing = cursor.fetchone()
         if existing:
             topic_id = existing[0]
-            print(f"DEBUG: Found existing topic {topic_id}")
             return topic_id
         
         # Create new topic
@@ -63,11 +59,9 @@ def get_topics_data(subject_id, grade_id, topic_name, topic_url):
         """, (subject_id, grade_id, topic_name, topic_url))
         topic_id = cursor.fetchone()[0]
         conn.commit()
-        print(f"DEBUG: Created new topic {topic_id}")
         return topic_id
         
     except Exception as e:
-        print(f"DEBUG: Error in get_topics_data: {e}")
         conn.rollback()
         raise
     finally:
@@ -97,9 +91,7 @@ def create_exercise():
     exercise_name = data.get('exercise_name')
     exercise_title = data.get('exercise_title')
     questions = data.get('questions', [])
-    
-    print(f"DEBUG: grade_id={grade_id}, subject_id={subject_id}, topic_name={topic_name}, topic_url={topic_url}")
-    
+        
     if not grade_id or not subject_id or not exercise_name or not questions:
         log_activity(session['user_id'], "admin_create_exercise_failed", "Missing required fields", ip, ua)
         return jsonify({"error": "Missing required fields"}), 400
@@ -121,7 +113,6 @@ def create_exercise():
         """, (grade_id, subject_id, topic_id, exercise_name, exercise_title, 10))
         
         exercise_id = cursor.fetchone()[0]
-        print(f"DEBUG: Created exercise {exercise_id}")
         
         for i, q in enumerate(questions):
             image_data = None
@@ -151,7 +142,6 @@ def create_exercise():
         
     except Exception as e:
         conn.rollback()
-        print(f"ERROR: {e}")
         return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()

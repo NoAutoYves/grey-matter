@@ -39,7 +39,7 @@ def admin_required():
         return_db_connection(conn)
 
 @admin_users_bp.route("/admin/users", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def get_users():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
@@ -218,12 +218,11 @@ Grey Matter Team"""
         log_activity(session['user_id'], "admin_reset_password", f"Sent reset link to {email}", ip, ua)
     except Exception as e:
         log_activity(session['user_id'], "admin_reset_password_failed", f"Email error for {email}: {str(e)}", ip, ua)
-        print(f"Email error: {e}")
     
     return jsonify({"success": True}), 200
 
 @admin_users_bp.route("/admin/users/<int:user_id>/activity", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def get_user_activity(user_id):
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
@@ -299,7 +298,7 @@ def delete_user(user_id):
         return_db_connection(conn)
 
 @admin_users_bp.route("/admin/users/<int:user_id>/details", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def get_user_details(user_id):
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')

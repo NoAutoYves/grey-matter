@@ -1,0 +1,113 @@
+.settings-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.settings-section h3 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-family: 'noto', sans-serif;
+  color: #000000;
+}
+
+.settings-section label {
+  font-size: 0.8rem;
+  color: #333;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.settings-section input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(0,0,0,0.1);
+  font-family: 'noto', sans-serif;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.save-btn {
+  background: #6846ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+
+.PhoneInput {
+  background: rgba(0,0,0,0.1);
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.PhoneInput input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'noto', sans-serif;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .settings-section {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+  }
+
+  .settings-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .settings-section input {
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  .PhoneInput {
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .PhoneInput input {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .settings-section {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+  }
+
+  .settings-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .settings-section label {
+    font-size: 0.9rem;
+  }
+
+  .settings-section input {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .PhoneInput {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .save-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+}

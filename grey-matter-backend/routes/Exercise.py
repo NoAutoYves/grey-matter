@@ -233,10 +233,25 @@ def get_exercise_results(exercise_id):
     
     try:
         cursor.execute("""
-            SELECT score, total_questions, percentage, time_taken_seconds, answers, 
-                   completed_at, retake_count
-            FROM user_progress 
-            WHERE user_id = %s AND exercise_id = %s
+            SELECT 
+                up.score, 
+                up.total_questions, 
+                up.percentage, 
+                up.time_taken_seconds, 
+                up.answers, 
+                up.completed_at, 
+                up.retake_count,
+                e.exercise_title,
+                e.exercise_name,
+                t.topic_name,
+                g.grade_level,
+                s.subject_name
+            FROM user_progress up
+            JOIN exercises e ON up.exercise_id = e.exercise_id
+            JOIN topics t ON e.topic_id = t.topic_id
+            JOIN grades g ON t.grade_id = g.grade_id
+            JOIN subjects s ON t.subject_id = s.subject_id
+            WHERE up.user_id = %s AND up.exercise_id = %s
         """, (user_id, exercise_id))
         
         result = cursor.fetchone()
@@ -245,7 +260,9 @@ def get_exercise_results(exercise_id):
             log_activity(user_id, "get_results_failed", f"No results found for exercise {exercise_id}", ip, ua)
             return jsonify({"error": "No results found for this exercise"}), 404
         
-        score, total_questions, percentage, time_taken_seconds, answers, completed_at, retake_count = result
+        (score, total_questions, percentage, time_taken_seconds, answers, 
+         completed_at, retake_count, exercise_title, exercise_name, 
+         topic_name, grade_level, subject_name) = result
         
         cursor.execute("""
             SELECT note_text FROM user_notes 
@@ -269,7 +286,12 @@ def get_exercise_results(exercise_id):
             "breakdown": breakdown,
             "notes": notes,
             "completed_at": completed_at.strftime("%Y-%m-%d %H:%M") if completed_at else None,
-            "retake_count": retake_count
+            "retake_count": retake_count,
+            "exercise_title": exercise_title,
+            "exercise_name": exercise_name,
+            "topic_name": topic_name,
+            "grade": grade_level,
+            "subject": subject_name
         }), 200
     
     finally:
@@ -373,7 +395,7 @@ def get_exercise_batch_data(exercise_id):
         return_db_connection(conn)
 
 @exercise_bp.route("/exercise/batch-submit", methods=["POST"])
-@limiter.limit("5 per minute")
+@limiter.limit("60 per minute")
 def batch_submit_exercise():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
@@ -415,72 +437,40 @@ def batch_submit_exercise():
         if notes and notes != "No notes taken.":
             notes = sanitize_text(notes, max_length=5000)
         
-        total_questions = len(answers)
-        correct_count = 0
+        # Calculate score from the breakdown (frontend already determined correctness)
+        if breakdown and len(breakdown) > 0:
+            score = sum(1 for item in breakdown if item.get('isCorrect', False))
+            total_questions = len(breakdown)
+        else:
+            # Fallback: use the data from the frontend
+            score = data.get('score', 0)
+            total_questions = data.get('total_questions', len(answers))
+        
+        percentage = (score / total_questions * 100) if total_questions > 0 else 0
+        
+        # Properly serialize JSON
+        breakdown_serializable = []
+        for item in breakdown:
+            if isinstance(item, dict):
+                serialized_item = {}
+                for key, value in item.items():
+                    if isinstance(value, (str, int, float, bool, list, dict, type(None))):
+                        serialized_item[key] = value
+                    else:
+                        serialized_item[key] = str(value)
+                breakdown_serializable.append(serialized_item)
+            else:
+                breakdown_serializable.append(str(item))
+        
+        answers_json = json.dumps({
+            "answers": {str(a['question_id']): a.get('selected_option', '') for a in answers},
+            "breakdown": breakdown_serializable
+        })
         
         conn = get_db_connection()
         cursor = conn.cursor()
         
         try:
-            question_ids = [a['question_id'] for a in answers]
-            
-            cursor.execute("""
-                SELECT question_id, correct_answer 
-                FROM questions 
-                WHERE question_id = ANY(%s)
-            """, (question_ids,))
-            
-            correct_answers = {row[0]: row[1] for row in cursor.fetchall()}
-            
-            # ========== FIX: Compare answers properly ==========
-            for answer in answers:
-                q_id = answer['question_id']
-                selected = answer.get('selected_option', '').strip()
-                correct = correct_answers.get(q_id, '').strip()
-                
-                # Debug logging
-                print(f"Comparing: '{selected}' vs '{correct}' for question {q_id}")
-                
-                if q_id in correct_answers:
-                    # Direct match
-                    if selected == correct:
-                        correct_count += 1
-                    # Handle case where correct is a letter and selected is text
-                    elif len(correct) == 1 and correct.isalpha():
-                        # Check if selected starts with the letter (e.g., "B" vs "B) Option text")
-                        if selected.startswith(correct) or selected == correct:
-                            correct_count += 1
-                    # Handle case where selected is a letter and correct is text
-                    elif len(selected) == 1 and selected.isalpha():
-                        if correct.startswith(selected) or correct == selected:
-                            correct_count += 1
-            # ========== END FIX ==========
-            
-            score = correct_count
-            percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
-            
-            # ========== FIX: Properly serialize JSON ==========
-            # Ensure breakdown is serializable
-            breakdown_serializable = []
-            for item in breakdown:
-                if isinstance(item, dict):
-                    # Make sure all values are JSON serializable
-                    serialized_item = {}
-                    for key, value in item.items():
-                        if isinstance(value, (str, int, float, bool, list, dict, type(None))):
-                            serialized_item[key] = value
-                        else:
-                            serialized_item[key] = str(value)
-                    breakdown_serializable.append(serialized_item)
-                else:
-                    breakdown_serializable.append(str(item))
-            
-            answers_json = json.dumps({
-                "answers": {str(a['question_id']): a.get('selected_option', '') for a in answers},
-                "breakdown": breakdown_serializable
-            })
-            # ========== END FIX ==========
-            
             cursor.execute("""
                 SELECT progress_id, retake_count FROM user_progress 
                 WHERE user_id = %s AND exercise_id = %s

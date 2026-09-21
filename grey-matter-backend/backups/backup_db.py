@@ -104,9 +104,9 @@ def restore_backup(backup_file):
     if backup_file.endswith('_temp.sql') and os.path.exists(backup_file):
         os.remove(backup_file)
 
-# ============================================================
+# 
 # BATCH BACKUP FUNCTIONS
-# ============================================================
+# 
 
 def list_backups():
     """List all available backups with details"""

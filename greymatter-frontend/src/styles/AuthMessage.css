@@ -1,0 +1,83 @@
+.auth-message-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.auth-message {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem 2rem 1.75rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(104, 70, 255, 0.15);
+  font-family: 'noto', sans-serif;
+  animation: auth-message-fade-in 0.2s ease-out;
+}
+
+.auth-message-icon {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 1rem;
+}
+
+.auth-message p:first-of-type {
+  font-size: 1.05rem;
+  color: #1a1a2e;
+  line-height: 1.5;
+  margin: 0 0 0.75rem 0;
+  font-weight: 600;
+}
+
+.auth-message p:last-of-type {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+@keyframes auth-message-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-message {
+    padding: 1.5rem 1.25rem;
+    max-width: 340px;
+  }
+
+  .auth-message p:first-of-type {
+    font-size: 0.95rem;
+  }
+
+  .auth-message p:last-of-type {
+    font-size: 0.8rem;
+  }
+
+  .auth-message-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 0.75rem;
+  }
+}

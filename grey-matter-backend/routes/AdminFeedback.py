@@ -35,7 +35,7 @@ def check_admin():
         return_db_connection(conn)
 
 @admin_feedback_bp.route("/admin/feedback", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def admin_get_feedback():
     user_id, error_response, status_code = check_admin()
     if error_response:
@@ -111,7 +111,7 @@ def admin_get_feedback():
         return_db_connection(conn)
 
 @admin_feedback_bp.route("/admin/feedback/stats", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def admin_feedback_stats():
     user_id, error_response, status_code = check_admin()
     if error_response:

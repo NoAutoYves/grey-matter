@@ -31,7 +31,7 @@ def admin_required():
         return_db_connection(conn)
 
 @admin_analytics_bp.route("/admin/analytics", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def get_analytics():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')

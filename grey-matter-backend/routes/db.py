@@ -54,8 +54,7 @@ def execute_with_fallback(query, params=None, fallback_value=None):
         conn.commit()
         return True
     except Exception as e:
-        print(f"Database error: {e}")
-        return fallback_value
+         return fallback_value
     finally:
         if cursor:
             cursor.close()

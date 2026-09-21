@@ -1,0 +1,169 @@
+.personal-info-display {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-row {
+  display: flex;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.info-label {
+  width: 100px;
+  font-weight: bold;
+  color: #333;
+}
+
+.info-value {
+  flex: 1;
+  color: #000;
+}
+
+.edit-personal-btn {
+  background: #6846ff;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+.personal-info-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.personal-info-form label {
+  font-size: 0.8rem;
+  color: #333;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.personal-info-form input,
+.personal-info-form textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(0,0,0,0.1);
+  font-family: 'noto', sans-serif;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.personal-info-form textarea {
+  resize: vertical;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.save-btn {
+  background: #6846ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+
+.cancel-btn {
+  background: #e53935;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .personal-info-display {
+    gap: 15px;
+  }
+
+  .info-row {
+    padding: 8px 0;
+  }
+
+  .info-label {
+    width: 120px;
+    font-size: 0.9rem;
+  }
+
+  .info-value {
+    font-size: 0.9rem;
+  }
+
+  .personal-info-form {
+    gap: 1.2rem;
+  }
+
+  .personal-info-form label {
+    font-size: 0.9rem;
+  }
+
+  .personal-info-form input,
+  .personal-info-form textarea {
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  .form-buttons {
+    gap: 15px;
+  }
+
+  .cancel-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .edit-personal-btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .info-row {
+    padding: 10px 0;
+  }
+
+  .info-label {
+    font-size: 0.95rem;
+  }
+
+  .info-value {
+    font-size: 0.95rem;
+  }
+
+  .save-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+
+  .cancel-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+
+  .edit-personal-btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-size: 0.95rem;
+  }
+}

@@ -21,6 +21,7 @@ from routes.AdminFeedback import admin_feedback_bp
 from routes.Results import results_bp
 from routes.db_pool import close_all_connections
 from routes.Upload import upload_bp
+from routes.Notes import notes_bp
 import atexit
 import logging
 from psycopg2 import OperationalError
@@ -149,6 +150,7 @@ app.register_blueprint(exercise_bp, url_prefix="/api")
 app.register_blueprint(contact_bp, url_prefix="/api")
 app.register_blueprint(results_bp, url_prefix="/api")
 app.register_blueprint(upload_bp)
+app.register_blueprint(notes_bp, url_prefix="/api")
 
 # Admin blueprints
 app.register_blueprint(admin_bp, url_prefix="/api")               # Dashboard stats, grades, subjects, terms, topics

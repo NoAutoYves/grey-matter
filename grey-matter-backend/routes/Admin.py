@@ -31,7 +31,7 @@ def admin_required():
         return_db_connection(conn)
 
 @admin_bp.route("/admin/stats", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def get_admin_stats():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
@@ -72,7 +72,7 @@ def get_admin_stats():
         return_db_connection(conn)
 
 @admin_bp.route("/admin/grades", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def get_grades():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
@@ -107,7 +107,7 @@ def get_grades():
         return_db_connection(conn)
 
 @admin_bp.route("/admin/subjects", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def get_subjects():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
@@ -148,7 +148,7 @@ def get_subjects():
         return_db_connection(conn)
 
 @admin_bp.route("/admin/topics/<int:subject_id>", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def get_topics(subject_id):
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')

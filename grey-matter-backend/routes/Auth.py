@@ -134,7 +134,7 @@ def signup():
         return_db_connection(conn)
 
 @auth_bp.route("/login", methods=["POST"])
-@limiter.limit("5 per minute")
+@limiter.limit("60 per minute")
 @limiter.limit("20 per hour")
 @csrf.exempt
 def login():   
@@ -286,7 +286,6 @@ Grey Matter Team"""
             
         except Exception as e:
             log_activity(user_id, "reset_email_failed", f"Failed to send email to {email}: {str(e)}", ip, ua)
-            print(f"Email error: {e}")
         
         return jsonify({"message": "If an account exists, a reset link will be sent"}), 200
     
@@ -370,7 +369,7 @@ def reset_password():
         return_db_connection(conn)
 
 @auth_bp.route("/check-session", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def check_session():
     if "user_id" in session:
         return jsonify({"authenticated": True, "user_id": session["user_id"]}), 200

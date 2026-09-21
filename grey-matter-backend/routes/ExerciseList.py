@@ -54,6 +54,8 @@ def get_subject_id(subject_name):
 
 def check_user_completion(user_id, exercise_id):
     """Check if user has completed a specific exercise"""
+    if not user_id:
+        return False
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -93,11 +95,7 @@ def subject_exercise_list(subject):
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
     
-    if "user_id" not in session:
-        log_activity(None, "exercise_list_failed", "Not logged in", ip, ua)
-        return jsonify({"error": "Not logged in"}), 401
-    
-    user_id = session["user_id"]
+    user_id = session.get("user_id")
     
     subject_id = get_subject_id(subject)
     if not subject_id:
@@ -215,11 +213,7 @@ def subject_topics_list(subject):
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
     
-    if "user_id" not in session:
-        log_activity(None, "topics_list_failed", "Not logged in", ip, ua)
-        return jsonify({"error": "Not logged in"}), 401
-    
-    user_id = session["user_id"]
+    user_id = session.get("user_id")
     
     subject_id = get_subject_id(subject)
     if not subject_id:
@@ -230,7 +224,6 @@ def subject_topics_list(subject):
     cursor = conn.cursor()
     
     try:
-        # Removed t.display_order from SELECT and ORDER BY
         cursor.execute("""
             SELECT DISTINCT t.topic_id, t.topic_name,
                    g.grade_level, g.display_name as grade_display
@@ -277,11 +270,7 @@ def exercises_by_topic(subject, topic_id):
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
     
-    if "user_id" not in session:
-        log_activity(None, "exercises_by_topic_failed", "Not logged in", ip, ua)
-        return jsonify({"error": "Not logged in"}), 401
-    
-    user_id = session["user_id"]
+    user_id = session.get("user_id")
     
     subject_id = get_subject_id(subject)
     if not subject_id:
@@ -348,7 +337,7 @@ def exercises_by_topic(subject, topic_id):
         return_db_connection(conn)
 
 @exercise_list_bp.route("/exercises/batch/progress", methods=["POST"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def batch_get_exercise_progress():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
@@ -417,10 +406,8 @@ def batch_subject_stats():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
     
-    if "user_id" not in session:
-        return jsonify({"error": "Not logged in"}), 401
-    
-    user_id = session["user_id"]
+    # Allow anonymous access - only get user_id if logged in
+    user_id = session.get("user_id")
     
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -438,19 +425,20 @@ def batch_subject_stats():
         
         subjects_data = cursor.fetchall()
         
-        cursor.execute("""
-            SELECT e.subject_id, COUNT(up.progress_id) as completed_count
-            FROM user_progress up
-            JOIN exercises e ON up.exercise_id = e.exercise_id
-            WHERE up.user_id = %s AND e.is_published = TRUE
-            GROUP BY e.subject_id
-        """, (user_id,))
-        
-        progress_data = cursor.fetchall()
-        
+        # Only fetch progress if user is logged in
         progress_map = {}
-        for p in progress_data:
-            progress_map[p[0]] = p[1]
+        if user_id:
+            cursor.execute("""
+                SELECT e.subject_id, COUNT(up.progress_id) as completed_count
+                FROM user_progress up
+                JOIN exercises e ON up.exercise_id = e.exercise_id
+                WHERE up.user_id = %s AND e.is_published = TRUE
+                GROUP BY e.subject_id
+            """, (user_id,))
+            
+            progress_data = cursor.fetchall()
+            for p in progress_data:
+                progress_map[p[0]] = p[1]
         
         subjects = []
         for s in subjects_data:
@@ -467,7 +455,7 @@ def batch_subject_stats():
                 "progress_percentage": round((completed_count / total_exercises * 100), 1) if total_exercises > 0 else 0
             })
         
-        log_activity(user_id, "batch_subject_stats", "Fetched subject stats", ip, ua)
+        log_activity(user_id, "batch_subject_stats", f"Fetched subject stats (logged_in: {bool(user_id)})", ip, ua)
         
         return jsonify({
             "subjects": subjects

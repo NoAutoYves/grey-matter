@@ -1,0 +1,50 @@
+.exercise-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    font-family: "noto", sans-serif;
+    width: 100%;
+    background: transparent;
+}
+
+.exercise-header-title {
+    margin: 0;
+    font-family: 'Gamja', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+    color: #000000;
+}
+
+.exercise-header-nav {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.exercise-header-link {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #000000;
+    font-family: 'noto', sans-serif;
+    font-weight: bold;
+    font-size: 13.3333px;
+    padding: 0;
+    text-decoration: none;
+}
+
+.exercise-header-link:hover {
+    color: #6846ff;
+    text-decoration: underline;
+}
+
+@media (min-width: 1024px) {
+    .exercise-header-title {
+        font-size: 2rem;
+    }
+
+    .exercise-header-link {
+        font-size: 14px;
+    }
+}

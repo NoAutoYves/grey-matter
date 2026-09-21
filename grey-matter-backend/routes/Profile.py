@@ -54,7 +54,7 @@ def get_profile():
         
         first_name, last_name, username, bio, avatar, phone, country, is_admin = user
         
-        # ========== FIXED: Only use latest attempt per exercise ==========
+        # == FIXED: Only use latest attempt per exercise ==
         cursor.execute("""
             SELECT 
                 COUNT(*) as total_exercises,
@@ -70,7 +70,7 @@ def get_profile():
                 ORDER BY exercise_id, completed_at DESC
             ) as latest_attempts
         """, (user_id,))
-        # ========== END FIX ==========
+        # == END FIX ==
         
         stats = cursor.fetchone()
         total_exercises = stats[0] or 0
@@ -99,7 +99,7 @@ def get_profile():
                 "created_at": note[1].strftime("%Y-%m-%d %H:%M") if note[1] else None
             })
         
-        # ========== FIXED: Recent activities with grade, subject, exercise_id, topic_id ==========
+        # == FIXED: Recent activities with grade, subject, exercise_id, topic_id ==
         # LIMIT 10 - shows only the latest 10 exercises
         cursor.execute("""
             SELECT 
@@ -120,7 +120,7 @@ def get_profile():
             ORDER BY up.completed_at DESC
             LIMIT 10
         """, (user_id,))
-        # ========== END FIX ==========
+        # == END FIX ==
         
         activities_rows = cursor.fetchall()
         
@@ -289,12 +289,12 @@ def update_avatar():
         cursor.close()
         return_db_connection(conn)
 
-# ============================================================
+# 
 # BATCH ENDPOINTS
-# ============================================================
+# 
 
 @profile_bp.route("/profile/batch-stats", methods=["GET"])
-@limiter.limit("30 per minute")
+@limiter.limit("120 per minute")
 def batch_profile_stats():
     """Get profile, stats, notes, and activities in one request"""
     ip = request.remote_addr
@@ -322,7 +322,7 @@ def batch_profile_stats():
         
         first_name, last_name, username, bio, avatar, phone, country, is_admin = user
         
-        # ========== FIXED: Only use latest attempt per exercise ==========
+        # == FIXED: Only use latest attempt per exercise ==
         cursor.execute("""
             SELECT 
                 COUNT(*) as total_exercises,
@@ -338,7 +338,7 @@ def batch_profile_stats():
                 ORDER BY exercise_id, completed_at DESC
             ) as latest_attempts
         """, (user_id,))
-        # ========== END FIX ==========
+        # == END FIX ==
         
         stats = cursor.fetchone()
         total_exercises = stats[0] or 0
@@ -364,7 +364,7 @@ def batch_profile_stats():
                 "created_at": note[1].strftime("%Y-%m-%d %H:%M") if note[1] else None
             })
         
-        # ========== FIXED: Recent activities with grade, subject, exercise_id, topic_id ==========
+        # == FIXED: Recent activities with grade, subject, exercise_id, topic_id ==
         # LIMIT 10 - shows only the latest 10 exercises
         cursor.execute("""
             SELECT 
@@ -385,7 +385,7 @@ def batch_profile_stats():
             ORDER BY up.completed_at DESC
             LIMIT 10
         """, (user_id,))
-        # ========== END FIX ==========
+        # == END FIX ==
         
         activities_rows = cursor.fetchall()
         recent_activities = []
