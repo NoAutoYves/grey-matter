@@ -6,16 +6,20 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { api } from "../utils/api";
 import MathRenderer from "../components/functional-comps/MathRenderer";
+import ShareModal from "../components/functional-comps/ShareModal";
 import '../styles/ExerciseCompleted.css';
 
 import correctIcon from "../assets/images/func-images/correct-icon.png";
 import incorrectIcon from "../assets/images/func-images/incorrect-icon.png";
 import writingIcon from "../assets/images/func-images/writing-icon.png";
+import shareIcon from "../assets/images/func-images/share-icon.png";
 
 function ExerciseCompleted() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const exerciseId = queryParams.get("exercise_id");
+  const subjectFromUrl = queryParams.get("subject") || "";
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(true);
   const [score, setScore] = useState(0);
@@ -24,13 +28,18 @@ function ExerciseCompleted() {
   const [notes, setNotes] = useState("");
   const [breakdown, setBreakdown] = useState([]);
   const [saveError, setSaveError] = useState(false);
-  
+
+  const [subjectName, setSubjectName] = useState("");
+  const [topicName, setTopicName] = useState("");
+
   const [showFeedback, setShowFeedback] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [feedbackError, setFeedbackError] = useState("");
+
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const formatTimeFromSeconds = (seconds) => {
     if (!seconds || seconds === 0) return "0:00";
@@ -44,9 +53,9 @@ function ExerciseCompleted() {
       setFeedbackError("Please select a rating");
       return;
     }
-    
+
     setFeedbackError("");
-    
+
     try {
       const response = await api.post('/api/feedback', {
         exercise_id: exerciseId,
@@ -56,7 +65,7 @@ function ExerciseCompleted() {
         total_questions: total,
         time_taken_seconds: timeTaken
       });
-      
+
       if (response.ok) {
         setFeedbackSubmitted(true);
         setTimeout(() => {
@@ -74,10 +83,30 @@ function ExerciseCompleted() {
   };
 
   useEffect(() => {
+    if (!exerciseId) return;
+    let cancelled = false;
+
+    const fetchMeta = async () => {
+      try {
+        const response = await api.get(`/api/exercise/results/${exerciseId}`);
+        if (!response.ok || cancelled) return;
+        const data = await response.json();
+        if (data.subject) setSubjectName(data.subject);
+        if (data.topic_name) setTopicName(data.topic_name);
+      } catch {
+        // Silent — share fallback uses subjectFromUrl or generic text.
+      }
+    };
+
+    fetchMeta();
+    return () => { cancelled = true; };
+  }, [exerciseId]);
+
+  useEffect(() => {
     let isMounted = true;
-    
+
     const hasSaved = sessionStorage.getItem(`exercise_saved_${exerciseId}`);
-    
+
     if (hasSaved === "true") {
       const storedScore = parseInt(localStorage.getItem("finalScore")) || 0;
       const storedTotal = parseInt(localStorage.getItem("totalQuestions")) || 1;
@@ -106,16 +135,16 @@ function ExerciseCompleted() {
     setTimeTaken(storedTime);
     setNotes(storedNotes);
     setBreakdown(storedBreakdown);
-    
+
     const saveResults = async (retryCount = 0) => {
       const maxRetries = 3;
-      
+
       try {
         const formattedAnswers = storedBreakdown.map((item, index) => ({
           question_id: index + 1,
           selected_option: item.selected || ''
         }));
-        
+
         const response = await api.batch.submitExercise(
           parseInt(exerciseId),
           formattedAnswers,
@@ -123,9 +152,9 @@ function ExerciseCompleted() {
           storedNotes,
           storedBreakdown
         );
-        
+
         const result = await response.json();
-        
+
         if (response.ok && result.success && isMounted) {
           sessionStorage.setItem(`exercise_saved_${exerciseId}`, "true");
           setSaveError(false);
@@ -134,7 +163,7 @@ function ExerciseCompleted() {
         }
       } catch (error) {
         console.error(`Save attempt ${retryCount + 1} failed:`, error);
-        
+
         if (retryCount < maxRetries - 1 && isMounted) {
           const delay = (retryCount + 1) * 1000;
           setTimeout(() => saveResults(retryCount + 1), delay);
@@ -149,9 +178,9 @@ function ExerciseCompleted() {
         }
       }
     };
-    
+
     saveResults();
-    
+
     return () => {
       isMounted = false;
     };
@@ -182,13 +211,13 @@ function ExerciseCompleted() {
   return (
     <div className="results-page">
       <FuncHeader />
-      
+
       <div className="sponsor-container-results sponsor-top">
         <div className="sponsor-placeholder">
           Advertisement (Leaderboard - 728x90)
         </div>
       </div>
-      
+
       <section className="results-container">
         <h2 className="results-title">Exercise Completed</h2>
         <p className="results-subtitle">Here's how you did:</p>
@@ -214,14 +243,33 @@ function ExerciseCompleted() {
           </div>
         </div>
 
+        <div className="share-results-section">
+          <button
+            type="button"
+            className="share-results-btn"
+            onClick={() => setShowShareModal(true)}
+          >
+            <img
+              src={shareIcon}
+              alt=""
+              className="share-results-icon"
+              aria-hidden="true"
+            />
+            Share with your class
+          </button>
+          <p className="share-results-hint">
+            Challenge a classmate to beat your score.
+          </p>
+        </div>
+
         <div className="results-breakdown">
           <h2>Question Breakdown</h2>
           <div className="breakdown-list">
             {breakdown.map((item, i) => (
               <div key={i} className="breakdown-item">
                 <div className="question-header">
-                  <img 
-                    src={item.isCorrect ? correctIcon : incorrectIcon} 
+                  <img
+                    src={item.isCorrect ? correctIcon : incorrectIcon}
                     alt={item.isCorrect ? "Correct" : "Incorrect"}
                     className="question-icon"
                   />
@@ -241,28 +289,28 @@ function ExerciseCompleted() {
             ))}
           </div>
         </div>
-        
+
         {!feedbackSubmitted ? (
           <div className="feedback-section">
-            <button 
-              onClick={() => setShowFeedback(!showFeedback)} 
+            <button
+              onClick={() => setShowFeedback(!showFeedback)}
               className="feedback-toggle-btn"
             >
-              <img 
-                src={writingIcon} 
-                alt="Rate this exercise" 
+              <img
+                src={writingIcon}
+                alt="Rate this exercise"
                 className="feedback-icon"
               />
               {showFeedback ? "− Hide Feedback" : "Rate This Exercise"}
             </button>
-            
+
             {showFeedback && (
               <div className="feedback-form">
                 <h4>How was this exercise?</h4>
                 <div className="rating-stars">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <span 
-                      key={star} 
+                    <span
+                      key={star}
                       onClick={() => setRating(star)}
                       onMouseEnter={() => setHoverRating(star)}
                       onMouseLeave={() => setHoverRating(0)}
@@ -290,20 +338,30 @@ function ExerciseCompleted() {
             <span>✅</span> Thanks for your feedback! It helps us improve.
           </div>
         )}
-        
+
         <div className="results-actions">
           <Link to="/subjects" className="action-btn">Try Another Exercise</Link>
           <Link to="/persona" className="action-btn">View Profile</Link>
           <Link to="/" className="action-btn">Return Home</Link>
         </div>
       </section>
-      
+
       <div className="sponsor-container-results sponsor-billboard">
         <div className="sponsor-placeholder">
           Advertisement (Large Rectangle - 336x280)
         </div>
       </div>
-      
+
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        subject={subjectName || subjectFromUrl}
+        topic={topicName}
+        score={score}
+        total={total}
+        percentage={percentage}
+      />
+
       <FuncFooter />
     </div>
   );

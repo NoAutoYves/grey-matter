@@ -1,0 +1,244 @@
+@font-face {
+  font-family: 'noto';
+  src: url('/fonts/NotoSans-subset.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.share-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.share-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem 2rem 1.75rem;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(104, 70, 255, 0.15);
+  font-family: 'noto', sans-serif;
+  animation: share-modal-fade-in 0.2s ease-out;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.share-modal-close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #888;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-family: 'noto', sans-serif;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.share-modal-header {
+  margin-bottom: 1.5rem;
+}
+
+.share-modal-header h3 {
+  font-size: 1.35rem;
+  color: #1a1a2e;
+  margin: 0 0 0.5rem 0;
+}
+
+.share-modal-header p {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.share-modal-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.share-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-family: 'noto', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.share-option-whatsapp {
+  background: #25D366;
+  color: #ffffff;
+}
+
+.share-option-copy {
+  background: rgba(104, 70, 255, 0.1);
+  color: #6846ff;
+  border: 1px solid rgba(104, 70, 255, 0.2);
+}
+
+.share-option-copy.copied {
+  background: rgba(40, 167, 69, 0.15);
+  color: #28a745;
+  border-color: rgba(40, 167, 69, 0.3);
+}
+
+.share-option-icon-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+/* WhatsApp button has a green background with white text — force the phone icon white */
+.share-option-icon-phone {
+  filter: brightness(0) invert(1);
+}
+
+/* Copy button has purple text on light purple — tint the link icon to match #6846ff */
+.share-option-icon-link {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(2500%) hue-rotate(245deg) brightness(98%) contrast(98%);
+}
+.share-option-label {
+  display: inline-block;
+}
+
+.share-modal-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 1rem;
+  margin-top: 0.25rem;
+}
+
+.share-modal-link {
+  color: #6846ff;
+  font-size: 0.85rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+@keyframes share-modal-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .share-modal {
+    max-width: 400px;
+    padding: 1.75rem;
+  }
+
+  .share-modal-header h3 {
+    font-size: 1.25rem;
+  }
+
+  .share-option:hover {
+    transform: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .share-option-whatsapp:hover {
+    background: #1da851;
+    transform: translateY(-1px);
+  }
+
+  .share-option-copy:hover {
+    background: rgba(104, 70, 255, 0.15);
+    transform: translateY(-1px);
+  }
+
+  .share-modal-close:hover {
+    color: #1a1a2e;
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .share-modal-link:hover {
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: 767px) {
+  .share-modal {
+    padding: 1.5rem 1.25rem;
+    max-width: 92vw;
+  }
+
+  .share-modal-header h3 {
+    font-size: 1.15rem;
+  }
+
+  .share-modal-header p {
+    font-size: 0.85rem;
+  }
+
+  .share-option {
+    font-size: 0.9rem;
+    padding: 0.75rem 0.9rem;
+  }
+
+  .share-option:hover {
+    transform: none;
+  }
+
+  .share-option-whatsapp:hover {
+    background: #25D366;
+  }
+
+  .share-option-copy:hover {
+    background: rgba(104, 70, 255, 0.1);
+  }
+}
+
+@media (max-width: 480px) {
+  .share-modal {
+    padding: 1.25rem 1rem;
+    max-width: 340px;
+  }
+
+  .share-modal-header h3 {
+    font-size: 1.05rem;
+  }
+
+  .share-modal-close {
+    font-size: 1.3rem;
+    top: 0.4rem;
+    right: 0.5rem;
+  }
+}

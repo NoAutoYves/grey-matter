@@ -204,7 +204,7 @@ function Exercise() {
     localStorage.setItem("breakdown", JSON.stringify(breakdown));
 
     clearProgress();
-    navigate(`/exercise-completed?exercise_id=${exerciseId}`);
+    navigate(`/exercise-completed?exercise_id=${exerciseId}&subject=${encodeURIComponent(subject)}`);
   };
 
   const handleAnswer = (selectedLetter, correctLetter) => {
