@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import "../styles/greymatter.css";
@@ -43,6 +44,11 @@ function Contact() {
 
   return (
     <div className="info-page">
+      <Helmet>
+        <title>Contact | Grey Matter</title>
+        <meta name="description" content="Get in touch with the Grey Matter team. We're here to help students, parents and teachers." />
+      </Helmet>
+
       <FuncHeader />
 
       {/* AD 1 - LEADERBOARD (below header, above profile container) */}

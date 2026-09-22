@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import { UserContext } from "../context/UserContext";
@@ -84,6 +85,18 @@ function ExercisesByTopic() {
 
   return (
     <div className={`quiz-list-page ${subject}`}>
+      <Helmet>
+        <title>{topicName ? `${topicName} | Grey Matter` : "Topic | Grey Matter"}</title>
+        <meta
+          name="description"
+          content={
+            topicName
+              ? `Practice exercises for ${topicName} on Grey Matter.`
+              : "Practice exercises on Grey Matter."
+          }
+        />
+      </Helmet>
+
       <FuncHeader />
       
       <section className="quiz-list-container">

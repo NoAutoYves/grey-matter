@@ -1,6 +1,9 @@
 @font-face {
   font-family: 'noto';
-  src: url('../assets/fonts/NotoSans-Bold.ttf') format('truetype');
+  src: url('/fonts/NotoSans-subset.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 700;
+  font-style: normal;
 }
 
 .quiz-list-page {

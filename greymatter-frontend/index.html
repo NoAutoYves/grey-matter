@@ -7,7 +7,10 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2329513518583071"
      crossorigin="anonymous"></script>
     <meta name="google-site-verification" content="o0ZEXZltY9bIGDsIWEOwU8yYb91-ESLdX2NKYa_Qb7o" />
-    
+
+    <link rel="preload" href="/fonts/GamjaFlower-subset.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/NotoSans-subset.woff2" as="font" type="font/woff2" crossorigin>
+
     <!-- Primary Meta Tags -->
     <title>Grey Matter | Master High School Commerce & Science Subjects</title>
     <meta name="title" content="Grey Matter | Master High School Commerce & Science Subjects" />
@@ -15,39 +18,35 @@
     <meta name="keywords" content="high school, e-learning, accounting, business studies, economics, geography, life science, physics, mathematics, maths literacy, exam prep, study, South Africa, matric" />
     <meta name="author" content="Grey Matter" />
     <meta name="robots" content="index, follow" />
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Grey Matter | Master High School Commerce & Science" />
     <meta property="og:description" content="Interactive exercises, instant feedback, and progress tracking for high school students." />
-    <meta property="og:image" content="https://greymatterschool.co.za/src/assets/images/func-images/GM.jpeg" />
+    <meta property="og:image" content="https://greymatterschool.co.za/gm-logo.jpeg" />
     <meta property="og:url" content="https://greymatterschool.co.za/" />
-    
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Grey Matter | Master High School Commerce & Science" />
     <meta name="twitter:description" content="Interactive exercises, instant feedback, and progress tracking for high school students." />
-    <meta name="twitter:image" content="https://greymatterschool.co.za/src/assets/images/func-images/GM.jpeg" />
-    
+    <meta name="twitter:image" content="https://greymatterschool.co.za/gm-logo.jpeg" />
+
     <!-- Canonical URL - Will be updated by JavaScript -->
     <link rel="canonical" href="https://greymatterschool.co.za/" />
-    
+
     <!-- Dynamic Canonical Script - Updates canonical tag based on current URL -->
     <script>
       (function() {
-        // Get the current path
         var currentPath = window.location.pathname;
         var canonicalUrl = 'https://greymatterschool.co.za' + currentPath;
         
-        // Find the canonical link tag
         var canonicalLink = document.querySelector("link[rel='canonical']");
         
         if (canonicalLink) {
-          // Update the href to the current page URL
           canonicalLink.href = canonicalUrl;
         }
         
-        // Also update og:url
         var ogUrl = document.querySelector("meta[property='og:url']");
         if (ogUrl) {
           ogUrl.content = canonicalUrl;

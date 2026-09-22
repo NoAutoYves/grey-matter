@@ -2,6 +2,7 @@ import LandingSubjects from "../components/functional-comps/LandingSubjects";
 import SocialMedia from "../components/functional-comps/LandingSocialMedia";
 import { Link } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
+import { Helmet } from "react-helmet";
 import { useModal } from "../context/ModalContext";
 import { UserContext } from "../context/UserContext";
 import { apiRequest } from "../utils/api";
@@ -75,6 +76,14 @@ function LandingPage() {
 
   return (
     <>
+      <Helmet>
+        <title>Grey Matter | Free High School Practice for Grades 10–12</title>
+        <meta
+          name="description"
+          content="Free interactive practice for South African high school students. 1,300+ exercises across Accounting, Business, Economics, Geography, Life Science, Physics, Maths Literacy and Mathematics — with instant feedback and progress tracking."
+        />
+      </Helmet>
+
       <div className="index-page">
         {/* AD 1 - BILLBOARD (970x250) - ABOVE NAV */}
         {/* <div className="sponsor-container-landing sponsor-top">
@@ -163,7 +172,7 @@ function LandingPage() {
           </div>
           <div className="trust-divider"></div>
           <div className="trust-item">
-            <span className="trust-number">1000+</span>
+            <span className="trust-number">1300+</span>
             <span className="trust-label">Exercises</span>
           </div>
           <div className="trust-divider"></div>

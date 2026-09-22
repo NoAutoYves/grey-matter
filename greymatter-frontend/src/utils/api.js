@@ -5,16 +5,17 @@ let sessionCache = null;
 let sessionCacheTime = 0;
 const SESSION_CACHE_TTL = 60000; // 1 minute
 
-// Base URL configuration — hardcoded to production domain
-const API_URL = import.meta.env.VITE_API_URL || 'https://greymatterschool.co.za';
-
-export const BASE_URL = API_URL;
-const API_BASE_URL = `${API_URL}/api`;
+// Relative URLs — the origin serving the app also serves /api.
+//   dev     → Vite server.proxy → http://localhost:5000
+//   preview → Vite preview.proxy → https://greymatterschool.co.za
+//   prod    → nginx → http://127.0.0.1:5000
+export const BASE_URL = '';
+const API_URL = '';
 
 // Get CSRF token from backend
 export async function fetchCSRFToken() {
     try {
-        const response = await fetch(`${API_BASE_URL}/csrf-token`, {
+        const response = await fetch(`${API_URL}/api/csrf-token`, {
             credentials: 'include'
         });
         const data = await response.json();
@@ -77,9 +78,7 @@ export async function apiRequest(url, options = {}) {
     }
 
     let fullUrl;
-    if (url.startsWith('/api/')) {
-        fullUrl = `${API_URL}${url}`;
-    } else if (url.startsWith('/')) {
+    if (url.startsWith('/')) {
         fullUrl = `${API_URL}${url}`;
     } else {
         fullUrl = `${API_URL}/${url}`;

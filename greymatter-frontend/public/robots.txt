@@ -2,43 +2,20 @@
 # GREY MATTER - ROBOTS.TXT
 # ============================================
 
-# ---------------------------
-# ALLOW ALL GOOD CRAWLERS
-# ---------------------------
 User-agent: *
 Allow: /
-
-# Disallow protected/private areas
 Disallow: /admin/
 Disallow: /api/
 Disallow: /login
 Disallow: /signup
+Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /persona/
 Disallow: /exercise-completed
 Disallow: /view-results
 
-# Allow subjects, topics, and exercise pages (they're public now)
-Allow: /subjects
-Allow: /accounting
-Allow: /business
-Allow: /economics
-Allow: /geography
-Allow: /biology
-Allow: /physics
-Allow: /mathematics
-Allow: /maths-lit
-Allow: /accounting/topic/
-Allow: /business/topic/
-Allow: /economics/topic/
-Allow: /geography/topic/
-Allow: /biology/topic/
-Allow: /physics/topic/
-Allow: /mathematics/topic/
-Allow: /maths-lit/topic/
-
 # ---------------------------
-# ALLOW AI SEARCH BOTS (for AEO)
+# AI search bots (for AEO)
 # ---------------------------
 User-agent: OAI-SearchBot
 User-agent: PerplexityBot
@@ -52,7 +29,7 @@ Disallow: /admin/
 Disallow: /api/
 
 # ---------------------------
-# GOOGLE FAMILY (Full access)
+# Google family
 # ---------------------------
 User-agent: Googlebot
 User-agent: GoogleOther
@@ -62,7 +39,7 @@ Disallow: /admin/
 Disallow: /api/
 
 # ---------------------------
-# BLOCK HARMFUL BOTS
+# Block harmful bots
 # ---------------------------
 User-agent: Bytespider
 User-agent: Amazonbot
@@ -81,7 +58,4 @@ User-agent: ZoominfoBot
 User-agent: YandexBot
 Disallow: /
 
-# ---------------------------
-# SITEMAP LOCATION
-# ---------------------------
 Sitemap: https://greymatterschool.co.za/sitemap.xml

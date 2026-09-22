@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import "../styles/greymatter.css";
@@ -20,6 +21,11 @@ function Careers() {
 
   return (
     <div className="info-page">
+      <Helmet>
+        <title>Careers | Grey Matter</title>
+        <meta name="description" content="Join Grey Matter. Open roles in development, content, support and marketing." />
+      </Helmet>
+
       <FuncHeader />
 
       {/* AD 1 - LEADERBOARD (below header, above profile container) */}

@@ -1,11 +1,17 @@
 @font-face {
   font-family: 'Gamja';
-  src: url('../assets/fonts/GamjaFlower-Regular.ttf') format('truetype');
+  src: url('/fonts/GamjaFlower-subset.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 400;
+  font-style: normal;
 }
 
 @font-face {
   font-family: 'noto';
-  src: url('../assets/fonts/NotoSans-Bold.ttf') format('truetype');
+  src: url('/fonts/NotoSans-subset.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 700;
+  font-style: normal;
 }
 
 /* Header Styles */

@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import "../styles/greymatter.css";
@@ -5,6 +6,11 @@ import "../styles/greymatter.css";
 function Cookies() {
   return (
     <div className="info-page">
+      <Helmet>
+        <title>Cookie Policy | Grey Matter</title>
+        <meta name="description" content="How Grey Matter uses cookies and similar technologies." />
+      </Helmet>
+
       <FuncHeader />
 
       {/* AD 1 - LEADERBOARD (below header, above profile container) */}

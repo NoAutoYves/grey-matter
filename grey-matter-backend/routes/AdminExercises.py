@@ -6,6 +6,7 @@ import time
 
 admin_exercises_bp = Blueprint('admin_exercises', __name__)
 
+
 def log_activity(user_id, action, details, ip_address, user_agent):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -18,6 +19,7 @@ def log_activity(user_id, action, details, ip_address, user_agent):
     finally:
         cursor.close()
         return_db_connection(conn)
+
 
 def admin_required():
     if 'user_id' not in session:
@@ -32,58 +34,38 @@ def admin_required():
         cursor.close()
         return_db_connection(conn)
 
-def get_topics_data(subject_id, grade_id, topic_name, topic_url):
-    """Helper function to handle topic creation/lookup"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:        
-        # If topic_url is not provided, generate one
-        if not topic_url:
-            topic_url = f"topic_{grade_id}_{subject_id}_{int(time.time())}"
-        
-        # If topic_name is not provided, use "General"
-        if not topic_name:
-            topic_name = "General"
-        
-        # Check if topic_url already exists
-        cursor.execute("SELECT topic_id FROM topics WHERE topic_url = %s", (topic_url,))
-        existing = cursor.fetchone()
-        if existing:
-            topic_id = existing[0]
-            return topic_id
-        
-        # Create new topic
-        cursor.execute("""
-            INSERT INTO topics (subject_id, grade_id, topic_name, topic_url)
-            VALUES (%s, %s, %s, %s) RETURNING topic_id
-        """, (subject_id, grade_id, topic_name, topic_url))
-        topic_id = cursor.fetchone()[0]
-        conn.commit()
-        return topic_id
-        
-    except Exception as e:
-        conn.rollback()
-        raise
-    finally:
-        cursor.close()
-        return_db_connection(conn)
+
+def get_or_create_topic(cursor, subject_id, grade_id, topic_name, topic_url):
+    if not topic_url:
+        topic_url = f"topic_{grade_id}_{subject_id}_{int(time.time())}"
+    if not topic_name:
+        topic_name = "General"
+
+    cursor.execute("SELECT topic_id FROM topics WHERE topic_url = %s", (topic_url,))
+    existing = cursor.fetchone()
+    if existing:
+        return existing[0]
+
+    cursor.execute("""
+        INSERT INTO topics (subject_id, grade_id, topic_name, topic_url)
+        VALUES (%s, %s, %s, %s) RETURNING topic_id
+    """, (subject_id, grade_id, topic_name, topic_url))
+    return cursor.fetchone()[0]
+
 
 @admin_exercises_bp.route("/admin/exercises", methods=["POST"])
 @limiter.limit("10 per minute")
 def create_exercise():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
-    
+
     if 'user_id' not in session:
-        log_activity(None, "admin_create_exercise_failed", "Not logged in", ip, ua)
         return jsonify({"error": "Not logged in"}), 401
-    
+
     if not admin_required():
-        log_activity(session['user_id'], "admin_create_exercise_failed", "Non-admin access attempt", ip, ua)
         return jsonify({"error": "Admin access required"}), 403
-    
-    data = request.get_json()
-    
+
+    data = request.get_json() or {}
     grade_id = data.get('grade_id')
     subject_id = data.get('subject_id')
     topic_name = data.get('topic_name')
@@ -91,34 +73,31 @@ def create_exercise():
     exercise_name = data.get('exercise_name')
     exercise_title = data.get('exercise_title')
     questions = data.get('questions', [])
-        
+
     if not grade_id or not subject_id or not exercise_name or not questions:
-        log_activity(session['user_id'], "admin_create_exercise_failed", "Missing required fields", ip, ua)
         return jsonify({"error": "Missing required fields"}), 400
-    
+
     if len(questions) != 10:
-        log_activity(session['user_id'], "admin_create_exercise_failed", f"Wrong question count: {len(questions)}", ip, ua)
         return jsonify({"error": "Must have exactly 10 questions"}), 400
-    
+
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     try:
-        # Handle topic creation with grade_id and topic_url
-        topic_id = get_topics_data(subject_id, grade_id, topic_name, topic_url)
-        
+        topic_id = get_or_create_topic(cursor, subject_id, grade_id, topic_name, topic_url)
+
         cursor.execute("""
             INSERT INTO exercises (grade_id, subject_id, topic_id, exercise_name, exercise_title, total_questions)
             VALUES (%s, %s, %s, %s, %s, %s) RETURNING exercise_id
         """, (grade_id, subject_id, topic_id, exercise_name, exercise_title, 10))
-        
+
         exercise_id = cursor.fetchone()[0]
-        
+
         for i, q in enumerate(questions):
             image_data = None
             image_mime_type = None
             image_url = q.get('image_url')
-            
+
             if q.get('image_base64'):
                 img_data = q['image_base64']
                 if ',' in img_data:
@@ -128,18 +107,18 @@ def create_exercise():
                 else:
                     image_data = base64.b64decode(img_data)
                     image_mime_type = 'image/png'
-            
+
             cursor.execute("""
                 INSERT INTO questions (exercise_id, question_text, option_a, option_b, option_c, option_d, correct_answer, image_data, image_mime_type, image_url, display_order)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (exercise_id, q['text'], q['option_a'], q['option_b'], q['option_c'], q['option_d'], q['answer'], image_data, image_mime_type, image_url, i))
-        
+
         conn.commit()
-        
-        log_activity(session['user_id'], "admin_create_exercise", f"Created exercise '{exercise_name}' (ID: {exercise_id}) with {len(questions)} questions", ip, ua)
-        
+
+        log_activity(session['user_id'], "admin_create_exercise",
+                     f"Created exercise '{exercise_name}' (ID: {exercise_id}) with {len(questions)} questions", ip, ua)
+
         return jsonify({"success": True, "exercise_id": exercise_id}), 201
-        
     except Exception as e:
         conn.rollback()
         return jsonify({"error": str(e)}), 500
@@ -147,19 +126,18 @@ def create_exercise():
         cursor.close()
         return_db_connection(conn)
 
+
 @admin_exercises_bp.route("/admin/exercises", methods=["GET"])
 def get_admin_exercises():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
-    
+
     if 'user_id' not in session:
-        log_activity(None, "admin_list_exercises_failed", "Not logged in", ip, ua)
         return jsonify({"error": "Not logged in"}), 401
-    
+
     if not admin_required():
-        log_activity(session['user_id'], "admin_list_exercises_failed", "Non-admin access attempt", ip, ua)
         return jsonify({"error": "Admin access required"}), 403
-    
+
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -174,76 +152,164 @@ def get_admin_exercises():
             GROUP BY e.exercise_id, s.subject_name, g.grade_level
             ORDER BY e.exercise_id DESC
         """)
-        
+
         exercises = cursor.fetchall()
-        
-        exercise_list = []
-        for ex in exercises:
-            exercise_list.append({
-                "exercise_id": ex[0],
-                "exercise_name": ex[1],
-                "exercise_title": ex[2],
-                "is_published": ex[3],
-                "subject_name": ex[4],
-                "grade_level": ex[5],
-                "question_count": ex[6] or 0
-            })
-        
-        log_activity(session['user_id'], "admin_list_exercises", f"Listed {len(exercise_list)} exercises", ip, ua)
-        
-        return jsonify({"exercises": exercise_list}), 200
+        return jsonify({
+            "exercises": [
+                {
+                    "exercise_id": ex[0],
+                    "exercise_name": ex[1],
+                    "exercise_title": ex[2],
+                    "is_published": ex[3],
+                    "subject_name": ex[4],
+                    "grade_level": ex[5],
+                    "question_count": ex[6] or 0
+                } for ex in exercises
+            ]
+        }), 200
     finally:
         cursor.close()
         return_db_connection(conn)
+
+
+@admin_exercises_bp.route("/admin/exercises/<int:exercise_id>/usage", methods=["GET"])
+@limiter.limit("120 per minute")
+def get_exercise_usage(exercise_id):
+    ip = request.remote_addr
+    ua = request.headers.get('User-Agent', '')
+
+    if 'user_id' not in session:
+        return jsonify({"error": "Not logged in"}), 401
+
+    if not admin_required():
+        return jsonify({"error": "Admin access required"}), 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT COUNT(*) FROM user_progress WHERE exercise_id = %s", (exercise_id,))
+        progress = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM user_notes WHERE exercise_id = %s", (exercise_id,))
+        notes = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM user_feedback WHERE exercise_id = %s", (exercise_id,))
+        feedback = cursor.fetchone()[0]
+
+        return jsonify({
+            "user_progress": progress,
+            "user_notes": notes,
+            "user_feedback": feedback,
+            "total": progress + notes + feedback,
+        }), 200
+    finally:
+        cursor.close()
+        return_db_connection(conn)
+
+
+@admin_exercises_bp.route("/admin/exercises/<int:exercise_id>", methods=["PUT"])
+@limiter.limit("30 per minute")
+def update_exercise(exercise_id):
+    ip = request.remote_addr
+    ua = request.headers.get('User-Agent', '')
+
+    if 'user_id' not in session:
+        return jsonify({"error": "Not logged in"}), 401
+
+    if not admin_required():
+        return jsonify({"error": "Admin access required"}), 403
+
+    data = request.get_json() or {}
+    new_name = data.get('exercise_name')
+    new_title = data.get('exercise_title')
+
+    if not new_name or not new_title:
+        return jsonify({"error": "exercise_name and exercise_title are required"}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            UPDATE exercises
+            SET exercise_name = %s, exercise_title = %s, updated_at = NOW()
+            WHERE exercise_id = %s
+            RETURNING exercise_id
+        """, (new_name, new_title, exercise_id))
+
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({"error": "Exercise not found"}), 404
+        conn.commit()
+
+        log_activity(session['user_id'], "admin_update_exercise",
+                     f"Updated exercise {exercise_id}: name={new_name}, title={new_title}", ip, ua)
+
+        return jsonify({"success": True}), 200
+    finally:
+        cursor.close()
+        return_db_connection(conn)
+
 
 @admin_exercises_bp.route("/admin/exercises/<int:exercise_id>/publish", methods=["PUT"])
 def toggle_publish(exercise_id):
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
-    
+
     if 'user_id' not in session:
         return jsonify({"error": "Not logged in"}), 401
-    
+
     if not admin_required():
         return jsonify({"error": "Admin access required"}), 403
-    
-    data = request.get_json()
+
+    data = request.get_json() or {}
     is_published = data.get('is_published', False)
-    
+
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("UPDATE exercises SET is_published = %s WHERE exercise_id = %s", (is_published, exercise_id))
         conn.commit()
-        
-        log_activity(session['user_id'], "admin_toggle_publish", f"Exercise {exercise_id} published: {is_published}", ip, ua)
-        
+
+        log_activity(session['user_id'], "admin_toggle_publish",
+                     f"Exercise {exercise_id} published: {is_published}", ip, ua)
+
         return jsonify({"success": True}), 200
     finally:
         cursor.close()
         return_db_connection(conn)
 
+
 @admin_exercises_bp.route("/admin/exercises/<int:exercise_id>", methods=["DELETE"])
 def delete_exercise(exercise_id):
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
-    
+
     if 'user_id' not in session:
         return jsonify({"error": "Not logged in"}), 401
-    
+
     if not admin_required():
         return jsonify({"error": "Admin access required"}), 403
-    
+
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
+        cursor.execute("SELECT COUNT(*) FROM user_progress WHERE exercise_id = %s", (exercise_id,))
+        progress_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM user_notes WHERE exercise_id = %s", (exercise_id,))
+        notes_count = cursor.fetchone()[0]
+
         cursor.execute("DELETE FROM questions WHERE exercise_id = %s", (exercise_id,))
         cursor.execute("DELETE FROM exercises WHERE exercise_id = %s", (exercise_id,))
         conn.commit()
-        
-        log_activity(session['user_id'], "admin_delete_exercise", f"Deleted exercise {exercise_id}", ip, ua)
-        
-        return jsonify({"success": True}), 200
+
+        log_activity(session['user_id'], "admin_delete_exercise",
+                     f"Deleted exercise {exercise_id} (cascaded: {progress_count} progress, {notes_count} notes)", ip, ua)
+
+        return jsonify({
+            "success": True,
+            "cascaded": {"user_progress": progress_count, "user_notes": notes_count}
+        }), 200
     finally:
         cursor.close()
         return_db_connection(conn)

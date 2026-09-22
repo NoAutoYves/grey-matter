@@ -9,48 +9,104 @@ exercise_list_bp = Blueprint("exercise_list", __name__)
 exercise_cache = {}
 CACHE_TTL = 300  # 5 minutes
 
+
+# ── Slug ↔ DB subject name resolution ────────────────────────────────────────
+# Public URLs use slugs (/life-science, /maths-lit). The DB stores full names
+# ("Life Science", "Mathematical Literacy"). Accept either on every endpoint
+# that takes <subject> in the path.
+SUBJECT_SLUG_TO_NAME = {
+    "accounting": "Accounting",
+    "business": "Business",
+    "economics": "Economics",
+    "geography": "Geography",
+    "life-science": "Life Science",
+    "biology": "Life Science",
+    "physics": "Physics",
+    "mathematics": "Mathematics",
+    "maths": "Mathematics",
+    "mathematical-literacy": "Mathematical Literacy",
+    "maths-lit": "Mathematical Literacy",
+}
+
+
+def resolve_subject_name(raw):
+    """Map a URL slug OR a DB subject name to the canonical DB name."""
+    if not raw:
+        return raw
+    key = raw.strip().lower().replace("%20", " ")
+    # Slug lookup first
+    if key in SUBJECT_SLUG_TO_NAME:
+        return SUBJECT_SLUG_TO_NAME[key]
+    # Fall back: normalize spaces/dashes and try again
+    key_dashed = key.replace(" ", "-")
+    if key_dashed in SUBJECT_SLUG_TO_NAME:
+        return SUBJECT_SLUG_TO_NAME[key_dashed]
+    # Assume caller passed the DB name directly
+    return raw
+
+
+def get_subject_id(subject):
+    """Get subject_id from a slug OR a DB subject name. Returns (subject_id, canonical_name)."""
+    canonical = resolve_subject_name(subject)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT subject_id, subject_name FROM subjects WHERE subject_name ILIKE %s",
+            (canonical,),
+        )
+        result = cursor.fetchone()
+        if result:
+            return result[0], result[1]
+        # Last-ditch fuzzy: try a LIKE with wildcards around dashes/spaces
+        fuzzy = canonical.replace("-", "%").replace(" ", "%")
+        cursor.execute(
+            "SELECT subject_id, subject_name FROM subjects WHERE subject_name ILIKE %s",
+            (f"%{fuzzy}%",),
+        )
+        result = cursor.fetchone()
+        return (result[0], result[1]) if result else (None, None)
+    finally:
+        cursor.close()
+        return_db_connection(conn)
+
+
 def get_cached_or_fetch(cache_key, fetch_function, *args, **kwargs):
     """Get data from cache or fetch and store it"""
     current_time = time.time()
-    
+
     if cache_key in exercise_cache:
         cached_data, cached_time = exercise_cache[cache_key]
         if current_time - cached_time < CACHE_TTL:
             return cached_data
-    
+
     data = fetch_function(*args, **kwargs)
     if data is not None:
         exercise_cache[cache_key] = (data, current_time)
     return data
 
+
 def clear_exercise_cache():
     """Clear the exercise cache"""
     exercise_cache.clear()
+
 
 def log_activity(user_id, action, details, ip_address, user_agent):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO activity_logs (user_id, action, details, ip_address, user_agent)
             VALUES (%s, %s, %s, %s, %s)
-        """, (user_id, action, details, ip_address, user_agent))
+            """,
+            (user_id, action, details, ip_address, user_agent),
+        )
         conn.commit()
     finally:
         cursor.close()
         return_db_connection(conn)
 
-def get_subject_id(subject_name):
-    """Get subject_id from subject name"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        cursor.execute("SELECT subject_id FROM subjects WHERE subject_name ILIKE %s", (subject_name,))
-        result = cursor.fetchone()
-        return result[0] if result else None
-    finally:
-        cursor.close()
-        return_db_connection(conn)
 
 def check_user_completion(user_id, exercise_id):
     """Check if user has completed a specific exercise"""
@@ -59,24 +115,27 @@ def check_user_completion(user_id, exercise_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("""
-            SELECT progress_id FROM user_progress 
+        cursor.execute(
+            """
+            SELECT progress_id FROM user_progress
             WHERE user_id = %s AND exercise_id = %s
-        """, (user_id, exercise_id))
-        
-        completed = cursor.fetchone() is not None
-        return completed
+            """,
+            (user_id, exercise_id),
+        )
+        return cursor.fetchone() is not None
     finally:
         cursor.close()
         return_db_connection(conn)
+
 
 def fetch_subject_exercises(subject_id):
     """Fetch exercises for a subject - used with caching"""
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("""
-            SELECT e.exercise_id, e.exercise_name, e.exercise_title, 
+        cursor.execute(
+            """
+            SELECT e.exercise_id, e.exercise_name, e.exercise_title,
                    g.grade_level, g.display_name,
                    t.topic_id, t.topic_name
             FROM exercises e
@@ -84,96 +143,100 @@ def fetch_subject_exercises(subject_id):
             LEFT JOIN topics t ON e.topic_id = t.topic_id
             WHERE e.subject_id = %s AND e.is_published = TRUE
             ORDER BY g.grade_level, t.topic_name, e.display_order, e.exercise_id
-        """, (subject_id,))
+            """,
+            (subject_id,),
+        )
         return cursor.fetchall()
     finally:
         cursor.close()
         return_db_connection(conn)
 
+
+def format_exercise_title(exercise_name, exercise_title):
+    if exercise_title:
+        return exercise_title
+    parts = exercise_name.split("_")
+    if len(parts) >= 3 and parts[-2] == "exercise":
+        topic_part = " ".join(parts[:-2]).title()
+        exercise_num = parts[-1]
+        return f"{topic_part} - Exercise {exercise_num}"
+    return exercise_name.replace("_", " ").title()
+
+
 @exercise_list_bp.route("/exercises/<subject>", methods=["GET"])
 def subject_exercise_list(subject):
     ip = request.remote_addr
-    ua = request.headers.get('User-Agent', '')
-    
+    ua = request.headers.get("User-Agent", "")
+
     user_id = session.get("user_id")
-    
-    subject_id = get_subject_id(subject)
+
+    subject_id, subject_name = get_subject_id(subject)
     if not subject_id:
         log_activity(user_id, "exercise_list_failed", f"Subject not found: {subject}", ip, ua)
         return jsonify({"error": "Subject not found"}), 404
-    
+
     try:
         cache_key = f"subject_exercises_{subject_id}"
         exercises_data = get_cached_or_fetch(cache_key, fetch_subject_exercises, subject_id)
-        
+
         if exercises_data is None:
             exercises_data = fetch_subject_exercises(subject_id)
             if exercises_data is None:
                 return jsonify({"error": "Unable to load exercises", "degraded": True}), 503
-        
+
         result = []
         grades_dict = {}
-        
+
         for ex in exercises_data:
             exercise_id, exercise_name, exercise_title, grade_level, grade_display, topic_id, topic_name = ex
-            
-            if not exercise_title:
-                parts = exercise_name.split('_')
-                if len(parts) >= 3 and parts[-2] == 'exercise':
-                    topic_part = ' '.join(parts[:-2]).title()
-                    exercise_num = parts[-1]
-                    formatted_title = f"{topic_part} - Exercise {exercise_num}"
-                else:
-                    formatted_title = exercise_name.replace('_', ' ').title()
-            else:
-                formatted_title = exercise_title
-            
+
+            formatted_title = format_exercise_title(exercise_name, exercise_title)
             completed = check_user_completion(user_id, exercise_id)
-            
+
             exercise = {
                 "exercise_id": exercise_id,
                 "exercise_name": exercise_name,
                 "exercise_title": formatted_title,
-                "completed": completed
+                "completed": completed,
             }
-            
+
             if grade_level not in grades_dict:
                 grades_dict[grade_level] = {
                     "grade_level": grade_level,
                     "grade_display": grade_display,
-                    "topics": {}
+                    "topics": {},
                 }
-            
+
             topic_key = topic_id if topic_id else 0
             topic_display = topic_name if topic_name else "General"
-            
+
             if topic_key not in grades_dict[grade_level]["topics"]:
                 grades_dict[grade_level]["topics"][topic_key] = {
                     "topic_id": topic_key,
                     "topic_name": topic_display,
-                    "exercises": []
+                    "exercises": [],
                 }
-            
+
             grades_dict[grade_level]["topics"][topic_key]["exercises"].append(exercise)
-        
+
         for grade_level in sorted(grades_dict.keys()):
             grade = grades_dict[grade_level]
             topics_list = []
-            
-            for topic_id in sorted(grade["topics"].keys()):
-                topic = grade["topics"][topic_id]
+
+            for topic_id_key in sorted(grade["topics"].keys()):
+                topic = grade["topics"][topic_id_key]
                 topics_list.append({
                     "topic_id": topic["topic_id"],
                     "topic_name": topic["topic_name"],
-                    "exercises": topic["exercises"]
+                    "exercises": topic["exercises"],
                 })
-            
+
             result.append({
                 "grade_level": grade["grade_level"],
                 "grade_display": grade["grade_display"],
-                "topics": topics_list
+                "topics": topics_list,
             })
-        
+
         total_exercises = sum(
             len(ex)
             for grade in result
@@ -187,44 +250,52 @@ def subject_exercise_list(subject):
             for ex in topic["exercises"]
             if ex["completed"]
         )
-        
-        log_activity(user_id, "exercise_list_view", f"Viewed {subject} exercises: {completed_exercises}/{total_exercises} completed", ip, ua)
-        
+
+        log_activity(
+            user_id,
+            "exercise_list_view",
+            f"Viewed {subject_name} exercises: {completed_exercises}/{total_exercises} completed",
+            ip,
+            ua,
+        )
+
         return jsonify({
-            "subject_name": subject.capitalize(),
-            "grades": result
+            "subject_name": subject_name,
+            "grades": result,
         }), 200
-    
+
     except Exception as e:
         log_activity(user_id, "exercise_list_error", f"Error: {str(e)}", ip, ua)
         cache_key = f"subject_exercises_{subject_id}"
         if cache_key in exercise_cache:
             cached_data, _ = exercise_cache[cache_key]
             return jsonify({
-                "subject_name": subject.capitalize(),
+                "subject_name": subject_name,
                 "grades": cached_data,
                 "degraded": True,
-                "message": "Using cached data - some information may be outdated"
+                "message": "Using cached data - some information may be outdated",
             }), 200
         return jsonify({"error": "Unable to load exercises", "degraded": True}), 503
+
 
 @exercise_list_bp.route("/exercises/<subject>/topics", methods=["GET"])
 def subject_topics_list(subject):
     ip = request.remote_addr
-    ua = request.headers.get('User-Agent', '')
-    
+    ua = request.headers.get("User-Agent", "")
+
     user_id = session.get("user_id")
-    
-    subject_id = get_subject_id(subject)
+
+    subject_id, subject_name = get_subject_id(subject)
     if not subject_id:
         log_activity(user_id, "topics_list_failed", f"Subject not found: {subject}", ip, ua)
         return jsonify({"error": "Subject not found"}), 404
-    
+
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     try:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT DISTINCT t.topic_id, t.topic_name,
                    g.grade_level, g.display_name as grade_display
             FROM topics t
@@ -232,139 +303,137 @@ def subject_topics_list(subject):
             JOIN grades g ON e.grade_id = g.grade_id
             WHERE e.subject_id = %s AND e.is_published = TRUE
             ORDER BY g.grade_level, t.topic_name
-        """, (subject_id,))
-        
+            """,
+            (subject_id,),
+        )
+
         topics_data = cursor.fetchall()
-        
+
         grouped_topics = {}
         for topic in topics_data:
             topic_id, topic_name, grade_level, grade_display = topic
-            
+
             if grade_level not in grouped_topics:
                 grouped_topics[grade_level] = {
                     "grade_level": grade_level,
                     "grade_display": grade_display,
-                    "topics": []
+                    "topics": [],
                 }
-            
+
             grouped_topics[grade_level]["topics"].append({
                 "topic_id": topic_id,
-                "topic_name": topic_name
+                "topic_name": topic_name,
             })
-        
+
         result = [grouped_topics[grade] for grade in sorted(grouped_topics.keys())]
-        
-        log_activity(user_id, "topics_list_view", f"Viewed {subject} topics", ip, ua)
-        
+
+        log_activity(user_id, "topics_list_view", f"Viewed {subject_name} topics", ip, ua)
+
         return jsonify({
-            "subject_name": subject.capitalize(),
-            "grouped_topics": result
+            "subject_name": subject_name,
+            "grouped_topics": result,
         }), 200
-    
+
     finally:
         cursor.close()
         return_db_connection(conn)
 
+
 @exercise_list_bp.route("/exercises/<subject>/topic/<int:topic_id>", methods=["GET"])
 def exercises_by_topic(subject, topic_id):
     ip = request.remote_addr
-    ua = request.headers.get('User-Agent', '')
-    
+    ua = request.headers.get("User-Agent", "")
+
     user_id = session.get("user_id")
-    
-    subject_id = get_subject_id(subject)
+
+    subject_id, subject_name = get_subject_id(subject)
     if not subject_id:
         log_activity(user_id, "exercises_by_topic_failed", f"Subject not found: {subject}", ip, ua)
         return jsonify({"error": "Subject not found"}), 404
-    
+
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     try:
-        cursor.execute("""
-            SELECT topic_name FROM topics WHERE topic_id = %s
-        """, (topic_id,))
-        
+        cursor.execute(
+            "SELECT topic_name FROM topics WHERE topic_id = %s",
+            (topic_id,),
+        )
         topic_result = cursor.fetchone()
         if not topic_result:
             return jsonify({"error": "Topic not found"}), 404
-        
+
         topic_name = topic_result[0]
-        
-        cursor.execute("""
+
+        cursor.execute(
+            """
             SELECT e.exercise_id, e.exercise_name, e.exercise_title
             FROM exercises e
             WHERE e.subject_id = %s AND e.topic_id = %s AND e.is_published = TRUE
             ORDER BY e.display_order, e.exercise_id
-        """, (subject_id, topic_id))
-        
+            """,
+            (subject_id, topic_id),
+        )
         exercises_data = cursor.fetchall()
-        
+
         exercises = []
         for ex in exercises_data:
             exercise_id, exercise_name, exercise_title = ex
-            
-            if not exercise_title:
-                parts = exercise_name.split('_')
-                if len(parts) >= 3 and parts[-2] == 'exercise':
-                    topic_part = ' '.join(parts[:-2]).title()
-                    exercise_num = parts[-1]
-                    formatted_title = f"{topic_part} - Exercise {exercise_num}"
-                else:
-                    formatted_title = exercise_name.replace('_', ' ').title()
-            else:
-                formatted_title = exercise_title
-            
+            formatted_title = format_exercise_title(exercise_name, exercise_title)
             completed = check_user_completion(user_id, exercise_id)
-            
+
             exercises.append({
                 "exercise_id": exercise_id,
                 "exercise_name": exercise_name,
                 "exercise_title": formatted_title,
-                "completed": completed
+                "completed": completed,
             })
-        
+
         log_activity(user_id, "exercises_by_topic_view", f"Viewed {topic_name} exercises", ip, ua)
-        
+
         return jsonify({
-            "subject_name": subject.capitalize(),
+            "subject_name": subject_name,
             "topic_name": topic_name,
-            "exercises": exercises
+            "exercises": exercises,
         }), 200
-    
+
     finally:
         cursor.close()
         return_db_connection(conn)
+
 
 @exercise_list_bp.route("/exercises/batch/progress", methods=["POST"])
 @limiter.limit("120 per minute")
 def batch_get_exercise_progress():
     ip = request.remote_addr
-    ua = request.headers.get('User-Agent', '')
-    
+    ua = request.headers.get("User-Agent", "")
+
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
-    
+
     user_id = session["user_id"]
     data = request.get_json()
-    
-    exercise_ids = data.get('exercise_ids', [])
-    
+
+    exercise_ids = data.get("exercise_ids", [])
+
     if not exercise_ids:
         return jsonify({"error": "No exercise IDs provided"}), 400
-    
+
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     try:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT exercise_id, score, total_questions, percentage, completed_at, retake_count
-            FROM user_progress 
+            FROM user_progress
             WHERE user_id = %s AND exercise_id = ANY(%s)
-        """, (user_id, exercise_ids))
-        
+            """,
+            (user_id, exercise_ids),
+        )
+
         results = cursor.fetchall()
-        
+
         progress_dict = {}
         for r in results:
             exercise_id, score, total_q, percentage, completed_at, retake_count = r
@@ -374,9 +443,9 @@ def batch_get_exercise_progress():
                 "percentage": percentage,
                 "completed_at": completed_at.isoformat() if completed_at else None,
                 "retake_count": retake_count,
-                "completed": True
+                "completed": True,
             }
-        
+
         final_results = {}
         for ex_id in exercise_ids:
             if ex_id in progress_dict:
@@ -388,32 +457,32 @@ def batch_get_exercise_progress():
                     "total_questions": None,
                     "percentage": None,
                     "completed_at": None,
-                    "retake_count": 0
+                    "retake_count": 0,
                 }
-        
+
         log_activity(user_id, "batch_progress_fetched", f"Fetched progress for {len(exercise_ids)} exercises", ip, ua)
-        
-        return jsonify({
-            "progress": final_results
-        }), 200
-    
+
+        return jsonify({"progress": final_results}), 200
+
     finally:
         cursor.close()
         return_db_connection(conn)
 
+
 @exercise_list_bp.route("/exercises/batch/subject-stats", methods=["GET"])
 def batch_subject_stats():
     ip = request.remote_addr
-    ua = request.headers.get('User-Agent', '')
-    
+    ua = request.headers.get("User-Agent", "")
+
     # Allow anonymous access - only get user_id if logged in
     user_id = session.get("user_id")
-    
+
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     try:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT s.subject_id, s.subject_name, s.subject_code, s.icon,
                    COUNT(e.exercise_id) as total_exercises
             FROM subjects s
@@ -421,30 +490,32 @@ def batch_subject_stats():
             WHERE s.is_active = TRUE
             GROUP BY s.subject_id, s.subject_name, s.subject_code, s.icon
             ORDER BY s.display_order, s.subject_name
-        """)
-        
+            """
+        )
+
         subjects_data = cursor.fetchall()
-        
-        # Only fetch progress if user is logged in
+
         progress_map = {}
         if user_id:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT e.subject_id, COUNT(up.progress_id) as completed_count
                 FROM user_progress up
                 JOIN exercises e ON up.exercise_id = e.exercise_id
                 WHERE up.user_id = %s AND e.is_published = TRUE
                 GROUP BY e.subject_id
-            """, (user_id,))
-            
+                """,
+                (user_id,),
+            )
             progress_data = cursor.fetchall()
             for p in progress_data:
                 progress_map[p[0]] = p[1]
-        
+
         subjects = []
         for s in subjects_data:
             subject_id, subject_name, subject_code, icon, total_exercises = s
             completed_count = progress_map.get(subject_id, 0)
-            
+
             subjects.append({
                 "subject_id": subject_id,
                 "subject_name": subject_name,
@@ -452,15 +523,13 @@ def batch_subject_stats():
                 "icon": icon,
                 "total_exercises": total_exercises,
                 "completed_exercises": completed_count,
-                "progress_percentage": round((completed_count / total_exercises * 100), 1) if total_exercises > 0 else 0
+                "progress_percentage": round((completed_count / total_exercises * 100), 1) if total_exercises > 0 else 0,
             })
-        
+
         log_activity(user_id, "batch_subject_stats", f"Fetched subject stats (logged_in: {bool(user_id)})", ip, ua)
-        
-        return jsonify({
-            "subjects": subjects
-        }), 200
-    
+
+        return jsonify({"subjects": subjects}), 200
+
     finally:
         cursor.close()
         return_db_connection(conn)

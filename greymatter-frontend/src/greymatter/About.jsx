@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import "../styles/greymatter.css";
@@ -5,6 +6,11 @@ import "../styles/greymatter.css";
 function About() {
   return (
     <div className="info-page">
+      <Helmet>
+        <title>About | Grey Matter</title>
+        <meta name="description" content="Learn about Grey Matter, a free South African high school e-learning platform offering interactive practice across 8 subjects." />
+      </Helmet>
+
       <FuncHeader />
       {/* AD 1 - LEADERBOARD (below header, above profile container) */}
       {/* <div className="sponsor-container-profile sponsor-top">

@@ -2,6 +2,7 @@ import { useState, useEffect, useContext, useRef } from "react";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import SocialMedia from "../components/functional-comps/LandingSocialMedia";
 import { UserContext } from "../context/UserContext";
 import { api } from "../utils/api";
@@ -200,6 +201,14 @@ function Subjects() {
 
   return (
     <>
+      <Helmet>
+        <title>All Subjects | Grey Matter</title>
+        <meta
+          name="description"
+          content="Browse all 8 subjects on Grey Matter: Accounting, Business, Economics, Geography, Life Science, Physics, Maths Literacy and Mathematics. Free interactive exercises with instant feedback."
+        />
+      </Helmet>
+
       <div className="subject-page">
         <FuncHeader />
 

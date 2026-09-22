@@ -9,7 +9,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-pythonenv*
+pythonenv*/
 *.egg-info/
 *.egg
 pip-log.txt
@@ -28,14 +28,16 @@ dmypy.json
 *.sqlite3
 *.db
 
-# === Backend environment ===
+# === Environment files ===
 .env
 .env.local
 .env.*.local
-config_local.py
-config_development.py
+.env.development.local
+.env.production.local
 
 # === Backend local config files ===
+config_local.py
+config_development.py
 local_config.py
 development_config.py
 *_local.py
@@ -50,17 +52,9 @@ pnpm-debug.log*
 lerna-debug.log*
 dist/
 dist-ssr/
-*.local
-
-# === Frontend environment files (ignore all, keep examples) ===
-.env
-.env.local
-.env.*.local
-!.env.example
-!.env.production.example
 
 # === Editor / IDE ===
-.vscode/
+.vscode/*
 !.vscode/extensions.json
 .idea/
 *.swp
@@ -82,26 +76,13 @@ out/
 # === Testing ===
 coverage/
 .nyc_output/
-*.test.js
-*.spec.js
 
 # === Misc ===
 *.bak
 *.tmp
 *.temp
 *.cache
-*.log
-*.pid
-*.seed
-*.pid.lock
-*.sql
-.DS_Store
 Thumbs.db
-
-# === Local development overrides ===
-*-local.*
-*-dev.*
-*.local.*
 
 # === Deployment scripts ===
 upload-backend.bat

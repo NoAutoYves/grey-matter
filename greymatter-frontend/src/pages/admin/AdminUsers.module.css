@@ -1,382 +1,171 @@
-/* AdminUsers.module.css */
+.page { width: 100%; }
 
-.container {
-    padding: 0;
-    background: transparent;
-    min-height: 100vh;
+.header { margin-bottom: 20px; }
+.title { font-size: 26px; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+.subtitle { font-size: 13.5px; color: var(--text-muted); margin-top: 4px; }
+
+.toolbar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.search { position: relative; flex: 1; min-width: 240px; max-width: 420px; }
+.searchIcon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--text-subtle); font-size: 16px; pointer-events: none;
+}
+.search input { padding-left: 36px; }
+.filterSelect { max-width: 180px; }
+
+/* ── Table ───────────────────────────────────────────────────── */
+.tableWrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: visible;
+  box-shadow: var(--shadow-sm);
 }
 
-.title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #e0e0e0;
-    margin-bottom: 25px;
-    position: relative;
-    display: inline-block;
-}
-
-.title::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 50px;
-    height: 3px;
-    background: #6846ff;
-    border-radius: 3px;
-}
-
-/* Table Container - Fix overflow to allow dropdown */
-.tableContainer {
-    background: #35353b;
-    border-radius: 12px;
-    border: 1px solid #44444a;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    overflow: visible;
-    position: relative;
-}
-
-/* Table */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: 'noto', sans-serif;
-}
-
-.table thead {
-    background: #2a2a2e;
-}
-
+.table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.table thead { background: var(--surface-alt); }
 .table th {
-    padding: 14px 16px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 12px;
-    color: #6846ff;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #44444a;
-    white-space: nowrap;
+  padding: 12px 16px; text-align: left;
+  font-size: 11px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.6px;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
 }
-
 .table td {
-    padding: 14px 16px;
-    border-bottom: 1px solid #44444a;
-    font-size: 14px;
-    color: #c0c0c0;
-    vertical-align: middle;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-body);
+  vertical-align: middle;
+}
+.table tbody tr { transition: background var(--transition); }
+.table tbody tr:hover { background: var(--surface-alt); }
+.table tbody tr:last-child td { border-bottom: none; }
+
+.idCell { color: var(--text-subtle); font-weight: 600; font-size: 12.5px; }
+.emailCell { font-weight: 600; color: var(--text); }
+.muted { color: var(--text-muted); font-size: 13px; }
+.actionsCell { width: 48px; text-align: right; }
+
+/* ── Dropdown menu ───────────────────────────────────────────── */
+.menuWrap { position: relative; display: inline-block; }
+.menuBtn {
+  width: 32px; height: 32px;
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 18px; font-weight: 700; line-height: 1;
+  transition: all var(--transition);
+}
+.menuBtn:hover { background: var(--surface-sunken); color: var(--text); border-color: var(--border); }
+
+.menu {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-md);
+  min-width: 180px; padding: 4px; z-index: 200;
 }
 
-/* Make table rows and cells allow overflow for dropdown */
-.table tbody tr,
-.table tbody td {
-    overflow: visible !important;
-    position: relative;
+.menuItem {
+  display: block; width: 100%;
+  padding: 8px 12px; text-align: left;
+  border: none; background: transparent;
+  border-radius: var(--r-sm);
+  font-size: 13px; color: var(--text-body);
+  transition: background var(--transition);
+}
+.menuItem:hover { background: var(--surface-alt); color: var(--text); }
+.menuDanger { color: var(--danger); }
+.menuDanger:hover { background: var(--danger-soft); }
+
+/* ── Pagination ──────────────────────────────────────────────── */
+.pagination {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 20px; margin-top: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  gap: 12px; flex-wrap: wrap;
+}
+.pageInfo { font-size: 13px; color: var(--text-muted); }
+.pageControls { display: flex; gap: 4px; align-items: center; }
+.pageBtn {
+  min-width: 32px; height: 32px; padding: 0 8px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-body);
+  font-size: 13px; font-weight: 600;
+  transition: all var(--transition);
+}
+.pageBtn:hover:not(:disabled) { border-color: var(--brand); color: var(--brand); }
+.pageBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pageActive { background: var(--brand); color: white; border-color: var(--brand); }
+.pageActive:hover { background: var(--brand-hover); color: white; }
+
+/* ── Modals ──────────────────────────────────────────────────── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(28, 28, 30, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; padding: 20px;
 }
 
-.table tbody tr:hover {
-    background: rgba(104, 70, 255, 0.08);
+.modal {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: 0 20px 40px rgba(28, 28, 30, 0.2);
+  max-width: 520px; width: 100%; max-height: 85vh;
+  display: flex; flex-direction: column; overflow: hidden;
 }
+.modalLarge { max-width: 720px; }
 
-.table tbody tr:last-child td {
-    border-bottom: none;
+.modalHeader {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
 }
-
-/* Column Specific */
-.idColumn {
-    color: #888;
-    font-weight: 500;
-    width: 60px;
-    text-align: center;
-}
-
-.emailColumn {
-    color: #8a6eff;
-    font-weight: 500;
-    min-width: 150px;
-}
-
-.nameColumn {
-    color: #e0e0e0;
-    min-width: 120px;
-}
-
-.usernameColumn {
-    color: #c0c0c0;
-    min-width: 100px;
-}
-
-/* Status Badges */
-.badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.badgeYes {
-    background: rgba(40, 167, 69, 0.2);
-    color: #5cb85c;
-    border: 1px solid rgba(40, 167, 69, 0.3);
-}
-
-.badgeNo {
-    background: rgba(229, 57, 53, 0.2);
-    color: #e53935;
-    border: 1px solid rgba(229, 57, 53, 0.3);
-}
-
-.badgeAdmin {
-    background: rgba(104, 70, 255, 0.2);
-    color: #8a6eff;
-    border: 1px solid rgba(104, 70, 255, 0.3);
-}
-
-/* Date Column */
-.dateColumn {
-    color: #888;
-    font-size: 13px;
-    white-space: nowrap;
-}
-
-/* Actions Cell - Make it position relative for dropdown */
-.actionsCell {
-    position: relative !important;
-    text-align: center;
-    min-width: 120px;
-    overflow: visible !important;
-}
-
-/* Dropdown */
-.dropdown {
-    position: relative;
-    display: inline-block;
-    z-index: 10;
-}
-
-.dropdownBtn {
-    background: rgba(104, 70, 255, 0.15);
-    color: #8a6eff;
-    border: 1px solid rgba(104, 70, 255, 0.3);
-    padding: 6px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    font-family: 'noto', sans-serif;
-    transition: all 0.3s ease;
-}
-
-.dropdownBtn:hover {
-    background: #6846ff;
-    color: white;
-    border-color: #6846ff;
-}
-
-.dropdownMenu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 8px;
-    background: #2a2a2e;
-    border: 1px solid #6846ff;
-    border-radius: 8px;
-    min-width: 200px;
-    z-index: 99999;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-    overflow: hidden;
-    padding: 4px 0;
-}
-
-.dropdownItem {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    padding: 10px 16px;
-    text-align: left;
-    background: none;
-    border: none;
-    color: #c0c0c0;
-    cursor: pointer;
-    font-size: 13px;
-    font-family: 'noto', sans-serif;
-    transition: all 0.2s ease;
-}
-
-.dropdownItem:hover {
-    background: rgba(104, 70, 255, 0.15);
-    color: #8a6eff;
-}
-
-.dropdownItem .icon {
-    font-size: 16px;
-    width: 24px;
-    text-align: center;
-}
-
-.dropdownItemDelete {
-    color: #e53935;
-}
-
-.dropdownItemDelete:hover {
-    background: rgba(229, 57, 53, 0.15);
-    color: #e53935;
-}
-
-/* Loading State */
-.loading {
-    text-align: center;
-    padding: 40px;
-    color: #888;
-    font-size: 16px;
-}
-
-/* No Users */
-.noUsers {
-    text-align: center;
-    padding: 40px;
-    color: #666;
-    font-size: 16px;
-}
-
-/* Modals */
-.modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100000;
-}
-
-.modalContent {
-    background: #2a2a2e;
-    border-radius: 12px;
-    padding: 2rem;
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    border: 1px solid #44444a;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.modalLarge {
-    max-width: 800px;
-}
-
-.modalContent h2 {
-    font-size: 22px;
-    color: #e0e0e0;
-    margin-bottom: 20px;
-    position: relative;
-    padding-bottom: 10px;
-}
-
-.modalContent h2::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 40px;
-    height: 2px;
-    background: #6846ff;
-}
-
+.modalTitle { font-size: 16px; font-weight: 700; color: var(--text); }
 .modalClose {
-    background: #6846ff;
-    color: white;
-    border: none;
-    padding: 10px 24px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    font-family: 'noto', sans-serif;
-    transition: all 0.3s ease;
-    margin-top: 20px;
+  background: transparent; border: none;
+  color: var(--text-muted); font-size: 16px;
+  width: 30px; height: 30px;
+  border-radius: var(--r-sm);
+  display: inline-flex; align-items: center; justify-content: center;
 }
+.modalClose:hover { background: var(--surface-sunken); color: var(--text); }
 
-.modalClose:hover {
-    background: #5535cc;
-    box-shadow: 0 2px 8px rgba(104, 70, 255, 0.4);
+/* ── Details grid ────────────────────────────────────────────── */
+.detailGrid {
+  padding: 20px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px 20px;
 }
-
-/* User Details */
-.userDetails {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 20px;
+.detailGrid > div { display: flex; flex-direction: column; gap: 2px; }
+.detailGrid span {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--text-muted);
 }
+.detailGrid strong { font-size: 13.5px; color: var(--text); word-break: break-word; }
+.detailFull { grid-column: 1 / -1; }
 
-.userDetails p {
-    margin: 6px 0;
-    color: #c0c0c0;
-    font-size: 14px;
+/* ── Activity list ───────────────────────────────────────────── */
+.activityList { padding: 12px 20px 20px; overflow-y: auto; }
+.activityRow {
+  display: grid; grid-template-columns: 160px 1fr auto;
+  gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
 }
+.activityRow:last-child { border-bottom: none; }
+.activityAction { font-weight: 600; color: var(--text); text-transform: capitalize; }
+.activityDetails { color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.activityTime { color: var(--text-subtle); font-size: 12px; white-space: nowrap; }
 
-.userDetails strong {
-    color: #6846ff;
-    font-weight: 600;
-}
-
-.userDetails .fullWidth {
-    grid-column: 1 / -1;
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-    .table {
-        font-size: 13px;
-    }
-    
-    .table th,
-    .table td {
-        padding: 10px 12px;
-    }
-}
-
-@media (max-width: 768px) {
-    .tableContainer {
-        overflow-x: auto;
-        overflow-y: visible;
-    }
-    
-    .table {
-        font-size: 12px;
-        min-width: 800px;
-    }
-    
-    .table th,
-    .table td {
-        padding: 8px 10px;
-    }
-    
-    .modalContent {
-        padding: 1.5rem;
-        width: 95%;
-    }
-    
-    .userDetails {
-        grid-template-columns: 1fr;
-    }
-    
-    .title {
-        font-size: 22px;
-    }
-}
-
-@media (max-width: 480px) {
-    .dropdownMenu {
-        right: -20px;
-        min-width: 180px;
-    }
-    
-    .modalContent {
-        padding: 1rem;
-    }
+@media (max-width: 640px) {
+  .detailGrid { grid-template-columns: 1fr; }
+  .activityRow { grid-template-columns: 1fr; }
+  .activityTime { font-size: 11px; }
 }

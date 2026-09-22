@@ -1,258 +1,191 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../../utils/api";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 import styles from './AdminUserFeedback.module.css';
 
-function AdminUserFeedback() {
-  const [feedback, setFeedback] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    total: 0,
-    avg_rating: 0,
-    rating_counts: {}
-  });
-  const [filter, setFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
+const ROWS_PER_PAGE = 15;
 
-  useEffect(() => {
-    fetchFeedback();
-  }, []);
+function Stars({ count, max = 5 }) {
+  return (
+    <span className={styles.stars}>
+      {'★'.repeat(count)}{'☆'.repeat(max - count)}
+    </span>
+  );
+}
+
+function AdminUserFeedback() {
+  const [items, setItems] = useState([]);
+  const [stats, setStats] = useState({ total: 0, avg_rating: 0, rating_counts: {} });
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [ratingFilter, setRatingFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+  const [page, setPage] = useState(1);
+
+  useEffect(() => { fetchFeedback(); }, []);
+  useEffect(() => { setPage(1); }, [search, ratingFilter, sortBy]);
 
   const fetchFeedback = async () => {
     try {
-      const response = await api.get('/api/admin/feedback');
-      const data = await response.json();
-      
-      if (response.ok) {
-        setFeedback(data.feedback || []);
+      const res = await api.get('/api/admin/feedback');
+      const data = await res.json();
+      if (res.ok) {
+        setItems(data.feedback || []);
         setStats({
           total: data.total || 0,
           avg_rating: data.avg_rating || 0,
-          rating_counts: data.rating_counts || {}
+          rating_counts: data.rating_counts || {},
         });
       }
-    } catch (error) {
-      console.error("Failed to fetch feedback:", error);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
-  const getFilteredAndSortedFeedback = () => {
-    let result = [...feedback];
-    
-    if (filter !== 'all') {
-      result = result.filter(f => f.rating === parseInt(filter));
-    }
-    
-    switch (sortBy) {
-      case 'newest':
-        result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        break;
-      case 'oldest':
-        result.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-        break;
-      case 'rating_high':
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'rating_low':
-        result.sort((a, b) => a.rating - b.rating);
-        break;
-      default:
-        break;
-    }
-    
-    return result;
+  const deleteFeedback = async (id) => {
+    if (!confirm("Delete this feedback? Cannot be undone.")) return;
+    try {
+      const res = await api.delete(`/api/admin/feedback/${id}`);
+      if (res.ok) fetchFeedback();
+    } catch (e) { console.error(e); }
   };
 
-  const renderStars = (rating) => {
-    return '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
-  };
+  let filtered = items.filter((f) => {
+    if (ratingFilter !== "all" && f.rating !== parseInt(ratingFilter)) return false;
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      f.user_email?.toLowerCase().includes(q) ||
+      f.exercise_title?.toLowerCase().includes(q) ||
+      f.feedback?.toLowerCase().includes(q)
+    );
+  });
 
-  const getRatingLabel = (rating) => {
-    const labels = {
-      1: 'Very Poor',
-      2: 'Poor',
-      3: 'Average',
-      4: 'Good',
-      5: 'Excellent'
-    };
-    return labels[rating] || '';
-  };
+  filtered = [...filtered].sort((a, b) => {
+    if (sortBy === "newest") return new Date(b.created_at) - new Date(a.created_at);
+    if (sortBy === "oldest") return new Date(a.created_at) - new Date(b.created_at);
+    if (sortBy === "rating_high") return b.rating - a.rating;
+    if (sortBy === "rating_low") return a.rating - b.rating;
+    return 0;
+  });
 
-  const getRatingClass = (rating) => {
-    const classes = {
-      1: styles.ratingVeryPoor,
-      2: styles.ratingPoor,
-      3: styles.ratingAverage,
-      4: styles.ratingGood,
-      5: styles.ratingExcellent
-    };
-    return classes[rating] || '';
-  };
-
-  const getScoreClass = (percentage) => {
-    if (percentage >= 80) return styles.scoreHigh;
-    if (percentage >= 50) return styles.scoreMedium;
-    return styles.scoreLow;
-  };
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ROWS_PER_PAGE));
+  const pageItems = filtered.slice((page - 1) * ROWS_PER_PAGE, page * ROWS_PER_PAGE);
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <h2 className={styles.title}>User Feedback</h2>
-        <div className={styles.statsGrid}>
-          <Skeleton count={3} height={80} style={{ marginRight: '10px' }} />
-        </div>
-        <Skeleton count={5} height={60} style={{ marginBottom: '10px' }} />
-      </div>
-    );
+    return <div className="adm-loading"><div className="adm-loading__spinner" /><div>Loading feedback…</div></div>;
   }
 
-  const filteredFeedback = getFilteredAndSortedFeedback();
-
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>User Feedback</h2>
-      
-      {/* Stats Summary */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <h3>Total Feedback</h3>
-          <div className={styles.statNumber}>{stats.total}</div>
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Feedback</h1>
+        <p className={styles.subtitle}>{stats.total} total responses</p>
+      </header>
+
+      <div className={styles.summaryGrid}>
+        <div className={styles.summaryCard}>
+          <div className={styles.summaryLabel}>Total</div>
+          <div className={styles.summaryValue}>{stats.total}</div>
         </div>
-        <div className={styles.statCard}>
-          <h3>Average Rating</h3>
-          <div className={styles.statNumber}>{stats.avg_rating ? stats.avg_rating.toFixed(1) : 'N/A'}</div>
-          <div className={styles.statStars}>{renderStars(Math.round(stats.avg_rating || 0))}</div>
+        <div className={styles.summaryCard}>
+          <div className={styles.summaryLabel}>Average rating</div>
+          <div className={styles.summaryValue}>{stats.avg_rating.toFixed(1)}</div>
+          <Stars count={Math.round(stats.avg_rating)} />
         </div>
-        <div className={styles.statCard}>
-          <h3>Rating Breakdown</h3>
-          <div className={styles.ratingBreakdown}>
-            {[5, 4, 3, 2, 1].map(r => (
-              <div key={r} className={styles.ratingRow}>
-                <span className={styles.ratingLabel}>{r}⭐</span>
-                <div className={styles.ratingBarTrack}>
-                  <div 
-                    className={styles.ratingBarFill} 
-                    style={{ 
-                      width: stats.total > 0 
-                        ? `${((stats.rating_counts[r] || 0) / stats.total) * 100}%` 
-                        : '0%' 
-                    }}
-                  />
+        <div className={`${styles.summaryCard} ${styles.summaryWide}`}>
+          <div className={styles.summaryLabel}>Rating breakdown</div>
+          <div className={styles.breakdown}>
+            {[5, 4, 3, 2, 1].map(r => {
+              const count = stats.rating_counts[r] || 0;
+              const pct = stats.total > 0 ? (count / stats.total) * 100 : 0;
+              return (
+                <div key={r} className={styles.breakdownRow}>
+                  <span className={styles.breakdownLabel}>{r}★</span>
+                  <div className={styles.barTrack}>
+                    <div className={styles.barFill} style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className={styles.breakdownCount}>{count}</span>
                 </div>
-                <span className={styles.ratingCount}>{stats.rating_counts[r] || 0}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className={styles.filters}>
-        <div className={styles.filterGroup}>
-          <label>Filter by Rating:</label>
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="all">All Ratings</option>
-            <option value="5">5 ⭐ - Excellent</option>
-            <option value="4">4 ⭐ - Good</option>
-            <option value="3">3 ⭐ - Average</option>
-            <option value="2">2 ⭐ - Poor</option>
-            <option value="1">1 ⭐ - Very Poor</option>
-          </select>
+      <div className={styles.toolbar}>
+        <div className={styles.search}>
+          <span className={styles.searchIcon}>⌕</span>
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search user, exercise, or text…" className="adm-input" />
         </div>
-        <div className={styles.filterGroup}>
-          <label>Sort by:</label>
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="rating_high">Highest Rating</option>
-            <option value="rating_low">Lowest Rating</option>
-          </select>
-        </div>
-        <button onClick={fetchFeedback} className={styles.refreshBtn}>🔄 Refresh</button>
+        <select value={ratingFilter} onChange={(e) => setRatingFilter(e.target.value)} className="adm-select">
+          <option value="all">All ratings</option>
+          <option value="5">5 stars</option>
+          <option value="4">4 stars</option>
+          <option value="3">3 stars</option>
+          <option value="2">2 stars</option>
+          <option value="1">1 star</option>
+        </select>
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="adm-select">
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="rating_high">Highest rating</option>
+          <option value="rating_low">Lowest rating</option>
+        </select>
       </div>
 
-      {/* Feedback Table */}
-      {filteredFeedback.length > 0 ? (
-        <div className={styles.tableContainer}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Exercise</th>
-                <th>Rating</th>
-                <th>Feedback</th>
-                <th>Score</th>
-                <th>Time</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredFeedback.map((item) => (
-                <tr key={item.id}>
-                  <td className={styles.userColumn}>
-                    <strong>{item.user_email || 'Deleted User'}</strong>
-                    <br />
-                    <small style={{ color: '#888', fontSize: '12px' }}>ID: {item.user_id}</small>
-                  </td>
-                  <td className={styles.exerciseColumn}>
-                    <strong>{item.exercise_title || 'Unknown Exercise'}</strong>
-                  </td>
-                  <td className={styles.ratingColumn}>
-                    <span className={styles.stars}>{renderStars(item.rating)}</span>
-                    <br />
-                    <span className={`${styles.ratingLabel} ${getRatingClass(item.rating)}`}>
-                      {getRatingLabel(item.rating)}
-                    </span>
-                  </td>
-                  <td className={styles.feedbackColumn}>
-                    {item.feedback ? (
-                      <div className={styles.feedbackText}>"{item.feedback}"</div>
-                    ) : (
-                      <span style={{ color: '#999', fontStyle: 'italic' }}>No feedback</span>
-                    )}
-                  </td>
-                  <td className={styles.scoreColumn}>
-                    <span className={`${styles.scoreBadge} ${getScoreClass(item.percentage || 0)}`}>
-                      {item.score}/{item.total_questions}
-                      <br />
-                      <small>{item.percentage?.toFixed(1) || 'N/A'}%</small>
-                    </span>
-                  </td>
-                  <td className={styles.timeColumn}>
-                    {item.time_taken_seconds ? (
-                      <>
-                        {Math.floor(item.time_taken_seconds / 60)}m
-                        <br />
-                        <small>{item.time_taken_seconds % 60}s</small>
-                      </>
-                    ) : (
-                      <span style={{ color: '#999' }}>N/A</span>
-                    )}
-                  </td>
-                  <td className={styles.dateColumn}>
-                    {item.created_at ? (
-                      <>
-                        {new Date(item.created_at).toLocaleDateString()}
-                        <br />
-                        <small>{new Date(item.created_at).toLocaleTimeString()}</small>
-                      </>
-                    ) : (
-                      'Unknown'
-                    )}
-                    <br />
-                    <small style={{ color: '#999', fontSize: '11px' }}>IP: {item.ip_address || 'N/A'}</small>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {pageItems.length === 0 ? (
+        <div className="adm-empty">
+          <div className="adm-empty__icon">◐</div>
+          <div className="adm-empty__title">No feedback found</div>
+          <div className="adm-empty__body">Try a different filter or search term.</div>
         </div>
       ) : (
-        <div className={styles.noFeedback}>No feedback found.</div>
+        <>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>User</th><th>Exercise</th><th>Rating</th>
+                  <th>Feedback</th><th>Score</th><th>Date</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {pageItems.map((f) => (
+                  <tr key={f.id}>
+                    <td className={styles.emailCell}>{f.user_email}</td>
+                    <td>{f.exercise_title}</td>
+                    <td><Stars count={f.rating} /></td>
+                    <td className={styles.feedbackCell}>
+                      {f.feedback ? <em>"{f.feedback}"</em> : <span className={styles.muted}>No comment</span>}
+                    </td>
+                    <td className={styles.muted}>
+                      {f.score}/{f.total_questions} ({Math.round(f.percentage)}%)
+                    </td>
+                    <td className={styles.muted}>{new Date(f.created_at).toLocaleDateString()}</td>
+                    <td className={styles.actionsCell}>
+                      <button className="adm-btn adm-btn--danger adm-btn--sm" onClick={() => deleteFeedback(f.id)}>✕</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {totalPages > 1 && (
+            <div className={styles.pagination}>
+              <div className={styles.pageInfo}>Page {page} of {totalPages}</div>
+              <div className={styles.pageControls}>
+                <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(page - 1)}>←</button>
+                {[...Array(totalPages)].map((_, i) => (
+                  <button key={i + 1}
+                    className={`${styles.pageBtn} ${page === i + 1 ? styles.pageActive : ''}`}
+                    onClick={() => setPage(i + 1)}>{i + 1}</button>
+                ))}
+                <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(page + 1)}>→</button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

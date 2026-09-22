@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import "../styles/greymatter.css";
@@ -5,6 +6,11 @@ import "../styles/greymatter.css";
 function Privacy() {
   return (
     <div className="info-page">
+      <Helmet>
+        <title>Privacy Policy | Grey Matter</title>
+        <meta name="description" content="How Grey Matter collects, uses and protects your personal information." />
+      </Helmet>
+
       <FuncHeader />
 
       {/* AD 1 - LEADERBOARD (below header, above profile container) */}
