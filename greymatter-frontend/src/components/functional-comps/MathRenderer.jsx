@@ -25,7 +25,7 @@ const MathRenderer = ({ text }) => {
     parts.push({ type: 'text', value: text.slice(lastIndex) });
   }
 
-  // No math delimiters found — return plain text.
+  // No math delimiters found - return plain text.
   if (parts.length === 0) {
     return <span>{text}</span>;
   }

@@ -121,12 +121,12 @@
   display: inline-block;
 }
 
-/* WhatsApp button has a green background with white text — force the phone icon white */
+/* WhatsApp button has a green background with white text - force the phone icon white */
 .share-option-icon-phone {
   filter: brightness(0) invert(1);
 }
 
-/* Copy button has purple text on light purple — tint the link icon to match #6846ff */
+/* Copy button has purple text on light purple - tint the link icon to match #6846ff */
 .share-option-icon-link {
   filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(2500%) hue-rotate(245deg) brightness(98%) contrast(98%);
 }

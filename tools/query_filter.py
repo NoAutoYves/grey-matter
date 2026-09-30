@@ -152,7 +152,7 @@ def classify_queries(entries, provider="groq", model=None, verbose=True):
     entries: list of dicts, each with exercise_name, exercise_question, image_query.
     Returns the same list with filter_decision and filter_reason added.
 
-    For groq, tries a chain of model IDs — a retired model (404) falls through
+    For groq, tries a chain of model IDs - a retired model (404) falls through
     to the next one instead of crashing the run.
 
     If every model in the chain fails, rows default to KEEP (fail-safe).
@@ -213,7 +213,7 @@ def classify_queries(entries, provider="groq", model=None, verbose=True):
 
         if not batch_done:
             if verbose:
-                print(" ALL MODELS FAILED — defaulting these rows to KEEP")
+                print(" ALL MODELS FAILED - defaulting these rows to KEEP")
             for b in batch:
                 decisions[b["id"]] = ("KEEP", "classifier unavailable")
 

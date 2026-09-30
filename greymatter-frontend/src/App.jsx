@@ -14,6 +14,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./components/functional-comps/ProtectedRoute";
 import ScrollToTop from "./components/functional-comps/ScrollToTop";
 import ViewResults from "./pages/ViewResults";
+import HowItWorks from "./pages/HowItWorks";
 import { fetchCSRFToken } from "./utils/api";
 
 // Greymatter pages
@@ -61,6 +62,7 @@ function App() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/cookies" element={<Cookies />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
 
         {/* Subjects and Topics - Public (Free to browse) */}
         <Route path="/subjects" element={<Subjects />} />

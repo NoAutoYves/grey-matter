@@ -156,7 +156,7 @@ function AdminUsers() {
                     <td className={styles.idCell}>#{u.user_id}</td>
                     <td className={styles.emailCell}>{u.email}</td>
                     <td>{u.first_name} {u.last_name}</td>
-                    <td className={styles.muted}>{u.username || "—"}</td>
+                    <td className={styles.muted}>{u.username || "-"}</td>
                     <td>
                       <span className={`adm-badge ${u.is_admin ? 'adm-badge--brand' : 'adm-badge--neutral'}`}>
                         {u.is_admin ? "Admin" : "User"}
@@ -167,7 +167,7 @@ function AdminUsers() {
                         {u.is_verified ? "Yes" : "No"}
                       </span>
                     </td>
-                    <td className={styles.muted}>{u.created_at || "—"}</td>
+                    <td className={styles.muted}>{u.created_at || "-"}</td>
                     <td className={styles.actionsCell}>
                       <div className={styles.menuWrap} ref={openMenu === u.user_id ? menuRef : null}>
                         <button
@@ -225,12 +225,12 @@ function AdminUsers() {
             <div className={styles.detailGrid}>
               <div><span>ID</span><strong>#{selectedUser.user_id}</strong></div>
               <div><span>Email</span><strong>{selectedUser.email}</strong></div>
-              <div><span>First name</span><strong>{selectedUser.first_name || "—"}</strong></div>
-              <div><span>Last name</span><strong>{selectedUser.last_name || "—"}</strong></div>
-              <div><span>Username</span><strong>{selectedUser.username || "—"}</strong></div>
+              <div><span>First name</span><strong>{selectedUser.first_name || "-"}</strong></div>
+              <div><span>Last name</span><strong>{selectedUser.last_name || "-"}</strong></div>
+              <div><span>Username</span><strong>{selectedUser.username || "-"}</strong></div>
               <div><span>Role</span><strong>{selectedUser.is_admin ? "Admin" : "User"}</strong></div>
               <div><span>Verified</span><strong>{selectedUser.is_verified ? "Yes" : "No"}</strong></div>
-              <div><span>Joined</span><strong>{selectedUser.created_at || "—"}</strong></div>
+              <div><span>Joined</span><strong>{selectedUser.created_at || "-"}</strong></div>
               <div className={styles.detailFull}><span>Last login</span><strong>{selectedUser.last_login || "Never"}</strong></div>
             </div>
           </div>
@@ -254,7 +254,7 @@ function AdminUsers() {
                 {activities.map((a, i) => (
                   <div key={i} className={styles.activityRow}>
                     <span className={styles.activityAction}>{a.action?.replace(/_/g, " ")}</span>
-                    <span className={styles.activityDetails}>{a.details || "—"}</span>
+                    <span className={styles.activityDetails}>{a.details || "-"}</span>
                     <span className={styles.activityTime}>{a.created_at}</span>
                   </div>
                 ))}

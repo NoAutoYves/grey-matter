@@ -5,6 +5,7 @@ function FuncFooter() {
   return (
     <footer className="func-footer">
       <div className="footer-links">
+        <Link to="/how-it-works">How It Works</Link>
         <Link to="/about">About</Link>
         <Link to="/contact">Contact</Link>
         <Link to="/careers">Careers</Link>

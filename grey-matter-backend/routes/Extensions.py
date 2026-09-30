@@ -30,9 +30,9 @@ def bypass_rate_limits():
         return False
 
     # Endpoints that must never be rate-limited:
-    #   /api/health              — uptime checks
-    #   /api/csrf-token          — hit once per page load / periodically by the SPA
-    #   /api/exercises/batch/subject-stats — public, hit on every subjects page view
+    #   /api/health              - uptime checks
+    #   /api/csrf-token          - hit once per page load / periodically by the SPA
+    #   /api/exercises/batch/subject-stats - public, hit on every subjects page view
     bypass_paths = {
         "/api/health",
         "/api/csrf-token",

@@ -52,7 +52,7 @@ function Help() {
     <div className="info-page">
       <Helmet>
         <title>Help &amp; FAQ | Grey Matter</title>
-        <meta name="description" content="Answers to common questions about Grey Matter — accounts, exercises, progress and notes." />
+        <meta name="description" content="Answers to common questions about Grey Matter - accounts, exercises, progress and notes." />
       </Helmet>
 
       <FuncHeader />

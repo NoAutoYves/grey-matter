@@ -10,7 +10,6 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../styles/Subjects.css';
 
-// Import image icons
 import businessFinanceIcon from "../assets/images/func-images/business_and_finance.png";
 import scienceHealthcareIcon from "../assets/images/func-images/science_and_healthcare.png";
 import dataTechnologyIcon from "../assets/images/func-images/data_and_technology.png";
@@ -27,17 +26,17 @@ function Subjects() {
   const [totalCompleted, setTotalCompleted] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const scrollContainerRef = useRef(null);
-  
+
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
 
   const subjectDescriptions = {
-    'accounting': 'Master the language of business. Learn to record, analyze, and interpret financial information — essential for careers in finance, auditing, and business management.',
+    'accounting': 'Master the language of business. Learn to record, analyze, and interpret financial information - essential for careers in finance, auditing, and business management.',
     'business': 'Explore marketing, management, finance, and entrepreneurship. Build skills for careers in business leadership, consulting, and enterprise.',
     'economics': 'Understand how markets work, supply and demand, and economic forces. Prepare for careers in economics, policy-making, banking, and finance.',
     'geography': 'Study physical geography, human geography, and environmental systems. Careers include urban planning, environmental science, GIS, and teaching.',
-    'life science': 'Explore life sciences — from cells and genetics to ecosystems and evolution. Pathways to careers in medicine, healthcare, research, and environmental science.',
-    'physics': 'Master the laws of nature — mechanics, energy, waves, and motion. Build a foundation for careers in engineering, technology, research, and education.',
+    'life science': 'Explore life sciences - from cells and genetics to ecosystems and evolution. Pathways to careers in medicine, healthcare, research, and environmental science.',
+    'physics': 'Master the laws of nature - mechanics, energy, waves, and motion. Build a foundation for careers in engineering, technology, research, and education.',
     'mathematical literacy': 'Apply mathematical concepts to real-world situations. Develop skills for careers in business, finance, data analysis, and everyday decision-making.',
     'mathematics': 'Build a strong foundation in algebra, calculus, and mathematical reasoning. Essential for careers in data science, engineering, finance, and technology.'
   };
@@ -108,13 +107,12 @@ function Subjects() {
     return () => container.removeEventListener('scroll', checkScroll);
   }, [subjects]);
 
-  // Fetch subjects regardless of login state
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
         const response = await api.get('/api/exercises/batch/subject-stats');
         const data = await response.json();
-        
+
         if (response.ok) {
           setSubjects(data.subjects || []);
           let totalEx = 0;
@@ -168,7 +166,7 @@ function Subjects() {
     return pathMap[subjectName.toLowerCase()] || subjectName.toLowerCase();
   };
 
-  const heroDescription = `Grey Matter offers curriculum-aligned interactive exercises across 8 high school subjects: Accounting, Business, Economics, Geography, Life Science, Physics, Maths Literacy, and Mathematics. Each exercise is designed to reinforce core concepts, develop critical thinking skills, and prepare students for exam success. Whether you're studying for tests, revising topics, or aiming to excel, our online practice platform provides the tools you need to succeed.`;
+  const heroDescription = `Grey Matter has over 1,300 practice exercises across eight South African high school subjects for Grades 10, 11, and 12. Every exercise is 10 multiple-choice questions with instant feedback and a full per-question breakdown. Read the chapter notes alongside the questions, retake the exercise as many times as you want, and see exactly which topics are costing you marks before the exam does. Built for the phone you already have. Free, and no sign-up needed to browse.`;
 
   const getTruncatedDescription = (text) => {
     if (!text) return '';
@@ -205,7 +203,7 @@ function Subjects() {
         <title>All Subjects | Grey Matter</title>
         <meta
           name="description"
-          content="Browse all 8 subjects on Grey Matter: Accounting, Business, Economics, Geography, Life Science, Physics, Maths Literacy and Mathematics. Free interactive exercises with instant feedback."
+          content="Browse all 8 subjects on Grey Matter: Accounting, Business, Economics, Geography, Life Science, Physical Sciences, Maths Literacy and Mathematics. Free interactive exercises for Grades 10, 11 and 12 with instant feedback."
         />
       </Helmet>
 
@@ -214,15 +212,15 @@ function Subjects() {
 
         <section className="subjects-container">
           <div className="subjects-hero">
-            <h1 className="subjects-title">High School Subject Practice for Exam Success</h1>
-            
+            <h1 className="subjects-title">Practice for Grades 10, 11 and 12</h1>
+
             <div className="subjects-description-wrapper">
               <p className="subjects-subtitle">
                 <span className="desktop-full">{heroDescription}</span>
                 <span className="mobile-truncated">{isExpanded ? heroDescription : truncatedDescription}</span>
               </p>
-              <button 
-                className="expand-toggle" 
+              <button
+                className="expand-toggle"
                 onClick={() => setIsExpanded(!isExpanded)}
                 aria-label={isExpanded ? "Show less" : "Read more"}
               >
@@ -232,58 +230,58 @@ function Subjects() {
           </div>
 
           <section className="career-skills-section">
-            <h2>Build Skills for Your Future Career</h2>
+            <h2>Where Each Subject Leads</h2>
             <p>
-              Every subject you study at Grey Matter builds skills that are valuable in the workplace. 
-              Whether you're aiming for a career in <strong>finance, healthcare, technology, business, or science</strong>, 
-              our interactive exercises help you develop the knowledge and confidence you need.
+              Every subject on Grey Matter connects to real pathways after school. Whether you are heading into
+              commerce, science, healthcare, or technology, the exercises on this platform are built around the
+              same topics you will be assessed on for matric and beyond.
             </p>
             <div className="career-skills-grid">
               <div className="career-skill-card">
                 <img src={businessFinanceIcon} alt="Business & Finance" className="career-skill-image" />
-                <h4>Business & Finance</h4>
-                <p>Accounting, Business, Economics</p>
+                <h4>Commerce</h4>
+                <p>Accounting, Business Studies, Economics</p>
                 <ul>
-                  <li>Financial analysis</li>
-                  <li>Market understanding</li>
-                  <li>Entrepreneurial thinking</li>
+                  <li>Financial statements and ratio analysis</li>
+                  <li>Business environments and legislation</li>
+                  <li>Market structures and economic policy</li>
                 </ul>
               </div>
               <div className="career-skill-card">
                 <img src={scienceHealthcareIcon} alt="Science & Healthcare" className="career-skill-image" />
-                <h4>Science & Healthcare</h4>
-                <p>Life Science, Physics, Geography</p>
+                <h4>Science and Healthcare</h4>
+                <p>Life Science, Physical Sciences, Geography</p>
                 <ul>
-                  <li>Scientific inquiry</li>
-                  <li>Problem solving</li>
-                  <li>Environmental awareness</li>
+                  <li>Genetics and human systems</li>
+                  <li>Mechanics, electricity, and organic chemistry</li>
+                  <li>Climate, geomorphology, and settlement</li>
                 </ul>
               </div>
               <div className="career-skill-card">
                 <img src={dataTechnologyIcon} alt="Data & Technology" className="career-skill-image" />
-                <h4>Data & Technology</h4>
-                <p>Mathematics, Maths Literacy</p>
+                <h4>Data and Technology</h4>
+                <p>Mathematics, Mathematical Literacy</p>
                 <ul>
-                  <li>Analytical thinking</li>
-                  <li>Quantitative reasoning</li>
-                  <li>Data interpretation</li>
+                  <li>Algebra, calculus, and trigonometry</li>
+                  <li>Financial maths and data handling</li>
+                  <li>Measurement and probability</li>
                 </ul>
               </div>
             </div>
           </section>
 
           <div className="subject-carousel-controls">
-            <button 
-              className="carousel-btn prev" 
-              onClick={scrollLeft} 
+            <button
+              className="carousel-btn prev"
+              onClick={scrollLeft}
               aria-label="Scroll left"
               disabled={atStart}
               style={{ opacity: atStart ? 0.4 : 1, pointerEvents: atStart ? 'none' : 'auto' }}
             >
               ‹
             </button>
-            <div 
-              className="subjects-carousel" 
+            <div
+              className="subjects-carousel"
               ref={scrollContainerRef}
             >
               {subjects.map((subject) => {
@@ -292,7 +290,7 @@ function Subjects() {
                   <div key={subject.subject_id} className={`subject-carousel-card ${getSubjectClass(subject.subject_name)}`}>
                     <h3>{subject.subject_name}</h3>
                     <p className="subject-description">
-                      {subjectDescriptions[subjectKey] || 
+                      {subjectDescriptions[subjectKey] ||
                        `Practice and master ${subject.subject_name} with interactive exercises.`}
                     </p>
                     <div className="subject-skills">
@@ -309,23 +307,23 @@ function Subjects() {
                       </div>
                     </div>
                     <p className="exercise-count">
-                      {subject.total_exercises > 0 
-                        ? `${subject.total_exercises} exercises available` 
+                      {subject.total_exercises > 0
+                        ? `${subject.total_exercises} exercises available`
                         : 'Exercises coming soon'}
                     </p>
                     <div className="progress-container">
                       <div className="progress-bar">
-                        <div 
-                          className="progress-fill" 
-                          style={{ 
-                            width: subject.total_exercises > 0 
-                              ? `${(subject.completed_exercises / subject.total_exercises) * 100}%` 
-                              : '0%' 
+                        <div
+                          className="progress-fill"
+                          style={{
+                            width: subject.total_exercises > 0
+                              ? `${(subject.completed_exercises / subject.total_exercises) * 100}%`
+                              : '0%'
                           }}
                         />
                       </div>
                       <span className="progress-text">
-                        {subject.total_exercises > 0 
+                        {subject.total_exercises > 0
                           ? `${subject.completed_exercises || 0} completed (${subject.progress_percentage || 0}%)`
                           : ''}
                       </span>
@@ -337,9 +335,9 @@ function Subjects() {
                 );
               })}
             </div>
-            <button 
-              className="carousel-btn next" 
-              onClick={scrollRight} 
+            <button
+              className="carousel-btn next"
+              onClick={scrollRight}
               aria-label="Scroll right"
               disabled={atEnd}
               style={{ opacity: atEnd ? 0.4 : 1, pointerEvents: atEnd ? 'none' : 'auto' }}
@@ -355,7 +353,7 @@ function Subjects() {
                 <div key={subject.subject_id} className={`subject-page-card ${getSubjectClass(subject.subject_name)}`}>
                   <h3>{subject.subject_name}</h3>
                   <p className="subject-description">
-                    {subjectDescriptions[subjectKey] || 
+                    {subjectDescriptions[subjectKey] ||
                      `Practice and master ${subject.subject_name} with interactive exercises.`}
                   </p>
                   <div className="subject-skills">
@@ -372,23 +370,23 @@ function Subjects() {
                     </div>
                   </div>
                   <p className="exercise-count">
-                    {subject.total_exercises > 0 
-                      ? `${subject.total_exercises} exercises available` 
+                    {subject.total_exercises > 0
+                      ? `${subject.total_exercises} exercises available`
                       : 'Exercises coming soon'}
                   </p>
                   <div className="progress-container">
                     <div className="progress-bar">
-                      <div 
-                        className="progress-fill" 
-                        style={{ 
-                          width: subject.total_exercises > 0 
-                            ? `${(subject.completed_exercises / subject.total_exercises) * 100}%` 
-                            : '0%' 
+                      <div
+                        className="progress-fill"
+                        style={{
+                          width: subject.total_exercises > 0
+                            ? `${(subject.completed_exercises / subject.total_exercises) * 100}%`
+                            : '0%'
                         }}
                       />
                     </div>
                     <span className="progress-text">
-                      {subject.total_exercises > 0 
+                      {subject.total_exercises > 0
                         ? `${subject.completed_exercises || 0} completed (${subject.progress_percentage || 0}%)`
                         : ''}
                     </span>
@@ -402,53 +400,53 @@ function Subjects() {
           </div>
 
           <section className="why-practice">
-            <h2>Why Practice Matters</h2>
+            <h2>What You Get on Grey Matter</h2>
             <div className="practice-grid">
               <div className="practice-card">
-                <img src={buildRetentionIcon} alt="Build Retention" className="practice-image" />
-                <h4>Build Retention</h4>
-                <p>Regular practice strengthens neural pathways, helping you retain information longer and recall it more easily during exams.</p>
+                <img src={buildRetentionIcon} alt="Instant feedback" className="practice-image" />
+                <h4>10 Questions, Instant Feedback</h4>
+                <p>Every exercise is exactly 10 multiple-choice questions. You see whether each answer is correct the moment you submit it, and the right answer is highlighted so you learn on the spot.</p>
               </div>
               <div className="practice-card">
-                <img src={identifyWeaknessesIcon} alt="Identify Weaknesses" className="practice-image" />
-                <h4>Identify Weaknesses</h4>
-                <p>Practice reveals gaps in your understanding so you can focus your study efforts where they're needed most.</p>
+                <img src={identifyWeaknessesIcon} alt="Per-question breakdown" className="practice-image" />
+                <h4>Per-Question Breakdown</h4>
+                <p>After the exercise, you get a full breakdown of every question: what you chose, what the correct answer was, and whether you got it right. No guessing where the marks went.</p>
               </div>
               <div className="practice-card">
-                <img src={buildConfidenceIcon} alt="Build Confidence" className="practice-image" />
-                <h4>Build Confidence</h4>
-                <p>As you complete exercises and see your scores improve, your confidence grows — leading to better exam performance.</p>
+                <img src={buildConfidenceIcon} alt="Chapter notes" className="practice-image" />
+                <h4>Chapter Notes for Every Topic</h4>
+                <p>Every topic has revision notes: definitions, key concepts, and worked examples. Read them before you start, keep them open while you answer, or come back to them after.</p>
               </div>
               <div className="practice-card">
-                <img src={developSpeedIcon} alt="Develop Speed" className="practice-image" />
-                <h4>Develop Speed</h4>
-                <p>Regular practice improves your speed and efficiency, helping you complete exams with time to spare.</p>
+                <img src={developSpeedIcon} alt="Retake unlimited" className="practice-image" />
+                <h4>Retake, Unlimited</h4>
+                <p>Every exercise can be retaken as many times as you want. Your best score is kept, every attempt is saved to your profile, and no exercise is ever locked after you complete it.</p>
               </div>
             </div>
           </section>
 
           <section className="success-guide">
-            <h2>How to Succeed with Grey Matter</h2>
+            <h2>How to Use Grey Matter</h2>
             <div className="steps-grid">
               <div className="step">
                 <span className="step-number">1</span>
-                <h4>Start with Your Weakest Subject</h4>
-                <p>Focus on the areas that need the most improvement. Our exercises help you build a strong foundation.</p>
+                <h4>Read the notes first</h4>
+                <p>Every topic has chapter notes on Grey Matter. Spend three minutes reading them before you start the exercise. You will get more out of the questions.</p>
               </div>
               <div className="step">
                 <span className="step-number">2</span>
-                <h4>Practice Consistently</h4>
-                <p>Short, daily practice sessions are more effective than long, infrequent study sessions.</p>
+                <h4>Take the exercise</h4>
+                <p>Answer all 10 questions. You will get immediate feedback on each one, so you know before you finish whether the topic is solid or shaky.</p>
               </div>
               <div className="step">
                 <span className="step-number">3</span>
-                <h4>Track Your Progress</h4>
-                <p>Monitor your scores and completion rates to see how much you're improving over time.</p>
+                <h4>Review what you got wrong</h4>
+                <p>Scroll through the per-question breakdown on the results page. Focus on the questions you missed, not the ones you got right.</p>
               </div>
               <div className="step">
                 <span className="step-number">4</span>
-                <h4>Review and Retake</h4>
-                <p>Retake exercises to reinforce learning and improve your scores. The more you practice, the better you'll perform.</p>
+                <h4>Retake after a few days</h4>
+                <p>Come back to the same exercise two or three days later. If you can hit 8 out of 10 on the retake, the topic is solid. If not, revisit the notes and try again.</p>
               </div>
             </div>
           </section>

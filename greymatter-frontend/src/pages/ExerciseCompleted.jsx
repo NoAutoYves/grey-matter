@@ -94,7 +94,7 @@ function ExerciseCompleted() {
         if (data.subject) setSubjectName(data.subject);
         if (data.topic_name) setTopicName(data.topic_name);
       } catch {
-        // Silent — share fallback uses subjectFromUrl or generic text.
+        // Silent - share fallback uses subjectFromUrl or generic text.
       }
     };
 

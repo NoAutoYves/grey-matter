@@ -272,7 +272,7 @@ function AdminExercises() {
             <div className={styles.field}>
               <label>Exercise title *</label>
               <input type="text" value={exerciseTitle} onChange={(e) => setExerciseTitle(e.target.value)}
-                placeholder="e.g. Algebra Basics — Exercise 1" className="adm-input" required />
+                placeholder="e.g. Algebra Basics - Exercise 1" className="adm-input" required />
             </div>
           </div>
 

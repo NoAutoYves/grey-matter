@@ -313,7 +313,7 @@
   padding: 0.3rem;
 }
 
-/* Tablet — no hover effects */
+/* Tablet - no hover effects */
 @media (min-width: 768px) and (max-width: 1023px) {
   .main-layout {
     padding: 1.5rem;
@@ -362,7 +362,7 @@
   }
 }
 
-/* Desktop — hover effects remain */
+/* Desktop - hover effects remain */
 @media (min-width: 1024px) {
   .main-layout {
     flex-direction: row;
@@ -438,7 +438,7 @@
   }
 }
 
-/* Small screens — no hover effects */
+/* Small screens - no hover effects */
 @media (max-width: 480px) {
   .quiz-box {
     padding: 1rem;
@@ -487,7 +487,7 @@
   }
 }
 
-/* Mobile Notes — no hover effects, taller box */
+/* Mobile Notes - no hover effects, taller box */
 @media (max-width: 767px) {
   .notes-box {
     max-height: 420px;

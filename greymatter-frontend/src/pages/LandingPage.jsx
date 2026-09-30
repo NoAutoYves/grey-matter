@@ -58,7 +58,7 @@ function LandingPage() {
   };
 
   // Hero description text
-  const heroDescription = `Choose from 8 high school subjects, practice with interactive exercises, and watch your understanding grow. Get instant feedback, save notes, and track your progress — all at no cost. Whether you're preparing for exams or simply reinforcing what you've learned in class, Grey Matter provides the tools you need to succeed.`;
+  const heroDescription = `Over 1,300 practice exercises across eight South African high school subjects for Grades 10, 11, and 12. Each exercise is 10 multiple-choice questions with instant feedback, a per-question breakdown, and chapter notes for the topic. Track every attempt, retake as many times as you want, and see exactly where you are losing marks before the exam does. Free, and no sign-up needed to browse.`;
 
   // Get truncated description for mobile
   const getTruncatedDescription = (text) => {
@@ -80,7 +80,7 @@ function LandingPage() {
         <title>Grey Matter | Free High School Practice for Grades 10–12</title>
         <meta
           name="description"
-          content="Free interactive practice for South African high school students. 1,300+ exercises across Accounting, Business, Economics, Geography, Life Science, Physics, Maths Literacy and Mathematics — with instant feedback and progress tracking."
+          content="Free interactive practice for South African high school students. 1,300+ exercises across Accounting, Business, Economics, Geography, Life Science, Physics, Maths Literacy and Mathematics - with instant feedback and progress tracking."
         />
       </Helmet>
 
@@ -203,7 +203,7 @@ function LandingPage() {
                 <img src={instantFeedbackIcon} alt="Instant Feedback" className="why-icon-img" />
                 <div>
                   <h4>Instant Feedback That Teaches</h4>
-                  <p>Know exactly what you got wrong — and why — right away. Our detailed feedback helps you learn from mistakes, correct misconceptions, and reinforce what you've learned.</p>
+                  <p>Know exactly what you got wrong - and why, right away. Our detailed feedback helps you learn from mistakes, correct misconceptions, and reinforce what you've learned.</p>
                 </div>
               </div>
               <div className="why-item">
@@ -217,7 +217,7 @@ function LandingPage() {
                 <img src={alwaysFreeIcon} alt="Always Free" className="why-icon-img" />
                 <div>
                   <h4>Always Free, Always Accessible</h4>
-                  <p>No paywalls, no subscriptions, no hidden fees. Every subject, every exercise, every feature is available to every student at no cost — because learning should never be a privilege.</p>
+                  <p>No paywalls, no subscriptions, no hidden fees. Every subject, every exercise, every feature is available to every student at no cost - because learning should never be a privilege.</p>
                 </div>
               </div>
             </div>
@@ -238,6 +238,7 @@ function LandingPage() {
 
         <footer>
           <div className="footer-links">
+            <Link to="/how-it-works">How It Works</Link>
             <Link to="/about">About</Link>
             <Link to="/contact">Contact</Link>
             <Link to="/careers">Careers</Link>

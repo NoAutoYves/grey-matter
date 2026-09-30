@@ -193,10 +193,6 @@
     transform: scale(1.1);
     transition: all 0.3s ease;
   }
-
-  .social-links a:hover img {
-    filter: brightness(0) saturate(100%) invert(40%) sepia(100%) saturate(1000%) hue-rotate(220deg);
-  }
 }
 
 /* Small screens */

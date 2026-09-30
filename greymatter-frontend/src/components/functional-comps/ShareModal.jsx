@@ -40,7 +40,7 @@ function ShareModal({ isOpen, onClose, subject, topic, score, total, percentage 
 
   const shareText = percentage
     ? `I just scored ${percentage}% on ${topic || subject} on Grey Matter. Try it free:`
-    : `Check out Grey Matter — free high school practice for South Africa:`;
+    : `Check out Grey Matter - free high school practice for South Africa:`;
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
     `${shareText} ${shareUrl}`

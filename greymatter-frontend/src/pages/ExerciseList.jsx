@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import FuncFooter from "../components/functional-comps/FuncFooter";
@@ -9,6 +9,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import SocialMedia from "../components/functional-comps/LandingSocialMedia";
 import { api } from "../utils/api";
 import { getSubjectName } from "../utils/subjectMap";
+import { subjectContent, getSubjectContentKey } from "../data/subjectContent";
 import '../styles/ExerciseList.css';
 
 import scientificReasoningIcon from "../assets/images/func-images/scientific_reasoning.png";
@@ -26,6 +27,11 @@ function ExerciseList() {
   const [completedExercises, setCompletedExercises] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
+
+  const [activeGradeIdx, setActiveGradeIdx] = useState(0);
+  const [gradeAtStart, setGradeAtStart] = useState(true);
+  const [gradeAtEnd, setGradeAtEnd] = useState(false);
+  const gradeScrollerRef = useRef(null);
 
   useEffect(() => {
     const fetchTopics = async () => {
@@ -61,14 +67,61 @@ function ExerciseList() {
     fetchTopics();
   }, [subject, user]);
 
-  // Navigate using the URL slug so topic URLs stay consistent with every
-  // other public route (e.g. /life-science/topic/123, not /Life%20Science/...).
+  useEffect(() => {
+    const container = gradeScrollerRef.current;
+    if (!container) return;
+
+    const update = () => {
+      const { scrollLeft, clientWidth, scrollWidth } = container;
+      if (clientWidth === 0) return;
+
+      const idx = Math.round(scrollLeft / clientWidth);
+      const maxIdx = Math.max(0, groupedTopics.length - 1);
+      setActiveGradeIdx(Math.min(Math.max(idx, 0), maxIdx));
+
+      setGradeAtStart(scrollLeft <= 2);
+      setGradeAtEnd(scrollLeft + clientWidth >= scrollWidth - 2);
+    };
+
+    const initialTimer = setTimeout(update, 50);
+
+    container.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+
+    let ro;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(update);
+      ro.observe(container);
+    }
+
+    return () => {
+      clearTimeout(initialTimer);
+      container.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+      if (ro) ro.disconnect();
+    };
+  }, [groupedTopics]);
+
+  const scrollToGrade = (idx) => {
+    const container = gradeScrollerRef.current;
+    if (!container) return;
+    const sections = container.querySelectorAll('.grade-list-section');
+    const target = sections[idx];
+    if (!target) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const offset = targetRect.left - containerRect.left + container.scrollLeft;
+
+    container.scrollTo({ left: offset, behavior: 'smooth' });
+  };
+
   const handleTopicClick = (topicId) => {
     navigate(`/${subject}/topic/${topicId}`);
   };
 
   const subjectDescriptions = {
-    'accounting': 'Accounting is the language of business — a systematic process of identifying, recording, measuring, classifying, verifying, summarizing, interpreting, and communicating financial information. Through our interactive accounting exercises, you will master the fundamental principles that underpin financial reporting, including double-entry bookkeeping, trial balances, income statements, balance sheets, cash flow statements, and financial ratio analysis. These exercises prepare you for careers in auditing, taxation, financial consulting, corporate finance, and management accounting by building a strong foundation in analytical thinking, attention to detail, and ethical financial practice.',
+    'accounting': 'Accounting is the language of business. It is the systematic process of identifying, recording, measuring, classifying, verifying, summarizing, interpreting, and communicating financial information. Through our interactive accounting exercises, you will master the fundamental principles that underpin financial reporting, including double-entry bookkeeping, trial balances, income statements, balance sheets, cash flow statements, and financial ratio analysis. These exercises prepare you for careers in auditing, taxation, financial consulting, corporate finance, and management accounting by building a strong foundation in analytical thinking, attention to detail, and ethical financial practice.',
 
     'business': 'Business studies explore the dynamic world of commerce, enterprise, and organizational management. Our comprehensive business exercises cover essential topics including marketing strategy, consumer behavior, human resource management, operations management, financial planning, business law, and entrepreneurship. You will develop critical skills in strategic thinking, problem-solving, decision-making, leadership, and effective communication. These exercises provide a solid foundation for careers in business management, consulting, marketing, human resources, and entrepreneurship, helping you understand how organizations create value, compete in markets, and adapt to changing economic environments.',
 
@@ -76,15 +129,15 @@ function ExerciseList() {
 
     'geography': 'Geography bridges the natural and social sciences, exploring the relationships between people, places, and environments. Our geography exercises cover physical geography (landforms, climate systems, weather patterns, biomes, ecosystems, and natural hazards), human geography (population dynamics, migration, urbanization, settlement patterns, cultural landscapes, economic activities, and political geography), and environmental geography (resource management, sustainability, conservation, climate change, and environmental impact assessment). These exercises develop spatial awareness, critical thinking, and analytical skills for careers in urban planning, environmental science, GIS, teaching, and international development.',
 
-    'life science': 'Life Science is the study of living organisms — their structure, function, growth, evolution, distribution, and interactions with their environment. Our comprehensive life science exercises cover cell biology (cell structure, organelles, cell division, and cellular processes), genetics (DNA, genes, inheritance, genetic variation, and biotechnology), ecology (ecosystems, food webs, biodiversity, population dynamics, and conservation), human anatomy and physiology (body systems, homeostasis, and health), evolution (natural selection, adaptation, speciation, and evolutionary relationships), and microbiology. These exercises build knowledge essential for careers in medicine, healthcare, research, pharmaceuticals, environmental science, and biotechnology.',
+    'life science': 'Life Science is the study of living organisms, their structure, function, growth, evolution, distribution, and interactions with their environment. Our comprehensive life science exercises cover cell biology (cell structure, organelles, cell division, and cellular processes), genetics (DNA, genes, inheritance, genetic variation, and biotechnology), ecology (ecosystems, food webs, biodiversity, population dynamics, and conservation), human anatomy and physiology (body systems, homeostasis, and health), evolution (natural selection, adaptation, speciation, and evolutionary relationships), and microbiology. These exercises build knowledge essential for careers in medicine, healthcare, research, pharmaceuticals, environmental science, and biotechnology.',
 
     'physics': 'Physics is the fundamental science that explores the laws governing matter, energy, space, and time. Our physics exercises cover mechanics (kinematics, dynamics, forces, motion, work, energy, power, momentum, and gravitation), waves and optics (wave properties, sound, light, reflection, refraction, diffraction, and interference), electricity and magnetism (electric circuits, current, voltage, resistance, magnetic fields, and electromagnetic induction), thermodynamics (heat, temperature, entropy, and thermodynamic processes), and modern physics (quantum mechanics, relativity, and nuclear physics). These exercises develop problem-solving, analytical, and mathematical skills essential for careers in engineering, technology, research, education, and applied sciences.',
 
     'maths literacy': 'Maths Literacy focuses on applying mathematical concepts to real-world situations, developing practical numeracy skills that are essential for everyday life, work, and informed citizenship. Our exercises cover financial maths (budgeting, interest calculations, loans, investments, taxation, and financial planning), data analysis (statistics, probability, graphs, and data interpretation), measurement (units, conversions, area, volume, and scale), and mathematical reasoning (logical thinking, problem-solving, and decision-making). These exercises build practical skills for careers in business, finance, data analysis, retail, hospitality, and general management, as well as informed personal financial management.',
 
-    'mathematics': 'Mathematics is the language of pattern, structure, and logical reasoning — a discipline that underpins science, technology, engineering, and virtually every field of human endeavor. Our comprehensive mathematics exercises cover algebra (equations, inequalities, functions, polynomials, and sequences), calculus (limits, derivatives, integration, optimization, and applications), statistics and probability (data analysis, distributions, hypothesis testing, and probabilistic reasoning), geometry (properties of shapes, transformations, and spatial reasoning), trigonometry (ratios, identities, equations, and applications), and number theory. These exercises build rigorous analytical thinking, problem-solving, and quantitative reasoning skills essential for careers in data science, engineering, finance, technology, research, and academia.',
+    'mathematics': 'Mathematics is the language of pattern, structure, and logical reasoning. It is a discipline that underpins science, technology, engineering, and virtually every field of human endeavor. Our comprehensive mathematics exercises cover algebra (equations, inequalities, functions, polynomials, and sequences), calculus (limits, derivatives, integration, optimization, and applications), statistics and probability (data analysis, distributions, hypothesis testing, and probabilistic reasoning), geometry (properties of shapes, transformations, and spatial reasoning), trigonometry (ratios, identities, equations, and applications), and number theory. These exercises build rigorous analytical thinking, problem-solving, and quantitative reasoning skills essential for careers in data science, engineering, finance, technology, research, and academia.',
 
-    'maths': 'Mathematics is the language of pattern, structure, and logical reasoning — a discipline that underpins science, technology, engineering, and virtually every field of human endeavor. Our comprehensive mathematics exercises cover algebra (equations, inequalities, functions, polynomials, and sequences), calculus (limits, derivatives, integration, optimization, and applications), statistics and probability (data analysis, distributions, hypothesis testing, and probabilistic reasoning), geometry (properties of shapes, transformations, and spatial reasoning), trigonometry (ratios, identities, equations, and applications), and number theory. These exercises build rigorous analytical thinking, problem-solving, and quantitative reasoning skills essential for careers in data science, engineering, finance, technology, research, and academia.'
+    'maths': 'Mathematics is the language of pattern, structure, and logical reasoning. It is a discipline that underpins science, technology, engineering, and virtually every field of human endeavor. Our comprehensive mathematics exercises cover algebra (equations, inequalities, functions, polynomials, and sequences), calculus (limits, derivatives, integration, optimization, and applications), statistics and probability (data analysis, distributions, hypothesis testing, and probabilistic reasoning), geometry (properties of shapes, transformations, and spatial reasoning), trigonometry (ratios, identities, equations, and applications), and number theory. These exercises build rigorous analytical thinking, problem-solving, and quantitative reasoning skills essential for careers in data science, engineering, finance, technology, research, and academia.'
   };
 
   const getTopicBenefits = () => {
@@ -175,9 +228,37 @@ function ExerciseList() {
     return result + '...';
   };
 
+  const renderInline = (text) => {
+    if (!text) return null;
+    const parts = [];
+    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
+    let lastIndex = 0;
+    let match;
+    let key = 0;
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(text.slice(lastIndex, match.index));
+      }
+      const token = match[0];
+      if (token.startsWith('**')) {
+        parts.push(<strong key={key++}>{token.slice(2, -2)}</strong>);
+      } else {
+        parts.push(<em key={key++}>{token.slice(1, -1)}</em>);
+      }
+      lastIndex = match.index + token.length;
+    }
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+    return parts;
+  };
+
   const fullDescription = getSubjectDescription();
   const truncatedDescription = getTruncatedDescription(fullDescription);
   const benefits = getTopicBenefits();
+
+  const guideKey = getSubjectContentKey(subject);
+  const guide = guideKey ? subjectContent[guideKey] : null;
 
   if (loading) {
     return (
@@ -259,55 +340,123 @@ function ExerciseList() {
         </section>
 
         {groupedTopics.length > 0 ? (
-          <div className="topic-list-by-grade">
-            {groupedTopics.map((gradeGroup) => (
-              <div key={gradeGroup.grade_level} className="grade-list-section">
-                <h2 className="grade-list-header">{gradeGroup.grade_display}</h2>
-                <div className="topics-list-grid">
-                  {gradeGroup.topics.map((topic) => (
-                    <div
-                      key={topic.topic_id}
-                      className="topic-list-card"
-                      onClick={() => handleTopicClick(topic.topic_id)}
-                    >
-                      <h3 className="topic-list-title">{topic.topic_name}</h3>
+          <>
+            <div className="topic-scroller-wrapper">
+              <div className="topic-list-by-grade" ref={gradeScrollerRef}>
+                {groupedTopics.map((gradeGroup) => (
+                  <div key={gradeGroup.grade_level} className="grade-list-section">
+                    <h2 className="grade-list-header">{gradeGroup.grade_display}</h2>
+                    <div className="topics-list-grid">
+                      {gradeGroup.topics.map((topic) => (
+                        <div
+                          key={topic.topic_id}
+                          className="topic-list-card"
+                          onClick={() => handleTopicClick(topic.topic_id)}
+                        >
+                          <h3 className="topic-list-title">{topic.topic_name}</h3>
+                        </div>
+                      ))}
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {groupedTopics.length > 1 && (
+              <div className="grade-indicator" aria-label="Grade navigation">
+                <button
+                  type="button"
+                  className="grade-nav-btn"
+                  onClick={() => scrollToGrade(Math.max(activeGradeIdx - 1, 0))}
+                  disabled={gradeAtStart}
+                  aria-label="Previous grade"
+                >
+                  ‹
+                </button>
+
+                <div className="grade-dots">
+                  {groupedTopics.map((grade, idx) => (
+                    <button
+                      key={grade.grade_level}
+                      type="button"
+                      className={`grade-dot ${activeGradeIdx === idx ? 'active' : ''}`}
+                      onClick={() => scrollToGrade(idx)}
+                      aria-label={`Go to ${grade.grade_display}`}
+                    />
                   ))}
                 </div>
+
+                <button
+                  type="button"
+                  className="grade-nav-btn"
+                  onClick={() => scrollToGrade(Math.min(activeGradeIdx + 1, groupedTopics.length - 1))}
+                  disabled={gradeAtEnd}
+                  aria-label="Next grade"
+                >
+                  ›
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         ) : (
           <p className="no-list-quizzes">No topics available for this subject yet. Check back soon!</p>
         )}
 
+        {guide && (
+          <section className="subject-guide">
+            {guide.sections.map((section, idx) => (
+              <div key={idx} className="subject-guide-section">
+                <h2 className="subject-guide-heading">{section.heading}</h2>
+
+                {section.paragraphs && section.paragraphs.map((para, pIdx) => (
+                  <p key={pIdx} className="subject-guide-paragraph">
+                    {renderInline(para)}
+                  </p>
+                ))}
+
+                {section.subsections && section.subsections.map((sub, sIdx) => (
+                  <div key={sIdx} className="subject-guide-subsection">
+                    <h3 className="subject-guide-subheading">{sub.subheading}</h3>
+                    {sub.paragraphs.map((para, pIdx) => (
+                      <p key={pIdx} className="subject-guide-paragraph">
+                        {renderInline(para)}
+                      </p>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </section>
+        )}
+
         <section className="list-how-it-works">
-          <h2>Your Learning Journey</h2>
+          <h2>How to Use These Exercises</h2>
           <div className="list-steps-row">
             <div className="list-step-item">
               <span className="list-step-num">1</span>
-              <p>Select a topic</p>
+              <p>Read the chapter notes</p>
             </div>
             <span className="list-step-arrow">→</span>
             <div className="list-step-item">
               <span className="list-step-num">2</span>
-              <p>Answer 10 questions</p>
+              <p>Answer the 10 questions</p>
             </div>
             <span className="list-step-arrow">→</span>
             <div className="list-step-item">
               <span className="list-step-num">3</span>
-              <p>View your results</p>
+              <p>Review the breakdown</p>
             </div>
             <span className="list-step-arrow">→</span>
             <div className="list-step-item">
               <span className="list-step-num">4</span>
-              <p>Track progress</p>
+              <p>Retake in a few days</p>
             </div>
           </div>
           <p className="list-learning-note">
-            Each exercise is designed to challenge your understanding, reinforce key concepts, and build the confidence you need to succeed in assessments and beyond.
+            Most learners need two or three passes through a topic before it sticks. Read the notes, take the exercise, review the per-question breakdown, then come back to the same exercise in two or three days. If you can hit 8 out of 10 on the retake, the topic is solid.
           </p>
         </section>
+
       </section>
 
       <SocialMedia />

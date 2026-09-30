@@ -26,8 +26,15 @@ function ExercisesByTopic() {
         setOpenDropdown(null);
       }
     };
+    const handleEscape = (e) => {
+      if (e.key === "Escape") setOpenDropdown(null);
+    };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
   }, []);
 
   useEffect(() => {
@@ -37,7 +44,7 @@ function ExercisesByTopic() {
           credentials: 'include'
         });
         const data = await response.json();
-        
+
         if (response.ok) {
           setExercises(data.exercises || []);
           setTopicName(data.topic_name || "");
@@ -48,7 +55,7 @@ function ExercisesByTopic() {
         setLoading(false);
       }
     };
-    
+
     fetchExercises();
   }, [subject, topicId, user]);
 
@@ -98,20 +105,20 @@ function ExercisesByTopic() {
       </Helmet>
 
       <FuncHeader />
-      
+
       <section className="quiz-list-container">
         <button className="back-button" onClick={() => navigate(`/${subject}`)}>
           ← Back to Topics
         </button>
-        
+
         <h2 className="quiz-list-title">{topicName}</h2>
         <p className="quiz-list-subtitle">Select an exercise to begin:</p>
 
         {exercises.length > 0 ? (
           <ul className="quiz-list">
             {exercises.map((exercise) => (
-              <li 
-                key={exercise.exercise_id} 
+              <li
+                key={exercise.exercise_id}
                 className={`quiz-item ${exercise.completed ? 'completed' : 'not-taken'} ${openDropdown === exercise.exercise_id ? 'dropdown-open' : ''}`}
               >
                 {exercise.completed ? (
@@ -126,25 +133,28 @@ function ExercisesByTopic() {
                         className={`actions-btn ${openDropdown === exercise.exercise_id ? 'actions-btn-open' : ''}`}
                         onClick={() => toggleDropdown(exercise.exercise_id)}
                         aria-expanded={openDropdown === exercise.exercise_id}
+                        aria-haspopup="menu"
                       >
-                        Actions
+                        <span className="actions-btn-label">Actions</span>
                         <span className="actions-chevron">▾</span>
                       </button>
                       {openDropdown === exercise.exercise_id && (
-                        <div className="dropdown-menu">
+                        <div className="dropdown-menu" role="menu">
                           <Link
                             to={`/${subject}/exercise?exercise_id=${exercise.exercise_id}`}
                             className="dropdown-item"
+                            role="menuitem"
                             onClick={() => handleRetake(exercise.exercise_id)}
                           >
-                            Retake
+                            <span className="dropdown-item-label">Retake</span>
                           </Link>
                           <Link
                             to={`/view-results?exercise_id=${exercise.exercise_id}`}
                             className="dropdown-item"
+                            role="menuitem"
                             onClick={() => setOpenDropdown(null)}
                           >
-                            View Results
+                            <span className="dropdown-item-label">View Results</span>
                           </Link>
                         </div>
                       )}

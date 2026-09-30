@@ -7,7 +7,7 @@ via query_filter.py (free Groq model), and write ONE combined CSV.
 CSV columns:
     exercise_name, exercise_question, image_query, save_url, filter_decision
 
-filter_decision is KEEP or SKIP — generate_images.py honours it.
+filter_decision is KEEP or SKIP - generate_images.py honours it.
 
 Run:
     python extract_queries.py "C:/.../MATH/GRADE 12"
@@ -29,7 +29,7 @@ SOURCE_ROOT = Path(r"C:\Users\madon\Documents\GM")
 OUTPUT_ROOT = Path(r"C:\Users\madon\Documents\GM\Image Queries")
 
 EXERCISE_FILE_RE = re.compile(r"-\s*exercises?\.docx$", re.IGNORECASE)
-EXERCISE_HEADER_RE = re.compile(r"^(.*?)\s*[-–—]\s*Exercise\s+(\d+)\s*$", re.IGNORECASE)
+EXERCISE_HEADER_RE = re.compile(r"^(.*?)\s*[-–-]\s*Exercise\s+(\d+)\s*$", re.IGNORECASE)
 QUESTION_RE = re.compile(r"^Question\s+(\d+)\s*:", re.IGNORECASE)
 IMAGE_RE = re.compile(r"^Image query:\s*(.+)$", re.IGNORECASE)
 SKIP_RE = re.compile(r"^Pattern used:", re.IGNORECASE)

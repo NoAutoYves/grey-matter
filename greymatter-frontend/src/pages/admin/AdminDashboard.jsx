@@ -4,7 +4,7 @@ import { api } from "../../utils/api";
 import styles from './AdminDashboard.module.css';
 
 function relativeTime(iso) {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const seconds = Math.floor((Date.now() - new Date(iso)) / 1000);
   if (seconds < 60) return "just now";
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;

@@ -64,7 +64,7 @@ def find_questions(paragraphs):
                 ans_i = j
                 break
             elif t.startswith("Question ") and a_i is None:
-                # We hit another question before this one had options —
+                # We hit another question before this one had options -
                 # malformed, give up on this block.
                 break
 

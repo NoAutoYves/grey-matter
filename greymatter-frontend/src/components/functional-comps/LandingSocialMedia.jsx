@@ -3,6 +3,7 @@ import twitter from "../../assets/images/social-media/twitter.png";
 import instagram from "../../assets/images/social-media/instagram.png";
 import tiktok from "../../assets/images/social-media/tik-tok.png";
 import whatsapp from "../../assets/images/social-media/whatsapp-icon.png";
+import youtube from "../../assets/images/social-media/youtube-icon.png";
 import '../../styles/LandingSubjectsAndMedia.css';
 
 function SocialMedia() {
@@ -10,6 +11,9 @@ function SocialMedia() {
         <section className="social">
             <p className="social-title"><b>FOLLOW US ON</b></p>
             <div className="social-links">
+                <a href="https://youtube.com/@greymatterschool?si=dREUXPeTDFF10Xbx" target="_blank" rel="noopener noreferrer" aria-label="YouTube Channel">
+                    <img src={youtube} alt="YouTube" />
+                </a>                
                 <a href="https://whatsapp.com/channel/0029Vb94e0660eBoDTDgBL2L" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Channel">
                     <img src={whatsapp} alt="WhatsApp" />
                 </a>
