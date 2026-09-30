@@ -341,6 +341,46 @@ function ExerciseList() {
 
         {groupedTopics.length > 0 ? (
           <>
+            <div className="grade-section-header">
+              <h2 className="grade-section-title">Topics by Grade</h2>
+
+              {groupedTopics.length > 1 && (
+                <div className="grade-indicator" aria-label="Grade navigation">
+                  <button
+                    type="button"
+                    className="grade-nav-btn"
+                    onClick={() => scrollToGrade(Math.max(activeGradeIdx - 1, 0))}
+                    disabled={gradeAtStart}
+                    aria-label="Previous grade"
+                  >
+                    ‹
+                  </button>
+
+                  <div className="grade-dots">
+                    {groupedTopics.map((grade, idx) => (
+                      <button
+                        key={grade.grade_level}
+                        type="button"
+                        className={`grade-dot ${activeGradeIdx === idx ? 'active' : ''}`}
+                        onClick={() => scrollToGrade(idx)}
+                        aria-label={`Go to ${grade.grade_display}`}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="grade-nav-btn"
+                    onClick={() => scrollToGrade(Math.min(activeGradeIdx + 1, groupedTopics.length - 1))}
+                    disabled={gradeAtEnd}
+                    aria-label="Next grade"
+                  >
+                    ›
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="topic-scroller-wrapper">
               <div className="topic-list-by-grade" ref={gradeScrollerRef}>
                 {groupedTopics.map((gradeGroup) => (
@@ -361,42 +401,6 @@ function ExerciseList() {
                 ))}
               </div>
             </div>
-
-            {groupedTopics.length > 1 && (
-              <div className="grade-indicator" aria-label="Grade navigation">
-                <button
-                  type="button"
-                  className="grade-nav-btn"
-                  onClick={() => scrollToGrade(Math.max(activeGradeIdx - 1, 0))}
-                  disabled={gradeAtStart}
-                  aria-label="Previous grade"
-                >
-                  ‹
-                </button>
-
-                <div className="grade-dots">
-                  {groupedTopics.map((grade, idx) => (
-                    <button
-                      key={grade.grade_level}
-                      type="button"
-                      className={`grade-dot ${activeGradeIdx === idx ? 'active' : ''}`}
-                      onClick={() => scrollToGrade(idx)}
-                      aria-label={`Go to ${grade.grade_display}`}
-                    />
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  className="grade-nav-btn"
-                  onClick={() => scrollToGrade(Math.min(activeGradeIdx + 1, groupedTopics.length - 1))}
-                  disabled={gradeAtEnd}
-                  aria-label="Next grade"
-                >
-                  ›
-                </button>
-              </div>
-            )}
           </>
         ) : (
           <p className="no-list-quizzes">No topics available for this subject yet. Check back soon!</p>

@@ -93,6 +93,33 @@
   border: 1px solid rgba(104, 70, 255, 0.15);
 }
 
+/* ── Topics by Grade: header above the scroller ───────────────── */
+
+.grade-section-header {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.grade-section-title {
+  font-size: 1.6rem;
+  color: #1a1a2e;
+  margin: 0 0 0.75rem 0;
+  font-weight: 700;
+}
+
+.grade-section-title::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: #6846ff;
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
 .topic-list-by-grade {
   width: 100%;
   box-sizing: border-box;
@@ -284,6 +311,14 @@
     box-shadow: none;
     border-color: #6846ff;
   }
+
+  .grade-section-header {
+    margin-top: 2rem;
+  }
+
+  .grade-section-title {
+    font-size: 1.5rem;
+  }
 }
 
 @media (max-width: 767px) {
@@ -309,6 +344,16 @@
 
   .list-description {
     font-size: 0.9rem;
+  }
+
+  .grade-section-header {
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .grade-section-title {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
   }
 
   .grade-list-header {
@@ -467,6 +512,14 @@
 
   .list-description {
     font-size: 0.85rem;
+  }
+
+  .grade-section-header {
+    margin-top: 1.5rem;
+  }
+
+  .grade-section-title {
+    font-size: 1.15rem;
   }
 
   .topic-list-card {
@@ -689,9 +742,9 @@
     align-items: center;
     justify-content: center;
     gap: 20px;
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
+    margin: 0 auto 1rem auto;
     user-select: none;
+    width: 100%;
   }
 
   .grade-nav-btn {
