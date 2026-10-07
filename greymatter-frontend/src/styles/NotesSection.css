@@ -1,0 +1,324 @@
+.notes-sidebar {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.notes-box {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  height: 100%;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.notes-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+  border-bottom: 2px solid rgba(104, 70, 255, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+.notes-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.notes-box h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #1a1a2e;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Scrolling content area                                                     */
+/* -------------------------------------------------------------------------- */
+
+.chapter-notes-content {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #333;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  max-height: 400px;
+}
+
+.chapter-notes-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chapter-notes-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.chapter-notes-content::-webkit-scrollbar-thumb {
+  background: #6846ff;
+  border-radius: 4px;
+}
+
+.chapter-notes-content::-webkit-scrollbar-thumb:hover {
+  background: #5535cc;
+}
+
+.chapter-notes-content {
+  scrollbar-width: thin;
+  scrollbar-color: #6846ff rgba(0, 0, 0, 0.05);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Headings — ## / ### / #### from the source notes                           */
+/* -------------------------------------------------------------------------- */
+
+.notes-heading {
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0.9rem 0 0.4rem 0;
+  line-height: 1.3;
+}
+
+.notes-heading-1 { font-size: 1.05rem; }
+.notes-heading-2 { font-size: 0.98rem; }
+.notes-heading-3 { font-size: 0.92rem; }
+.notes-heading-4 { font-size: 0.88rem; }
+
+.notes-heading:first-child {
+  margin-top: 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Paragraphs, lists, highlights                                              */
+/* -------------------------------------------------------------------------- */
+
+.notes-paragraph {
+  margin: 0.5rem 0;
+  color: #444;
+}
+
+.notes-ul,
+.notes-ol {
+  margin: 0.4rem 0 0.4rem 1.2rem;
+  padding: 0;
+}
+
+.notes-ul .notes-list-item { list-style-type: disc; }
+.notes-ol .notes-list-item { list-style-type: decimal; }
+
+.notes-list-item {
+  margin: 0.2rem 0;
+  color: #444;
+}
+
+.notes-highlight {
+  background: rgba(255, 224, 100, 0.6);
+  color: inherit;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* KaTeX display math                                                         */
+/* -------------------------------------------------------------------------- */
+
+.notes-display-math {
+  margin: 0.6rem 0;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.notes-inline-display-math {
+  display: block;
+  margin: 0.4rem 0;
+  text-align: center;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Callouts — Key Point / Worked Example / Common Mistake / Exam Tip          */
+/* -------------------------------------------------------------------------- */
+
+.notes-callout {
+  margin: 0.7rem 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border-left: 3px solid #6846ff;
+  background: rgba(104, 70, 255, 0.06);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.notes-callout-label {
+  font-weight: 700;
+  color: #6846ff;
+}
+
+.notes-callout-key-point {
+  border-left-color: #6846ff;
+  background: rgba(104, 70, 255, 0.08);
+}
+.notes-callout-key-point .notes-callout-label { color: #5535cc; }
+
+.notes-callout-worked-example {
+  border-left-color: #2b8a3e;
+  background: rgba(43, 138, 62, 0.08);
+}
+.notes-callout-worked-example .notes-callout-label { color: #2b8a3e; }
+
+.notes-callout-common-mistake {
+  border-left-color: #d9480f;
+  background: rgba(217, 72, 15, 0.08);
+}
+.notes-callout-common-mistake .notes-callout-label { color: #d9480f; }
+
+.notes-callout-exam-tip {
+  border-left-color: #e67700;
+  background: rgba(230, 119, 0, 0.08);
+}
+.notes-callout-exam-tip .notes-callout-label { color: #e67700; }
+
+/* -------------------------------------------------------------------------- */
+/* Expand / collapse                                                          */
+/* -------------------------------------------------------------------------- */
+
+.notes-preview {
+  position: relative;
+}
+
+.notes-full {
+  margin-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 0.5rem;
+}
+
+.notes-ellipsis {
+  display: inline-block;
+  margin-left: 0.15rem;
+  color: #888;
+}
+
+.notes-toggle-btn {
+  background: none;
+  border: none;
+  color: #6846ff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.4rem 0;
+  font-family: 'noto', sans-serif;
+  margin-top: 0.5rem;
+}
+
+.notes-toggle-btn:hover {
+  color: #5535cc;
+  text-decoration: underline;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Empty state                                                                */
+/* -------------------------------------------------------------------------- */
+
+.no-notes-message {
+  color: #888;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.no-notes-message small {
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+/* ========================================================================== */
+/* Responsive                                                                 */
+/* ========================================================================== */
+
+/* Tablet — 768px to 1023px */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .notes-box {
+    padding: 1.5rem;
+  }
+
+  .notes-toggle-btn:hover {
+    color: #6846ff;
+    text-decoration: none;
+  }
+}
+
+/* Desktop — 1024px and up */
+@media (min-width: 1024px) {
+  .notes-sidebar {
+    width: 30%;
+    margin-top: 0;
+    order: 1;
+  }
+
+  .notes-box {
+    position: sticky;
+    top: 2rem;
+    max-height: 600px;
+  }
+
+  .chapter-notes-content {
+    max-height: 500px;
+  }
+}
+
+/* Small screens — up to 480px */
+@media (max-width: 480px) {
+  .notes-box {
+    padding: 0.8rem;
+  }
+
+  .notes-box h4 {
+    font-size: 0.9rem;
+  }
+
+  .chapter-notes-content {
+    font-size: 0.8rem;
+    max-height: 360px;
+  }
+
+  .notes-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .notes-toggle-btn:hover {
+    color: #6846ff;
+    text-decoration: none;
+  }
+}
+
+/* Mobile — up to 767px (taller box, no hover) */
+@media (max-width: 767px) {
+  .notes-box {
+    max-height: 420px;
+    padding: 0.8rem;
+  }
+
+  .notes-box h4 {
+    font-size: 0.9rem;
+  }
+
+  .chapter-notes-content {
+    font-size: 0.8rem;
+    max-height: 360px;
+  }
+
+  .notes-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .notes-toggle-btn:hover {
+    color: #6846ff;
+    text-decoration: none;
+  }
+}

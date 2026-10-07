@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import ExerciseHeader from "../components/functional-comps/ExerciseHeader";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import { api, BASE_URL } from "../utils/api";
 import MathRenderer from "../components/functional-comps/MathRenderer";
-import notesIcon from "../assets/images/func-images/notes-icon.png";
-import '../styles/Exercise.css';
+import NotesSection from "../components/functional-comps/NotesSection";
+import "../styles/Exercise.css";
 
 function Exercise() {
   const { subject } = useParams();
@@ -25,12 +25,8 @@ function Exercise() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrectAnswer, setIsCorrectAnswer] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
-  const [chapterNotes, setChapterNotes] = useState(null);
-  const [notesLoading, setNotesLoading] = useState(false);
-  const [showFullNotes, setShowFullNotes] = useState(false);
 
   const timerRef = useRef(null);
-  const notesRef = useRef(null);
 
   const answeredRef = useRef({});
   const currentQuestionRef = useRef(0);
@@ -52,55 +48,13 @@ function Exercise() {
       score: scoreRef.current,
       secondsElapsed: secondsElapsedRef.current,
       exerciseId,
-      subject
+      subject,
     };
     localStorage.setItem(`exercise_progress_${exerciseId}`, JSON.stringify(progress));
   };
 
   const clearProgress = () => {
     localStorage.removeItem(`exercise_progress_${exerciseId}`);
-  };
-
-  useEffect(() => {
-    const fetchNotes = async () => {
-      if (!exerciseId || !subject) return;
-      setNotesLoading(true);
-      try {
-        const response = await api.get(`/api/exercise/notes/${exerciseId}`);
-        const data = await response.json();
-        if (response.ok && data.notes) setChapterNotes(data.notes);
-      } catch (error) {
-        console.error("Failed to fetch notes:", error);
-      } finally {
-        setNotesLoading(false);
-      }
-    };
-    fetchNotes();
-  }, [exerciseId, subject]);
-
-  const formatNotes = (text) => {
-    if (!text) return null;
-    return text.split('\n').map((paragraph, index) => {
-      if (paragraph.trim() === '') return <br key={index} />;
-      if (paragraph.startsWith('#') || paragraph.startsWith('Chapter') || paragraph.startsWith('Section')) {
-        return <h3 key={index} className="notes-heading">{paragraph.replace(/^#+\s*/, '')}</h3>;
-      }
-      if (paragraph.startsWith('•') || paragraph.startsWith('-') || paragraph.startsWith('*')) {
-        return <li key={index} className="notes-list-item">{paragraph.replace(/^[•\-\*]\s*/, '')}</li>;
-      }
-      return <p key={index} className="notes-paragraph">{paragraph}</p>;
-    });
-  };
-
-  const getPreviewNotes = (text) => {
-    if (!text) return '';
-    const words = text.split(' ');
-    let result = '';
-    for (let i = 0; i < words.length; i++) {
-      if ((result + words[i]).length > 150) break;
-      result += (i === 0 ? '' : ' ') + words[i];
-    }
-    return result + '...';
   };
 
   useEffect(() => {
@@ -123,7 +77,7 @@ function Exercise() {
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
-      setSecondsElapsed(prev => prev + 1);
+      setSecondsElapsed((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(timerRef.current);
   }, []);
@@ -140,12 +94,12 @@ function Exercise() {
         const response = await api.batch.getExerciseData(parseInt(exerciseId));
         const data = await response.json();
         if (response.ok) {
-          const formattedQuestions = data.questions.map(q => ({
+          const formattedQuestions = data.questions.map((q) => ({
             question_text: q.question_text,
             options: q.options,
             correct_answer: q.correct_answer,
             image_url: q.image_url || null,
-            question_id: q.question_id
+            question_id: q.question_id,
           }));
           setExerciseData(formattedQuestions);
           exerciseDataRef.current = formattedQuestions;
@@ -165,7 +119,7 @@ function Exercise() {
     const data = exerciseDataRef.current;
     const totalQuestions = data.length;
     const timeTaken = secondsElapsedRef.current;
-    const notes = notesRef.current?.value || "";
+    const notes = "";
 
     const breakdown = data.map((q, idx) => {
       const selected = finalAnswered[idx];
@@ -177,7 +131,7 @@ function Exercise() {
         question: q.question_text,
         selected: selectedText,
         correct: correctText,
-        isCorrect: finalAnswered[idx] === q.correct_answer
+        isCorrect: finalAnswered[idx] === q.correct_answer,
       };
     });
 
@@ -189,13 +143,9 @@ function Exercise() {
       })
       .filter(Boolean);
 
-    api.batch.submitExercise(
-      parseInt(exerciseId),
-      formattedAnswers,
-      timeTaken,
-      notes,
-      breakdown
-    ).catch(err => console.error("Error submitting exercise:", err));
+    api.batch
+      .submitExercise(parseInt(exerciseId), formattedAnswers, timeTaken, notes, breakdown)
+      .catch((err) => console.error("Error submitting exercise:", err));
 
     localStorage.setItem("finalScore", finalScore);
     localStorage.setItem("totalQuestions", totalQuestions);
@@ -211,7 +161,6 @@ function Exercise() {
     if (showFeedback) return;
 
     const qIndex = currentQuestionRef.current;
-
     if (answeredRef.current[qIndex]) return;
 
     const isCorrect = selectedLetter === correctLetter;
@@ -260,7 +209,7 @@ function Exercise() {
 
   const handleNext = () => {
     if (showFeedback) return;
-    setCurrentQuestion(prev => {
+    setCurrentQuestion((prev) => {
       const next = Math.min(prev + 1, exerciseDataRef.current.length - 1);
       currentQuestionRef.current = next;
       return next;
@@ -269,23 +218,11 @@ function Exercise() {
 
   const handlePrev = () => {
     if (showFeedback) return;
-    setCurrentQuestion(prev => {
+    setCurrentQuestion((prev) => {
       const next = Math.max(prev - 1, 0);
       currentQuestionRef.current = next;
       return next;
     });
-  };
-
-  const handleNotesKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const textarea = notesRef.current;
-      const cursorPos = textarea.selectionStart;
-      const textBefore = textarea.value.substring(0, cursorPos);
-      const textAfter = textarea.value.substring(cursorPos);
-      textarea.value = textBefore + "\n• " + textAfter;
-      textarea.selectionStart = textarea.selectionEnd = cursorPos + 3;
-    }
   };
 
   if (exerciseData.length === 0) {
@@ -302,13 +239,11 @@ function Exercise() {
             <div className="quiz-box">
               <Skeleton height={80} />
               <div className="options-grid">
-                <Skeleton count={4} height={50} style={{ marginBottom: '10px' }} />
+                <Skeleton count={4} height={50} style={{ marginBottom: "10px" }} />
               </div>
             </div>
           </section>
-          <aside className="notes-sidebar">
-            <Skeleton height={200} />
-          </aside>
+          <NotesSection exerciseId={exerciseId} subject={subject} />
         </div>
         <FuncFooter />
       </div>
@@ -341,7 +276,7 @@ function Exercise() {
                   className="question-image"
                   loading="lazy"
                   onError={(e) => {
-                    e.target.style.display = 'none';
+                    e.target.style.display = "none";
                   }}
                 />
               </div>
@@ -352,18 +287,35 @@ function Exercise() {
                 const letter = String.fromCharCode(65 + idx);
                 const isAnswered = answered[currentQuestion];
                 const isSelected = isAnswered === letter;
-                const showHighlight = showFeedback && letter === currentQ.correct_answer && !isSelected && !isAnswered;
-                const userAnswerClass = isSelected && isAnswered
-                  ? (letter === currentQ.correct_answer ? 'correct' : 'incorrect')
-                  : '';
-                const highlightClass = (isAnswered && letter === currentQ.correct_answer && isAnswered !== currentQ.correct_answer) ? 'highlight' : '';
-                const feedbackClass = showFeedback && isSelected && !isAnswered ? (isCorrectAnswer ? 'correct' : 'incorrect') : '';
+                const showHighlight =
+                  showFeedback &&
+                  letter === currentQ.correct_answer &&
+                  !isSelected &&
+                  !isAnswered;
+                const userAnswerClass =
+                  isSelected && isAnswered
+                    ? letter === currentQ.correct_answer
+                      ? "correct"
+                      : "incorrect"
+                    : "";
+                const highlightClass =
+                  isAnswered &&
+                  letter === currentQ.correct_answer &&
+                  isAnswered !== currentQ.correct_answer
+                    ? "highlight"
+                    : "";
+                const feedbackClass =
+                  showFeedback && isSelected && !isAnswered
+                    ? isCorrectAnswer
+                      ? "correct"
+                      : "incorrect"
+                    : "";
 
                 return (
                   <button
                     key={idx}
                     type="button"
-                    className={`option ${userAnswerClass} ${feedbackClass} ${highlightClass} ${showHighlight ? 'highlight' : ''}`}
+                    className={`option ${userAnswerClass} ${feedbackClass} ${highlightClass} ${showHighlight ? "highlight" : ""}`}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -386,47 +338,7 @@ function Exercise() {
           </div>
         </section>
 
-        <aside className="notes-sidebar">
-          <div className="notes-box">
-            <div className="notes-header">
-              <img src={notesIcon} alt="Notes" className="notes-icon" />
-              <h4>Chapter Notes</h4>
-            </div>
-
-            {notesLoading ? (
-              <Skeleton count={5} height={20} style={{ marginBottom: '10px' }} />
-            ) : chapterNotes ? (
-              <div className="chapter-notes-content">
-                {chapterNotes.length > 300 ? (
-                  <>
-                    <div className="notes-preview">
-                      {formatNotes(getPreviewNotes(chapterNotes))}
-                    </div>
-                    {showFullNotes && (
-                      <div className="notes-full">
-                        {formatNotes(chapterNotes)}
-                      </div>
-                    )}
-                    <button
-                      className="notes-toggle-btn"
-                      onClick={() => setShowFullNotes(!showFullNotes)}
-                    >
-                      {showFullNotes ? 'Show Less ↑' : 'Read More ↓'}
-                    </button>
-                  </>
-                ) : (
-                  formatNotes(chapterNotes)
-                )}
-              </div>
-            ) : (
-              <p className="no-notes-message">
-                No chapter notes available for this exercise.
-                <br />
-                <small>Check back later as we add more content.</small>
-              </p>
-            )}
-          </div>
-        </aside>
+        <NotesSection exerciseId={exerciseId} subject={subject} />
       </div>
       <FuncFooter />
     </div>

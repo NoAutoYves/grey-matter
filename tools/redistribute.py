@@ -7,17 +7,19 @@ Only files whose name contains " - Exercises.docx" are processed.
 If any question cannot be parsed, its location is listed at the top of the
 document in a "Questions not parsed" section, and the file is still saved
 with the questions that did parse.
+
+Usage:
+    python redistribute.py --path "C:\\Users\\madon\\Documents\\GM\\PHYSICS\\GRADE 12 PHYSICS"
+    python redistribute.py --path "..." --skip-existing
 """
 
+import argparse
 import sys
 import random
 from pathlib import Path
-from collections import deque
 from docx import Document
 
 
-BASE_DIR = Path(r"C:\Users\madon\Documents\GM\MATH\GRADE 10")
-# BASE_DIR = Path(r"C:\Users\madon\Documents\GM\MATH\GRADE 12\test")
 TARGETS = [13, 12, 13, 12]  # A, B, C, D
 NAME_FILTER = " - Exercises.docx"
 
@@ -45,8 +47,6 @@ def find_questions(paragraphs):
         start = i
         label = text
 
-        # Advance to find A), B), C), D) and Answer: in order.
-        body_line = None
         a_i = b_i = c_i = d_i = ans_i = None
         j = i + 1
         while j < n:
@@ -64,8 +64,6 @@ def find_questions(paragraphs):
                 ans_i = j
                 break
             elif t.startswith("Question ") and a_i is None:
-                # We hit another question before this one had options -
-                # malformed, give up on this block.
                 break
 
             j += 1
@@ -74,10 +72,6 @@ def find_questions(paragraphs):
             unparsed.append(label)
             i = j + 1 if j < n else n
             continue
-
-        # The question body is whatever non-blank text sits between the
-        # 'Question N:' line and the 'A)' line. Usually just one line.
-        body_text = paragraphs[a_i - 1].text if a_i - 1 > start else ""
 
         answer_text = paragraphs[ans_i].text.strip()
         answer = answer_text.split(":", 1)[1].strip().upper()
@@ -114,14 +108,6 @@ def find_questions(paragraphs):
 
 
 def build_target_sequence(total, targets, seed=None):
-    """
-    Build a list of target answer letters of length `total` whose counts
-    match `targets` [nA, nB, nC, nD]. The list is shuffled so the pattern
-    is not predictable.
-
-    If `seed` is None, uses system randomness (different order each run).
-    If `seed` is an int, produces the same order every run.
-    """
     letters = ["A", "B", "C", "D"]
     pool = []
     for letter, count in zip(letters, targets):
@@ -152,7 +138,6 @@ def adjust_options(options, old_answer, new_answer):
 
 
 def rewrite_paragraph_text(paragraph, new_text):
-    """Replace paragraph text while preserving the first run's formatting."""
     if paragraph.runs:
         paragraph.runs[0].text = new_text
         for r in paragraph.runs[1:]:
@@ -162,7 +147,6 @@ def rewrite_paragraph_text(paragraph, new_text):
 
 
 def insert_unparsed_header(doc, unparsed_labels):
-    """Prepend a header block listing the labels of unparsed questions."""
     if not unparsed_labels:
         return
     first = doc.paragraphs[0]
@@ -217,29 +201,54 @@ def process_docx(path):
 
 
 def main():
-    if not BASE_DIR.exists():
-        print(f"Base dir not found: {BASE_DIR}")
+    parser = argparse.ArgumentParser(
+        description="Redistribute answer letters across .docx exercise files."
+    )
+    parser.add_argument(
+        "--path",
+        required=True,
+        help="Folder containing ' - Exercises.docx' files.",
+    )
+    parser.add_argument(
+        "--skip-existing",
+        action="store_true",
+        help="Skip files that already have a 'Questions not parsed' header.",
+    )
+    args = parser.parse_args()
+
+    base_dir = Path(args.path).expanduser().resolve()
+    if not base_dir.exists():
+        print(f"Base dir not found: {base_dir}")
         sys.exit(1)
 
     files = sorted(
-        p for p in BASE_DIR.iterdir()
+        p for p in base_dir.iterdir()
         if p.is_file() and p.name.endswith(NAME_FILTER)
     )
 
     if not files:
-        print(f"No files ending in '{NAME_FILTER}' found in {BASE_DIR}")
+        print(f"No files ending in '{NAME_FILTER}' found in {base_dir}")
         sys.exit(1)
 
+    print(f"Folder: {base_dir}")
     print(f"Found {len(files)} exercise files.")
+
+    total_parsed = 0
+    total_unparsed = 0
+    total_skipped = 0
+
     for path in files:
         print(f"\n{path.name}")
         try:
             result = process_docx(path)
             if result.get("skipped"):
+                total_skipped += 1
                 print("  skipped (no questions parsed)")
                 if result.get("unparsed"):
                     print(f"  unparsed labels: {result['unparsed']}")
                 continue
+            total_parsed += result["parsed"]
+            total_unparsed += len(result["unparsed"])
             print(f"  parsed: {result['parsed']}")
             print(
                 f"  targets: A={result['targets'][0]} "
@@ -253,6 +262,12 @@ def main():
                     print(f"    - {u}")
         except Exception as e:
             print(f"  ERROR: {e}")
+
+    print("\n===== SUMMARY =====")
+    print(f"Files processed: {len(files) - total_skipped}")
+    print(f"Files skipped:   {total_skipped}")
+    print(f"Questions parsed/redistributed: {total_parsed}")
+    print(f"Questions unparsed:             {total_unparsed}")
 
 
 if __name__ == "__main__":
