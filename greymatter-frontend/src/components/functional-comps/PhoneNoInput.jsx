@@ -52,7 +52,7 @@ function PhoneNoInput() {
           defaultCountry="ZA"
         />
         
-        <button onClick={handleSave} className="save-settings-btn">
+        <button onClick={handleSave} className="save-phone-settings-btn">
           Save Phone Number
         </button>
       </div>

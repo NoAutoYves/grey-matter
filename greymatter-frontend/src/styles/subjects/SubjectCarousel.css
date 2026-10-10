@@ -1,0 +1,158 @@
+.subject-carousel-controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.subjects-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 1.5rem;
+  padding: 0.5rem 0.2rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  flex: 1;
+  scrollbar-width: none;
+}
+
+.subjects-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.subject-carousel-card {
+  min-width: 280px;
+  max-width: 320px;
+  flex-shrink: 0;
+  scroll-snap-align: center;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  padding: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.subject-carousel-card .subject-description {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.subject-carousel-card .subject-skills {
+  justify-content: center;
+}
+
+.subject-carousel-card .career-tags {
+  justify-content: center;
+}
+
+.subject-carousel-card .subject-btn {
+  width: 100%;
+  text-align: center;
+}
+
+.carousel-btn {
+  background: rgba(104, 70, 255, 0.15);
+  color: #6846ff;
+  border: 1px solid rgba(104, 70, 255, 0.2);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.carousel-btn:hover {
+  background: #6846ff;
+  color: white;
+}
+
+.carousel-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+@media (min-width: 769px) {
+  .subject-carousel-controls {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .subjects-carousel {
+    justify-content: flex-start;
+    padding: 0.5rem 1rem;
+  }
+
+  .subjects-carousel::before,
+  .subjects-carousel::after {
+    content: '';
+    flex: 0 0 calc(50% - 140px);
+    min-width: 20px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .carousel-btn:hover {
+    background: rgba(104, 70, 255, 0.15);
+    color: #6846ff;
+  }
+}
+
+@media (max-width: 767px) {
+  .subject-carousel-card {
+    min-width: 240px;
+    max-width: 290px;
+    padding: 1rem;
+  }
+
+  .subject-carousel-card h3 {
+    font-size: 1rem;
+  }
+
+  .carousel-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1.2rem;
+  }
+
+  .carousel-btn:hover {
+    background: rgba(104, 70, 255, 0.15);
+    color: #6846ff;
+  }
+}
+
+@media (max-width: 480px) {
+  .subject-carousel-card {
+    min-width: 200px;
+    max-width: 290px;
+    padding: 0.8rem;
+  }
+
+  .subject-carousel-card h3 {
+    font-size: 0.85rem;
+  }
+
+  .carousel-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+
+  .carousel-btn:hover {
+    background: rgba(104, 70, 255, 0.15);
+    color: #6846ff;
+  }
+}

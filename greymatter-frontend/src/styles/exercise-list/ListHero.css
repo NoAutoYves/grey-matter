@@ -1,0 +1,142 @@
+.list-hero {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.list-title {
+  font-size: 2rem;
+  color: #1a1a2e;
+  margin-bottom: 0.8rem;
+}
+
+.list-description-wrapper {
+  position: relative;
+}
+
+.list-description {
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.8;
+  max-width: 800px;
+  margin: 0 auto 0.5rem;
+}
+
+.list-desktop-full {
+  display: inline;
+}
+
+.list-mobile-truncated {
+  display: none;
+}
+
+.list-expand-toggle {
+  display: none;
+}
+
+.list-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.list-stat-badge {
+  background: rgba(104, 70, 255, 0.1);
+  color: #6846ff;
+  padding: 0.4rem 1.2rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  border: 1px solid rgba(104, 70, 255, 0.15);
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .list-hero {
+    padding: 1.5rem;
+  }
+
+  .list-title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .list-hero {
+    padding: 1rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .list-title {
+    font-size: 1.4rem;
+  }
+
+  .list-description {
+    font-size: 0.9rem;
+  }
+
+  .list-desktop-full {
+    display: none;
+  }
+
+  .list-mobile-truncated {
+    display: inline;
+  }
+
+  .list-expand-toggle {
+    display: inline-block;
+    background: none;
+    border: none;
+    color: #6846ff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.3rem 0;
+    font-family: 'noto', sans-serif;
+  }
+
+  .list-expand-toggle:hover {
+    color: #6846ff;
+    text-decoration: none;
+  }
+
+  .list-stats {
+    gap: 0.8rem;
+  }
+
+  .list-stat-badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .list-hero {
+    padding: 0.75rem;
+  }
+
+  .list-title {
+    font-size: 1.2rem;
+  }
+
+  .list-description {
+    font-size: 0.85rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .list-hero {
+    padding: 2rem;
+  }
+
+  .list-title {
+    font-size: 2rem;
+  }
+}

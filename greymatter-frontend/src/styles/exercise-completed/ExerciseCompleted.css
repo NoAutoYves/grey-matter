@@ -1,0 +1,104 @@
+@font-face {
+  font-family: 'noto';
+  src: url('/fonts/NotoSans-subset.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 700;
+  font-style: normal;
+}
+
+@media (max-width: 767px) {
+  .results-page {
+    margin: 0;
+    font-family: 'noto', sans-serif;
+    color: black;
+    min-height: 100vh;
+    background-image: url('../../assets/images/background-images/MainBG.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .results-container {
+    margin: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+  }
+
+  .results-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .results-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .results-page {
+    margin: 0;
+    font-family: 'noto', sans-serif;
+    color: black;
+    min-height: 100vh;
+    background-image: url('../../assets/images/background-images/MainBG.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .results-container {
+    max-width: 80%;
+    margin: 5rem auto;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+  }
+
+  .results-title {
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  .results-subtitle {
+    font-size: 1rem;
+    text-align: center;
+  }
+}
+
+@media (min-width: 1024px) {
+  .results-page {
+    margin: 0;
+    font-family: 'noto', sans-serif;
+    color: black;
+    min-height: 100vh;
+    background-image: url('../../assets/images/background-images/desktopBG.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .results-container {
+    max-width: 70%;
+    margin: 5rem auto;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+  }
+
+  .results-title {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+
+  .results-subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+}

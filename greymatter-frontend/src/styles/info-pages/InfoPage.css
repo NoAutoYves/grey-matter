@@ -1,0 +1,81 @@
+.info-page {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'noto', sans-serif;
+  color: #000000;
+  background-image: url('../../assets/images/background-images/MainBG.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.info-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  width: 90%;
+  box-sizing: border-box;
+}
+
+.info-container h1 {
+  font-size: 2rem;
+  color: #1a1a2e;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.info-container h2 {
+  font-size: 1.3rem;
+  color: #1a1a2e;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-container h3 {
+  font-size: 1.1rem;
+  color: #1a1a2e;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-container p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #333;
+  margin-bottom: 0.8rem;
+}
+
+.info-container a {
+  color: #6846ff;
+  text-decoration: none;
+}
+
+.info-container a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+  .info-container {
+    padding: 1.2rem;
+    width: 95%;
+  }
+
+  .info-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .info-container h2 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .info-page {
+    background-image: url('../../assets/images/background-images/desktopBG.jpg');
+  }
+}

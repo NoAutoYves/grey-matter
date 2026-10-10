@@ -1,0 +1,103 @@
+.list-how-it-works {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 0;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.list-how-it-works h2 {
+  font-size: 1.6rem;
+  color: #1a1a2e;
+  margin-bottom: 1.5rem;
+}
+
+.list-steps-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.list-step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.list-step-num {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  background: #6846ff;
+  color: white;
+  border-radius: 50%;
+  line-height: 36px;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.list-step-item p {
+  font-size: 0.8rem;
+  color: #555;
+  margin: 0;
+}
+
+.list-step-arrow {
+  font-size: 1.2rem;
+  color: #6846ff;
+}
+
+.list-learning-note {
+  margin-top: 1.2rem;
+  font-size: 0.9rem;
+  color: #666;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .list-how-it-works {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .list-how-it-works {
+    padding: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .list-how-it-works h2 {
+    font-size: 1.3rem;
+  }
+
+  .list-steps-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .list-step-arrow {
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 480px) {
+  .list-how-it-works {
+    padding: 0.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .list-how-it-works {
+    padding: 2rem;
+  }
+}

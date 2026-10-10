@@ -1,0 +1,79 @@
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    text-align: left;
+}
+
+.signup-remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #000000;
+}
+
+.signup-remember-label {
+    font-size: 0.8rem;
+    color: #000000;
+}
+
+.signup-button {
+    margin-top: 0.5rem;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    color: #000000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.signup-button:hover {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.signup-link {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: #000000;
+    text-align: center;
+}
+
+.signup-link a {
+    color: #000000;
+    text-decoration: underline;
+}
+
+.signup-error-message {
+    font-size: 0.7rem;
+    color: #ff0000;
+    min-height: 12px;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .signup-button {
+        font-size: 1rem;
+        padding: 0.8rem;
+    }
+
+    .signup-link {
+        font-size: 0.9rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .signup-form {
+        gap: 1rem;
+    }
+
+    .signup-button {
+        padding: 0.8rem;
+        font-size: 1rem;
+    }
+
+    .signup-error-message {
+        font-size: 0.8rem;
+    }
+}

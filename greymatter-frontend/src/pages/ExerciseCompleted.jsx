@@ -2,17 +2,17 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 import { api } from "../utils/api";
-import MathRenderer from "../components/functional-comps/MathRenderer";
 import ShareModal from "../components/functional-comps/ShareModal";
-import '../styles/ExerciseCompleted.css';
 
-import correctIcon from "../assets/images/func-images/correct-icon.png";
-import incorrectIcon from "../assets/images/func-images/incorrect-icon.png";
-import writingIcon from "../assets/images/func-images/writing-icon.png";
-import shareIcon from "../assets/images/func-images/share-icon.png";
+import ExerciseCompletedSkeleton from "../components/exercise-completed/ExerciseCompletedSkeleton";
+import ResultsSummary from "../components/exercise-completed/ResultsSummary";
+import ShareResultsSection from "../components/exercise-completed/ShareResultsSection";
+import QuestionBreakdown from "../components/exercise-completed/QuestionBreakdown";
+import FeedbackSection from "../components/exercise-completed/FeedbackSection";
+import ResultsActions from "../components/exercise-completed/ResultsActions";
+
+import '../styles/exercise-completed/ExerciseCompleted.css';
 
 function ExerciseCompleted() {
   const location = useLocation();
@@ -32,13 +32,6 @@ function ExerciseCompleted() {
   const [subjectName, setSubjectName] = useState("");
   const [topicName, setTopicName] = useState("");
 
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [feedbackText, setFeedbackText] = useState("");
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
-  const [feedbackError, setFeedbackError] = useState("");
-
   const [showShareModal, setShowShareModal] = useState(false);
 
   const formatTimeFromSeconds = (seconds) => {
@@ -46,40 +39,6 @@ function ExerciseCompleted() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const submitFeedback = async () => {
-    if (rating === 0) {
-      setFeedbackError("Please select a rating");
-      return;
-    }
-
-    setFeedbackError("");
-
-    try {
-      const response = await api.post('/api/feedback', {
-        exercise_id: exerciseId,
-        rating: rating,
-        feedback: feedbackText,
-        score: score,
-        total_questions: total,
-        time_taken_seconds: timeTaken
-      });
-
-      if (response.ok) {
-        setFeedbackSubmitted(true);
-        setTimeout(() => {
-          setShowFeedback(false);
-          setFeedbackSubmitted(false);
-        }, 3000);
-      } else {
-        const data = await response.json();
-        setFeedbackError(data.error || "Failed to submit feedback. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error submitting feedback:", error);
-      setFeedbackError("Network error. Please try again.");
-    }
   };
 
   useEffect(() => {
@@ -187,22 +146,7 @@ function ExerciseCompleted() {
   }, [exerciseId]);
 
   if (loading || saving) {
-    return (
-      <div className="results-page">
-        <FuncHeader />
-        <section className="results-container">
-          <Skeleton width={200} height={30} />
-          <Skeleton width={150} height={20} style={{ marginBottom: '20px' }} />
-          <div className="results-summary">
-            <Skeleton count={3} height={80} style={{ marginRight: '10px' }} />
-          </div>
-          <Skeleton height={20} style={{ marginBottom: '10px' }} />
-          <Skeleton height={150} style={{ marginBottom: '20px' }} />
-          <Skeleton count={3} height={50} style={{ marginBottom: '10px' }} />
-        </section>
-        <FuncFooter />
-      </div>
-    );
+    return <ExerciseCompletedSkeleton />;
   }
 
   const percentage = Math.round((score / total) * 100);
@@ -228,122 +172,25 @@ function ExerciseCompleted() {
           </div>
         )}
 
-        <div className="results-summary">
-          <div className="summary-box">
-            <h3>Final Score</h3>
-            <p>{score} / {total}</p>
-          </div>
-          <div className="summary-box">
-            <h3>Percentage</h3>
-            <p>{percentage}%</p>
-          </div>
-          <div className="summary-box">
-            <h3>Time Taken</h3>
-            <p>{formattedTime}</p>
-          </div>
-        </div>
+        <ResultsSummary
+          score={score}
+          total={total}
+          percentage={percentage}
+          formattedTime={formattedTime}
+        />
 
-        <div className="share-results-section">
-          <button
-            type="button"
-            className="share-results-btn"
-            onClick={() => setShowShareModal(true)}
-          >
-            <img
-              src={shareIcon}
-              alt=""
-              className="share-results-icon"
-              aria-hidden="true"
-            />
-            Share with your class
-          </button>
-          <p className="share-results-hint">
-            Challenge a classmate to beat your score.
-          </p>
-        </div>
+        <ShareResultsSection onShare={() => setShowShareModal(true)} />
 
-        <div className="results-breakdown">
-          <h2>Question Breakdown</h2>
-          <div className="breakdown-list">
-            {breakdown.map((item, i) => (
-              <div key={i} className="breakdown-item">
-                <div className="question-header">
-                  <img
-                    src={item.isCorrect ? correctIcon : incorrectIcon}
-                    alt={item.isCorrect ? "Correct" : "Incorrect"}
-                    className="question-icon"
-                  />
-                  <span className="question-text">
-                    Q{i + 1}: <MathRenderer text={item.question} />
-                  </span>
-                </div>
-                <div className="answer-details">
-                  <p className={`your-answer ${item.isCorrect ? 'correct-text' : 'incorrect-text'}`}>
-                    You chose: <MathRenderer text={item.selected} />
-                  </p>
-                  <p className="correct-answer">
-                    Correct answer: <MathRenderer text={item.correct} />
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <QuestionBreakdown breakdown={breakdown} />
 
-        {!feedbackSubmitted ? (
-          <div className="feedback-section">
-            <button
-              onClick={() => setShowFeedback(!showFeedback)}
-              className="feedback-toggle-btn"
-            >
-              <img
-                src={writingIcon}
-                alt="Rate this exercise"
-                className="feedback-icon"
-              />
-              {showFeedback ? "− Hide Feedback" : "Rate This Exercise"}
-            </button>
+        <FeedbackSection
+          exerciseId={exerciseId}
+          score={score}
+          total={total}
+          timeTaken={timeTaken}
+        />
 
-            {showFeedback && (
-              <div className="feedback-form">
-                <h4>How was this exercise?</h4>
-                <div className="rating-stars">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      onClick={() => setRating(star)}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(0)}
-                      className={`star ${(hoverRating || rating) >= star ? 'active' : ''}`}
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
-                <textarea
-                  placeholder="What did you think? Suggestions for improvement? (Optional)"
-                  value={feedbackText}
-                  onChange={(e) => setFeedbackText(e.target.value)}
-                  rows="3"
-                />
-                {feedbackError && <p className="feedback-error">{feedbackError}</p>}
-                <button onClick={submitFeedback} className="submit-feedback-btn">
-                  Submit Feedback
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="feedback-thanks">
-            <span>✅</span> Thanks for your feedback! It helps us improve.
-          </div>
-        )}
-
-        <div className="results-actions">
-          <Link to="/subjects" className="action-btn">Try Another Exercise</Link>
-          <Link to="/persona" className="action-btn">View Profile</Link>
-          <Link to="/" className="action-btn">Return Home</Link>
-        </div>
+        <ResultsActions />
       </section>
 
       <div className="sponsor-container-results sponsor-billboard">

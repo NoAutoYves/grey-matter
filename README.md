@@ -68,15 +68,6 @@ to `localhost:5000`, so the backend must be running.
 
 Node 20.19+ or 22.12+ required.
 
-## Adding exercises
-
-Insert SQL against `topics`, `exercises`, and `questions` directly. New
-exercises appear on the live site immediately and are added to the
-prerendered HTML on the next build.
-
-Math and Physics questions use KaTeX syntax - wrap formulas in `$...$`
-inline, `$$...$$` for display, and never escape backslashes.
-
 ## License
 
-Proprietary. Copyright Grey Matter. All rights reserved.
+Proprietary. Copyright Velaura Tech (Pty) Ltd. All rights reserved.

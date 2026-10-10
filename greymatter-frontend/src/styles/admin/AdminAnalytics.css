@@ -1,0 +1,121 @@
+/* ------------------------------------------------------------------ */
+/* Grid + card shell                                                   */
+/* ------------------------------------------------------------------ */
+
+.admin-analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  min-width: 0;
+}
+
+.admin-chart-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem 1.4rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The one thing that has to be right: a fixed, measured height for the
+   chart container. ResponsiveContainer reads this and scales the SVG.
+   Do NOT constrain its children — Recharts writes its own inline sizes. */
+.admin-chart-body {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  min-height: 300px;
+}
+
+.admin-analytics-panel {
+  margin-top: 2rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Tooltip                                                             */
+/* ------------------------------------------------------------------ */
+
+.admin-chart-tooltip {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  font-size: 0.8rem;
+  min-width: 140px;
+  max-width: 260px;
+  pointer-events: none;
+}
+
+.admin-chart-tooltip-label {
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 0.4rem;
+  font-size: 0.78rem;
+  word-break: break-word;
+}
+
+.admin-chart-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+.admin-chart-tooltip-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.admin-chart-tooltip-name {
+  flex: 1;
+  color: #666;
+  font-size: 0.75rem;
+}
+
+.admin-chart-tooltip-value {
+  font-weight: 700;
+  color: #1a1a2e;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ */
+/* Recharts text styling                                               */
+/* ------------------------------------------------------------------ */
+
+.admin-chart-card .recharts-legend-item-text {
+  color: #666 !important;
+  font-size: 0.72rem;
+}
+
+.admin-chart-card .recharts-legend-item {
+  max-width: 100%;
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                          */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 1023px) {
+  .admin-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .admin-chart-card {
+    padding: 1rem 1rem 1.1rem;
+  }
+
+  .admin-chart-body {
+    height: 260px;
+    min-height: 260px;
+  }
+}

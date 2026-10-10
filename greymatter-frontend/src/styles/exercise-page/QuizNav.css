@@ -1,0 +1,67 @@
+.quiz-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.nav-button {
+  padding: 0.6rem 1.5rem;
+  border-radius: 30px;
+  border: none;
+  background: #6846ff;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+
+.nav-button:hover:not(:disabled) {
+  background: #5535cc;
+  transform: translateY(-1px);
+}
+
+.nav-button:first-child {
+  background: rgba(255, 255, 255, 0.15);
+  color: black;
+  backdrop-filter: blur(5px);
+}
+
+.nav-button:first-child:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.nav-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .nav-button:hover:not(:disabled) {
+    background: #6846ff;
+    transform: none;
+  }
+
+  .nav-button:first-child:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+@media (min-width: 1024px) {
+  .quiz-nav {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-button:hover:not(:disabled) {
+    background: #6846ff;
+    transform: none;
+  }
+
+  .nav-button:first-child:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}

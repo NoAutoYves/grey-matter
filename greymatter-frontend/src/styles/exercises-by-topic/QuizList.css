@@ -1,0 +1,62 @@
+.quiz-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.quiz-item {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.quiz-item.completed {
+  background: rgba(0, 188, 212, 0.15);
+  border-left: 4px solid #009723;
+}
+
+.quiz-item.not-taken {
+  background: rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #6846ff;
+}
+
+/* When the dropdown is open, raise the item above its siblings
+   so the menu is never clipped or overlapped. */
+.quiz-item.dropdown-open {
+  z-index: 10;
+  box-shadow: 0 4px 18px rgba(104, 70, 255, 0.14);
+}
+
+.quiz-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  text-decoration: none;
+  color: #000000;
+  gap: 1rem;
+}
+
+.quiz-title {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.quiz-status {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.quiz-item.completed .quiz-status {
+  color: #009723;
+}
+
+.quiz-item.not-taken .quiz-status {
+  color: #6846ff;
+}

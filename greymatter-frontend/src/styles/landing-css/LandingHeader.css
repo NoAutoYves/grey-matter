@@ -1,0 +1,28 @@
+.index-page header {
+  margin-top: 50px;
+  text-align: center;
+  font-family: 'Gamja', sans-serif;
+}
+
+.index-page header h1 {
+  margin: 0;
+  font-size: 3rem;
+  line-height: 1.2;
+  letter-spacing: 0.5px;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .index-page header h1 {
+    font-size: 4rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .index-page header {
+    margin-top: 80px;
+  }
+
+  .index-page header h1 {
+    font-size: 4rem;
+  }
+}

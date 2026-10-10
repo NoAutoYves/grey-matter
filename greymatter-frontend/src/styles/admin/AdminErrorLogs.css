@@ -1,0 +1,137 @@
+.admin-tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 1.5rem;
+}
+
+.admin-tab {
+  background: none;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #888;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-tab:hover { color: #6846ff; }
+.admin-tab.active { color: #6846ff; border-bottom-color: #6846ff; }
+
+.admin-error-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-error-search {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 240px;
+}
+
+.admin-error-search .admin-input { flex: 1; min-width: 0; }
+
+.admin-error-filters {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.admin-error-filters .admin-select {
+  width: auto;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+}
+
+.admin-error-row { cursor: pointer; }
+.admin-error-row:hover td { background: #fafaff !important; }
+
+.admin-error-detail {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 0.5rem 1rem;
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.admin-error-detail dt {
+  color: #888;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding-top: 0.15rem;
+}
+
+.admin-error-detail dd {
+  margin: 0;
+  color: #1a1a2e;
+  word-break: break-word;
+}
+
+.admin-error-stack,
+.admin-error-ua,
+.admin-error-hint {
+  background: #1a1a2e;
+  color: #eaeaea;
+  padding: 1rem;
+  border-radius: 8px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.admin-error-hint {
+  background: rgba(0, 0, 0, 0.9);
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+}
+
+.admin-nginx-log {
+  background: #1a1a2e;
+  color: #d4d4d4;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.admin-nginx-line {
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.admin-nginx-line:last-child { border-bottom: none; }
+
+.admin-nginx-meta {
+  font-size: 0.8rem;
+  color: #666;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 767px) {
+  .admin-error-search { width: 100%; }
+  .admin-error-filters { width: 100%; flex-wrap: wrap; }
+  .admin-error-filters .admin-select { flex: 1; }
+  .admin-error-detail { grid-template-columns: 1fr; }
+  .admin-error-detail dt { margin-top: 0.5rem; }
+  .admin-tab { flex: 1; padding: 0.6rem 0.8rem; font-size: 0.82rem; }
+}

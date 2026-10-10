@@ -1,0 +1,128 @@
+.rc-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #1a1a2e;
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  background: #fafaff;
+}
+
+.rc-summary-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.rc-summary-header {
+  border-bottom: 1px solid rgba(26, 26, 46, 0.15);
+  padding-bottom: 0.35rem;
+  font-weight: 700;
+}
+
+.rc-summary-label {
+  text-align: left;
+  color: #333;
+  font-weight: 600;
+}
+
+.rc-summary-cell {
+  text-align: center;
+  color: #1a1a2e;
+  font-variant-numeric: tabular-nums;
+}
+
+.rc-summary-final .rc-summary-wide {
+  grid-column: 2 / -1;
+  text-align: center;
+  font-weight: 800;
+  color: #6846ff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ */
+/* Overall grade badge — colour keyed to letter                        */
+/* ------------------------------------------------------------------ */
+
+.rc-summary-final .rc-grade-badge {
+  display: inline-block;
+  justify-self: center;
+  align-self: center;
+  min-width: 44px;
+  padding: 0.25rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  border: 1px solid transparent;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.rc-grade-a {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #86efac;
+}
+
+.rc-grade-b {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+.rc-grade-c {
+  background: #ccfbf1;
+  color: #0f766e;
+  border-color: #5eead4;
+}
+
+.rc-grade-d {
+  background: #fef9c3;
+  color: #a16207;
+  border-color: #fde047;
+}
+
+.rc-grade-e {
+  background: #ffedd5;
+  color: #c2410c;
+  border-color: #fdba74;
+}
+
+.rc-grade-f {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+.rc-grade-g {
+  background: #4c0519;
+  color: #fecdd3;
+  border-color: #9f1239;
+}
+
+.rc-grade-none {
+  background: #f4f4f5;
+  color: #71717a;
+  border-color: #e4e4e7;
+}
+
+@media (max-width: 767px) {
+  .rc-summary {
+    padding: 0.5rem 0.6rem;
+    gap: 0.25rem;
+  }
+
+  .rc-summary-row {
+    font-size: 0.72rem;
+    gap: 0.25rem;
+  }
+
+  .rc-summary-final .rc-grade-badge {
+    padding: 0.2rem 0.7rem;
+    font-size: 0.85rem;
+    min-width: 38px;
+  }
+}

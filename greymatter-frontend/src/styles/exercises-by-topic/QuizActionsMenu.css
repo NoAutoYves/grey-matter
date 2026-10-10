@@ -1,0 +1,257 @@
+.quiz-completed-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.quiz-completed-actions .quiz-title {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.dropdown-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* ── Actions button ────────────────────────────────────────── */
+.actions-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #6846ff;
+  color: #ffffff;
+  border: none;
+  padding: 0.55rem 1rem;
+  border-radius: 22px;
+  font-size: 0.85rem;
+  font-family: 'noto', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(104, 70, 255, 0.15);
+}
+
+.actions-btn-label {
+  display: inline-block;
+}
+
+.actions-chevron {
+  display: inline-block;
+  font-size: 0.7rem;
+  line-height: 1;
+  transition: transform 0.22s ease;
+}
+
+.actions-btn-open {
+  background: #5535cc;
+  box-shadow: 0 4px 12px rgba(104, 70, 255, 0.25);
+}
+
+.actions-btn-open .actions-chevron {
+  transform: rotate(180deg);
+}
+
+/* ── Dropdown menu ────────────────────────────────────────── */
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(104, 70, 255, 0.12);
+  box-shadow:
+    0 4px 12px rgba(104, 70, 255, 0.08),
+    0 16px 40px rgba(0, 0, 0, 0.14);
+  min-width: 190px;
+  padding: 6px;
+  z-index: 1000;
+  overflow: visible;
+  animation: dropdown-in 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: top right;
+}
+
+.dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 20px;
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  border-left: 1px solid rgba(104, 70, 255, 0.12);
+  border-top: 1px solid rgba(104, 70, 255, 0.12);
+  transform: rotate(45deg);
+  border-top-left-radius: 2px;
+  pointer-events: none;
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Dropdown items ───────────────────────────────────────── */
+.dropdown-item {
+  display: block;
+  position: relative;
+  padding: 0.7rem 0.9rem 0.7rem 1.15rem;
+  text-decoration: none;
+  color: #333333;
+  font-size: 0.9rem;
+  font-family: 'noto', sans-serif;
+  font-weight: 500;
+  border-radius: 8px;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.dropdown-item + .dropdown-item {
+  margin-top: 2px;
+}
+
+.dropdown-item::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 0;
+  background: #6846ff;
+  border-radius: 2px;
+  transition: height 0.18s ease;
+}
+
+.dropdown-item-label {
+  display: inline-block;
+}
+
+/* ── Desktop: hover effects enabled ───────────────────────── */
+@media (min-width: 1024px) {
+  .actions-btn:hover {
+    background: #5535cc;
+    box-shadow: 0 4px 12px rgba(104, 70, 255, 0.25);
+  }
+
+  .dropdown-item:hover {
+    background: #f4f0ff;
+    color: #6846ff;
+  }
+
+  .dropdown-item:hover::before {
+    height: 55%;
+  }
+}
+
+/* ── Tablet: no hover effects ─────────────────────────────── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .actions-btn:hover {
+    background: #6846ff;
+    box-shadow: 0 2px 6px rgba(104, 70, 255, 0.15);
+  }
+
+  .dropdown-item:hover {
+    background: transparent;
+    color: #333333;
+  }
+
+  .dropdown-item:hover::before {
+    height: 0;
+  }
+}
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .quiz-completed-actions {
+    padding: 0.9rem;
+    gap: 0.6rem;
+  }
+
+  .quiz-completed-actions .quiz-title {
+    font-size: 0.9rem;
+  }
+
+  .actions-btn {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+    gap: 0.4rem;
+  }
+
+  .dropdown-menu {
+    min-width: 170px;
+    top: calc(100% + 8px);
+  }
+
+  .dropdown-menu::before {
+    right: 16px;
+  }
+
+  .dropdown-item {
+    padding: 0.75rem 0.9rem 0.75rem 1.1rem;
+    font-size: 0.88rem;
+  }
+
+  .actions-btn:hover {
+    background: #6846ff;
+  }
+
+  .dropdown-item:hover {
+    background: transparent;
+    color: #333333;
+  }
+
+  .dropdown-item:hover::before {
+    height: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .quiz-completed-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7rem;
+  }
+
+  .quiz-completed-actions .quiz-title {
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  .dropdown-container {
+    width: 100%;
+  }
+
+  .actions-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dropdown-menu {
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Hide the caret on full-width mobile menus — it looks odd
+     when the menu spans the whole card width. */
+  .dropdown-menu::before {
+    display: none;
+  }
+}

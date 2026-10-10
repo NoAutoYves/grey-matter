@@ -80,7 +80,7 @@ def changePassword():
             
             log_activity(user_id, "change_password_failed", f"Weak password attempt - rules failed: {errors}", ip, ua)
             return jsonify({
-                "error": "Password does not meet requirements",
+                "error": f"Password does not meet requirements: {', '.join(errors)}",
                 "failed_rules": errors
             }), 400
         
@@ -107,43 +107,71 @@ def changePassword():
 def deleteAccount():
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
-    
+
     if 'user_id' not in session:
         log_activity(None, "delete_account_failed", "Not logged in attempt", ip, ua)
         return jsonify({"error": "Not logged in"}), 401
-    
+
     user_id = session['user_id']
-    
+
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     try:
-        # Get user email for logging before deletion
+        # Get user email for the audit log before deleting anything
         cursor.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
         user_result = cursor.fetchone()
-        user_email = user_result[0] if user_result else "unknown"
-        
-        # Delete related records in the correct order (child tables first)
+        if not user_result:
+            session.pop('user_id', None)
+            return jsonify({"error": "User not found"}), 404
+        user_email = user_result[0]
+
+        # Remove all child rows referencing this user (FK order matters)
         cursor.execute("DELETE FROM user_progress WHERE user_id = %s", (user_id,))
         cursor.execute("DELETE FROM user_notes WHERE user_id = %s", (user_id,))
+        cursor.execute("DELETE FROM user_feedback WHERE user_id = %s", (user_id,))
         cursor.execute("DELETE FROM activity_logs WHERE user_id = %s", (user_id,))
-        cursor.execute("DELETE FROM admin_logs WHERE admin_id = %s", (user_id,))
-        
-        # Then delete the user
+        cursor.execute(
+            "DELETE FROM admin_logs WHERE admin_id = %s OR target_user_id = %s",
+            (user_id, user_id),
+        )
+
+        # Delete the user row itself
         cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
+
+        # Insert the success log INSIDE the transaction, with user_id=None
+        # because the users row no longer exists.
+        # The deleted user's id is preserved in the details string for audit.
+        cursor.execute("""
+            INSERT INTO activity_logs (user_id, action, details, ip_address, user_agent)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (
+            None,
+            "delete_account_success",
+            f"Account for {user_email} (user_id={user_id}) permanently deleted",
+            ip,
+            ua,
+        ))
+
         conn.commit()
-        
-        # Log before clearing session
-        log_activity(user_id, "delete_account_success", f"Account for {user_email} permanently deleted", ip, ua)
-        
-        # Clear session
         session.pop('user_id', None)
-        
+
         return jsonify({"success": True, "message": "Account deleted successfully"}), 200
+
     except Exception as e:
         conn.rollback()
-        log_activity(user_id, "delete_account_failed", f"Error during deletion: {str(e)}", ip, ua)
-        return jsonify({"error": str(e)}), 500
+        # Best-effort failure log with user_id=None — the user may already be gone
+        try:
+            log_activity(
+                None,
+                "delete_account_failed",
+                f"Error deleting user_id={user_id}: {str(e)}",
+                ip,
+                ua,
+            )
+        except Exception:
+            pass
+        return jsonify({"error": "Failed to delete account. Please try again."}), 500
     finally:
         cursor.close()
         return_db_connection(conn)

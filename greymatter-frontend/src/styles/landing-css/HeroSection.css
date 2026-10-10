@@ -1,0 +1,133 @@
+.hero-section {
+  padding: 2rem 1rem;
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero-box {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-box h2 {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  color: #1a1a2e;
+}
+
+.hero-box p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.hero-cta {
+  display: inline-block;
+  padding: 0.8rem 2.5rem;
+  background: #6846ff;
+  color: white;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.hero-description-wrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.hero-description {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.desktop-full {
+  display: inline;
+}
+
+.mobile-truncated {
+  display: none;
+}
+
+.expand-toggle {
+  display: none;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .hero-box h2 {
+    font-size: 1.8rem;
+  }
+
+  .hero-box {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-cta:hover {
+    background: #5535cc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(104, 70, 255, 0.3);
+  }
+}
+
+@media (max-width: 767px) {
+  .desktop-full {
+    display: none;
+  }
+
+  .mobile-truncated {
+    display: inline;
+  }
+
+  .expand-toggle {
+    display: inline-block;
+    background: none;
+    border: none;
+    color: #6846ff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.3rem 0;
+    font-family: 'noto', sans-serif;
+  }
+
+  .expand-toggle:hover {
+    color: #6846ff;
+    text-decoration: none;
+  }
+
+  .hero-section {
+    padding: 2rem 0;
+  }
+
+  .hero-box {
+    width: 80vw;
+    max-width: 80vw;
+    margin: 0 auto;
+    padding: 1.5rem 1.2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-box h2 {
+    font-size: 1.3rem;
+  }
+
+  .hero-cta {
+    padding: 0.6rem 1.8rem;
+    font-size: 1rem;
+  }
+}

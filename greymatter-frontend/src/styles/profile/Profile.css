@@ -1,0 +1,100 @@
+.save-phone-settings-btn {
+  background: #6846ff;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s, transform 0.2s;
+  margin-top: 10px;
+}
+
+@media (max-width: 767px) {
+  .profile-page {
+    margin: 0;
+    font-family: 'noto', sans-serif;
+    color: #000000;
+    background-image: url('../../assets/images/background-images/MainBG.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+  }
+
+  .profile-container {
+    max-width: 100%;
+    margin: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(16px);
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+    position: relative;
+  }
+
+  .save-phone-settings-btn:hover {
+    background: #6846ff;
+    transform: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .profile-page {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'noto', sans-serif;
+    color: #000000;
+    background-image: url('../../assets/images/background-images/MainBG.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .profile-container {
+    flex: 1;
+    max-width: 80%;
+    margin: 5rem auto;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(16px);
+    position: relative;
+  }
+
+  .save-phone-settings-btn:hover {
+    background: #6846ff;
+    transform: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .profile-page {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'noto', sans-serif;
+    color: #000000;
+    background-image: url('../../assets/images/background-images/desktopBG.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .profile-container {
+    max-width: 60%;
+    margin: 5rem auto;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    backdrop-filter: blur(16px);
+    position: relative;
+  }
+
+  .save-phone-settings-btn:hover {
+    background: #5535cc;
+    transform: scale(1.01);
+  }
+}

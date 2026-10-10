@@ -1,0 +1,116 @@
+.success-guide {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 0;
+  border: 1px solid rgba(104, 70, 255, 0.08);
+}
+
+.success-guide h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #1a1a2e;
+  margin-bottom: 1.5rem;
+}
+
+.success-guide h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: #6846ff;
+  margin: 0.5rem auto 1rem;
+  border-radius: 2px;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.step {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.step-number {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  background: #6846ff;
+  color: white;
+  border-radius: 50%;
+  line-height: 40px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.step h4 {
+  font-size: 1rem;
+  color: #1a1a2e;
+  margin-bottom: 0.3rem;
+}
+
+.step p {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .success-guide {
+    padding: 1.5rem;
+  }
+
+  .steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .success-guide {
+    padding: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .success-guide h2 {
+    font-size: 1.3rem;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+  }
+
+  .step {
+    padding: 0.8rem;
+  }
+
+  .step p {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .success-guide {
+    padding: 0.75rem;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .success-guide {
+    padding: 2rem;
+  }
+}

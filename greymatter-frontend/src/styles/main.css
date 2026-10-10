@@ -1,5 +1,21 @@
 /* Global base styles only - page-specific CSS is imported per component */
 
+@font-face {
+  font-family: 'Gamja';
+  src: url('/fonts/GamjaFlower-subset.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'noto';
+  src: url('/fonts/NotoSans-subset.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 700;
+  font-style: normal;
+}
+
 * {
   margin: 0;
   padding: 0;

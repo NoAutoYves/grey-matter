@@ -1,0 +1,134 @@
+.why-practice {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.why-practice h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.why-practice h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: #6846ff;
+  margin: 0.5rem auto 1rem;
+  border-radius: 2px;
+}
+
+.practice-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.practice-card {
+  text-align: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+}
+
+.practice-card h4 {
+  font-size: 1rem;
+  color: #1a1a2e;
+  margin-bottom: 0.3rem;
+}
+
+.practice-card p {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.practice-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 0;
+  object-fit: contain;
+  margin: 0 auto 0.8rem;
+  display: block;
+  background: transparent;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .why-practice {
+    padding: 1.5rem;
+  }
+
+  .practice-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .why-practice {
+    padding: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .why-practice h2 {
+    font-size: 1.3rem;
+  }
+
+  .practice-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    gap: 0.8rem;
+    padding: 0.5rem 0 1rem;
+    margin: 0;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 50%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .practice-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .practice-grid .practice-card {
+    flex: 0 0 100%;
+    max-width: 100%;
+    scroll-snap-align: center;
+    padding: 1rem;
+  }
+
+  .practice-card p {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .why-practice {
+    padding: 0.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .why-practice {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .practice-image {
+    width: 40px;
+    height: 40px;
+  }
+}

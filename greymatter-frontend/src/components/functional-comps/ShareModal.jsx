@@ -107,7 +107,7 @@ function ShareModal({ isOpen, onClose, subject, topic, score, total, percentage 
         </div>
 
         <div className="share-modal-footer">
-          <Link to={`/${subjectSlug}`} className="share-modal-link">
+          <Link to={`/${subjectSlug}/`} className="share-modal-link">
             Try another {subject} exercise →
           </Link>
         </div>

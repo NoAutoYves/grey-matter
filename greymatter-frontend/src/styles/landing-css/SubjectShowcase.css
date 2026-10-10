@@ -1,0 +1,14 @@
+.subject-showcase {
+  padding: 2rem 1rem;
+  text-align: center;
+  width: 100%;
+}
+
+.subject-showcase h2 {
+  color: #1a1a2e;
+}
+
+.showcase-description {
+  color: #555;
+  margin-bottom: 1.5rem;
+}

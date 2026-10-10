@@ -8,7 +8,9 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import SocialMedia from "../components/functional-comps/LandingSocialMedia";
 import { apiRequest } from "../utils/api";
-import '../styles/ExercisesByTopic.css';
+import '../styles/exercises-by-topic/ExercisesByTopic.css';
+import '../styles/exercises-by-topic/QuizList.css';
+import '../styles/exercises-by-topic/QuizActionsMenu.css';
 
 function ExercisesByTopic() {
   const { subject, topicId } = useParams();
@@ -102,12 +104,13 @@ function ExercisesByTopic() {
               : "Practice exercises on Grey Matter."
           }
         />
+        <link rel="canonical" href={`https://greymatterschool.co.za/${subject}/topic/${topicId}/`} />
       </Helmet>
 
       <FuncHeader />
 
       <section className="quiz-list-container">
-        <button className="back-button" onClick={() => navigate(`/${subject}`)}>
+        <button className="back-button" onClick={() => navigate(`/${subject}/`)}>
           ← Back to Topics
         </button>
 

@@ -2,7 +2,10 @@ import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
-import "../styles/greymatter.css";
+import "../styles/info-pages/InfoPage.css";
+import "../styles/info-pages/HelpInfo.css";
+import "../styles/info-pages/ContactInfo.css";
+import "../styles/info-pages/CareersInfo.css";
 import "../styles/HowItWorks.css";
 
 function HowItWorks() {
@@ -110,6 +113,7 @@ function HowItWorks() {
           name="description"
           content="How Grey Matter works, step by step: browse subjects and topics, take 10-question exercises, get instant feedback, read chapter notes, and track your progress over time. Free for Grades 10 to 12."
         />
+        <link rel="canonical" href="https://greymatterschool.co.za/how-it-works/" />
       </Helmet>
 
       <FuncHeader />
@@ -152,7 +156,7 @@ function HowItWorks() {
 
         <div className="hiw-cta">
           <p>Ready to try it? Everything is free.</p>
-          <Link to="/subjects" className="hiw-cta-btn">
+          <Link to="/subjects/" className="hiw-cta-btn">
             Browse subjects →
           </Link>
         </div>

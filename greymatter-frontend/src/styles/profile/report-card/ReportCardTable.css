@@ -1,0 +1,83 @@
+.rc-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 1.25rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.rc-table th,
+.rc-table td {
+  border: 1px solid #1a1a2e;
+  padding: 0.5rem 0.4rem;
+  text-align: center;
+  color: #1a1a2e;
+}
+
+.rc-table thead th {
+  background: #f4f0ff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  line-height: 1.2;
+}
+
+.rc-th-term {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.rc-th-months {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: #6846ff;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-top: 0.15rem;
+}
+
+.rc-col-subject { text-align: left; }
+
+.rc-subject {
+  text-align: left;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  font-size: 0.78rem;
+}
+
+.rc-term-cell,
+.rc-avg,
+.rc-grade {
+  font-variant-numeric: tabular-nums;
+}
+
+.rc-avg {
+  font-weight: 700;
+  color: #6846ff;
+}
+
+.rc-grade {
+  font-weight: 800;
+  color: #1a1a2e;
+}
+
+.rc-not-enrolled {
+  color: #999;
+  font-style: italic;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 767px) {
+  .rc-table { font-size: 0.72rem; }
+  .rc-table th, .rc-table td { padding: 0.35rem 0.25rem; }
+  .rc-th-term { font-size: 0.68rem; }
+  .rc-th-months { font-size: 0.55rem; }
+  .rc-subject { font-size: 0.7rem; }
+}

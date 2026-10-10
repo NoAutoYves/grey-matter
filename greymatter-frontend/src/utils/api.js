@@ -63,6 +63,10 @@ export async function checkSession() {
 export async function apiRequest(url, options = {}) {
     const method = options.method || 'GET';
 
+    // Auth endpoints legitimately return 401 for "wrong credentials".
+    // Do NOT throw on those — let the caller parse the response.
+    const isAuthEndpoint = url.startsWith('/auth/');
+
     if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
         if (!csrfToken) {
             await fetchCSRFToken();
@@ -89,18 +93,21 @@ export async function apiRequest(url, options = {}) {
         credentials: 'include'
     });
 
-    if (response.status === 401) {
+    // Only treat 401 as session expiry for protected endpoints, not auth.
+    if (response.status === 401 && !isAuthEndpoint) {
         throw new Error('Session expired');
     }
 
     if (response.status === 400) {
-        const text = await response.text();
+        // Clone before reading, so the original body stays readable by the caller.
+        const cloned = response.clone();
+        const text = await cloned.text();
         if (text.includes('CSRF')) {
             await fetchCSRFToken();
             options.headers['X-CSRFToken'] = csrfToken;
             const retryResponse = await fetch(fullUrl, { ...options, credentials: 'include' });
 
-            if (retryResponse.status === 401) {
+            if (retryResponse.status === 401 && !isAuthEndpoint) {
                 throw new Error('Session expired');
             }
             return retryResponse;
@@ -113,6 +120,7 @@ export async function apiRequest(url, options = {}) {
 // Convenience methods
 export const api = {
     get: (url, options = {}) => apiRequest(url, { ...options, method: 'GET' }),
+
     post: (url, body, options = {}) => {
         const isFormData = body instanceof FormData;
         const headers = { ...options.headers };
@@ -128,13 +136,22 @@ export const api = {
             headers
         });
     },
+
     put: (url, body, options = {}) => apiRequest(url, {
         ...options,
         method: 'PUT',
-        body: JSON.stringify(body),
+        body: body !== undefined ? JSON.stringify(body) : undefined,
         headers: { 'Content-Type': 'application/json', ...options.headers }
     }),
-    delete: (url, options = {}) => apiRequest(url, { ...options, method: 'DELETE' }),
+
+    delete: (url, body, options = {}) => apiRequest(url, {
+        ...options,
+        method: 'DELETE',
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+        headers: body !== undefined
+            ? { 'Content-Type': 'application/json', ...options.headers }
+            : { ...options.headers }
+    }),
 
     batch: {
         getExerciseData: (exerciseId) => {

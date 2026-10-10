@@ -1,0 +1,220 @@
+.subject-guide {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 0;
+  background: rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(8px);
+  text-align: left;
+}
+
+.subject-guide-section {
+  margin-bottom: 2.5rem;
+}
+
+.subject-guide-section:last-child {
+  margin-bottom: 0;
+}
+
+.subject-guide-heading {
+  font-size: 1.4rem;
+  color: #1a1a2e;
+  margin-bottom: 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 3px solid #6846ff;
+  display: inline-block;
+}
+
+.subject-guide-subsection {
+  margin-top: 1.5rem;
+  padding-left: 1rem;
+  border-left: 3px solid rgba(104, 70, 255, 0.25);
+}
+
+.subject-guide-subheading {
+  font-size: 1.15rem;
+  color: #6846ff;
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.subject-guide-paragraph {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: #444;
+  margin: 0 0 1rem 0;
+}
+
+.subject-guide-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.subject-guide-paragraph strong {
+  color: #1a1a2e;
+  font-weight: 700;
+}
+
+.subject-guide-paragraph em {
+  color: #555;
+  font-style: italic;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Read-more collapse — mobile and tablet only                            */
+/* ---------------------------------------------------------------------- */
+
+/* Default: no toggle visible anywhere. Media query shows it below 1024px. */
+.subject-guide-toggle {
+  display: none;
+}
+
+/* Clamp is opt-in via a class — set only when content actually overflows. */
+.subject-guide-body {
+  position: relative;
+}
+
+@media (max-width: 1023px) {
+  .subject-guide-body--clampable {
+    max-height: 480px;
+    overflow: hidden;
+  }
+
+  .subject-guide-body--clampable::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100px;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.04) 60%,
+      rgba(0, 0, 0, 0.06) 100%
+    );
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  .subject-guide-body--clampable.subject-guide-body--expanded {
+    max-height: none;
+  }
+
+  .subject-guide-body--clampable.subject-guide-body--expanded::after {
+    opacity: 0;
+  }
+
+  .subject-guide-toggle {
+    display: block;
+    margin: 1.25rem auto 0;
+    background: none;
+    border: none;
+    color: #6846ff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0.4rem 0;
+    font-family: 'noto', sans-serif;
+  }
+
+  .subject-guide-toggle:hover {
+    color: #5535cc;
+    text-decoration: underline;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Existing responsive rules                                              */
+/* ---------------------------------------------------------------------- */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .subject-guide {
+    padding: 1.5rem;
+  }
+
+  .subject-guide-heading {
+    font-size: 1.25rem;
+  }
+
+  .subject-guide-subheading {
+    font-size: 1.05rem;
+  }
+
+  .subject-guide-paragraph {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .subject-guide {
+    padding: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .subject-guide-heading {
+    font-size: 1.15rem;
+  }
+
+  .subject-guide-subheading {
+    font-size: 1rem;
+  }
+
+  .subject-guide-paragraph {
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  .subject-guide-section {
+    margin-bottom: 1.75rem;
+  }
+
+  .subject-guide-subsection {
+    padding-left: 0.75rem;
+    margin-top: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .subject-guide {
+    padding: 0.75rem;
+  }
+
+  .subject-guide-heading {
+    font-size: 1.05rem;
+  }
+
+  .subject-guide-subheading {
+    font-size: 0.95rem;
+  }
+
+  .subject-guide-paragraph {
+    font-size: 0.85rem;
+  }
+
+  .subject-guide-body--clampable {
+    max-height: 380px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .subject-guide {
+    padding: 2.5rem 3rem;
+  }
+
+  .subject-guide-heading {
+    font-size: 1.5rem;
+  }
+
+  .subject-guide-subheading {
+    font-size: 1.25rem;
+  }
+
+  .subject-guide-paragraph {
+    font-size: 1rem;
+    line-height: 1.9;
+  }
+}e

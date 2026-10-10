@@ -1,0 +1,114 @@
+.quiz-info-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  gap: 0;
+  margin: 0 0 1rem;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 0.4rem 0.25rem;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.info-box {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 1rem;
+  min-width: 0;
+  text-align: center;
+}
+
+.info-box:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 1px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.info-box h4 {
+  margin: 0;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.info-box p {
+  margin: 2px 0 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  letter-spacing: 0.3px;
+}
+
+.info-box .react-loading-skeleton {
+  margin-top: 4px;
+  width: 40px !important;
+  height: 1.2rem !important;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .quiz-info-row {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .info-box {
+    padding: 0.4rem 1rem;
+  }
+
+  .info-box p {
+    font-size: 1.45rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .quiz-info-row {
+    margin-bottom: 1.2rem;
+    padding: 0.5rem 0.25rem;
+  }
+
+  .info-box {
+    padding: 0.4rem 1rem;
+  }
+
+  .info-box p {
+    font-size: 1.4rem;
+  }
+
+  .info-box h4 {
+    font-size: 0.55rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .quiz-info-row {
+    padding: 0.35rem 0;
+  }
+
+  .info-box {
+    padding: 0.3rem 0.4rem;
+  }
+
+  .info-box p {
+    font-size: 1.05rem;
+  }
+
+  .info-box h4 {
+    font-size: 0.55rem;
+    letter-spacing: 0.8px;
+  }
+}

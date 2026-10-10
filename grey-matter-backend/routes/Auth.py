@@ -99,9 +99,9 @@ def signup():
         if " " in password:
             errors.append("no spaces allowed")
 
-        log_activity(None, "signup_failed", f"Weak password for {email}", ip, ua)
+        log_activity(None, "signup_failed", f"Weak password for {email} - rules failed: {errors}", ip, ua)
         return jsonify({
-            "error": "Password does not meet requirements",
+            "error": f"Password does not meet requirements: {', '.join(errors)}",
             "failed_rules": errors
         }), 400
     
@@ -328,9 +328,9 @@ def reset_password():
         if " " in new_password:
             errors.append("no spaces allowed")
         
-        log_activity(None, "reset_password_failed", "Weak password attempt", ip, ua)
+        log_activity(None, "reset_password_failed", f"Weak password attempt - rules failed: {errors}", ip, ua)
         return jsonify({
-            "error": "Password does not meet requirements",
+            "error": f"Password does not meet requirements: {', '.join(errors)}",
             "failed_rules": errors
         }), 400
     

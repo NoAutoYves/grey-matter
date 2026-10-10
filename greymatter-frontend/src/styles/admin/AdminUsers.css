@@ -1,0 +1,35 @@
+.admin-row-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.admin-toggle {
+  padding: 0.25rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-family: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-toggle:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.admin-toggle.on {
+  background: rgba(104, 70, 255, 0.12);
+  color: #6846ff;
+  border-color: rgba(104, 70, 255, 0.25);
+}
+
+.admin-toggle.off {
+  background: rgba(0, 0, 0, 0.05);
+  color: #888;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.admin-toggle.on:hover:not(:disabled) { background: rgba(104, 70, 255, 0.2); }
+.admin-toggle.off:hover:not(:disabled) { background: rgba(0, 0, 0, 0.1); color: #555; }

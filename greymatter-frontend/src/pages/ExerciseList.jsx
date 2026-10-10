@@ -1,16 +1,22 @@
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import { UserContext } from "../context/UserContext";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 import SocialMedia from "../components/functional-comps/LandingSocialMedia";
 import { api } from "../utils/api";
 import { getSubjectName } from "../utils/subjectMap";
 import { subjectContent, getSubjectContentKey } from "../data/subjectContent";
-import '../styles/ExerciseList.css';
+
+import ExerciseListSkeleton from "../components/exercise-list/ExerciseListSkeleton";
+import ListHero from "../components/exercise-list/ListHero";
+import ListBenefits from "../components/exercise-list/ListBenefits";
+import GradeTopicsSection from "../components/exercise-list/GradeTopicsSection";
+import SubjectGuide from "../components/exercise-list/SubjectGuide";
+import ListHowItWorks from "../components/exercise-list/ListHowItWorks";
+
+import "../styles/exercise-list/ExerciseList.css";
 
 import scientificReasoningIcon from "../assets/images/func-images/scientific_reasoning.png";
 import problemSolvingIcon from "../assets/images/func-images/problem_solving.png";
@@ -25,13 +31,7 @@ function ExerciseList() {
   const [subjectName, setSubjectName] = useState("");
   const [totalExercises, setTotalExercises] = useState(0);
   const [completedExercises, setCompletedExercises] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
-
-  const [activeGradeIdx, setActiveGradeIdx] = useState(0);
-  const [gradeAtStart, setGradeAtStart] = useState(true);
-  const [gradeAtEnd, setGradeAtEnd] = useState(false);
-  const gradeScrollerRef = useRef(null);
 
   useEffect(() => {
     const fetchTopics = async () => {
@@ -46,12 +46,10 @@ function ExerciseList() {
           setSubjectName(data.subject_name || subjectDbName);
 
           let total = 0;
-          let completed = 0;
-          data.grouped_topics.forEach(grade => {
-            grade.topics.forEach(topic => {
-              if (topic.exercise_count) {
-                total += topic.exercise_count;
-              }
+          const completed = 0;
+          data.grouped_topics.forEach((grade) => {
+            grade.topics.forEach((topic) => {
+              if (topic.exercise_count) total += topic.exercise_count;
             });
           });
           setTotalExercises(total);
@@ -67,57 +65,8 @@ function ExerciseList() {
     fetchTopics();
   }, [subject, user]);
 
-  useEffect(() => {
-    const container = gradeScrollerRef.current;
-    if (!container) return;
-
-    const update = () => {
-      const { scrollLeft, clientWidth, scrollWidth } = container;
-      if (clientWidth === 0) return;
-
-      const idx = Math.round(scrollLeft / clientWidth);
-      const maxIdx = Math.max(0, groupedTopics.length - 1);
-      setActiveGradeIdx(Math.min(Math.max(idx, 0), maxIdx));
-
-      setGradeAtStart(scrollLeft <= 2);
-      setGradeAtEnd(scrollLeft + clientWidth >= scrollWidth - 2);
-    };
-
-    const initialTimer = setTimeout(update, 50);
-
-    container.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-
-    let ro;
-    if (typeof ResizeObserver !== 'undefined') {
-      ro = new ResizeObserver(update);
-      ro.observe(container);
-    }
-
-    return () => {
-      clearTimeout(initialTimer);
-      container.removeEventListener('scroll', update);
-      window.removeEventListener('resize', update);
-      if (ro) ro.disconnect();
-    };
-  }, [groupedTopics]);
-
-  const scrollToGrade = (idx) => {
-    const container = gradeScrollerRef.current;
-    if (!container) return;
-    const sections = container.querySelectorAll('.grade-list-section');
-    const target = sections[idx];
-    if (!target) return;
-
-    const containerRect = container.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    const offset = targetRect.left - containerRect.left + container.scrollLeft;
-
-    container.scrollTo({ left: offset, behavior: 'smooth' });
-  };
-
   const handleTopicClick = (topicId) => {
-    navigate(`/${subject}/topic/${topicId}`);
+    navigate(`/${subject}/topic/${topicId}/`);
   };
 
   const subjectDescriptions = {
@@ -204,7 +153,7 @@ function ExerciseList() {
       { name: 'Knowledge Building', icon: scientificReasoningIcon, description: 'Build a strong foundation in key concepts and principles.' },
       { name: 'Skill Development', icon: problemSolvingIcon, description: 'Develop practical skills that apply to real-world scenarios.' },
       { name: 'Exam Preparation', icon: analyticalThinkingIcon, description: 'Prepare effectively for assessments and examinations.' },
-      { name: 'Confidence Building', icon: mathematicalSkillsIcon, description: 'Gain confidence through practice and mastery of content.' }
+      { name: 'Confidence Building', icon: mathematicalSkillsIcon, description: 'Build confidence through practice and mastery of content.' }
     ];
   };
 
@@ -213,71 +162,18 @@ function ExerciseList() {
     return subjectDescriptions[key] || `${subjectName} exercises designed to reinforce key concepts and prepare you for exams.`;
   };
 
-  const getBenefitIcon = (benefit) => {
-    return benefit.icon || scientificReasoningIcon;
-  };
-
-  const getTruncatedDescription = (text) => {
-    if (!text) return '';
-    const words = text.split(' ');
-    let result = '';
-    for (let i = 0; i < words.length; i++) {
-      if ((result + words[i]).length > 100) break;
-      result += (i === 0 ? '' : ' ') + words[i];
-    }
-    return result + '...';
-  };
-
-  const renderInline = (text) => {
-    if (!text) return null;
-    const parts = [];
-    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
-    let lastIndex = 0;
-    let match;
-    let key = 0;
-    while ((match = regex.exec(text)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push(text.slice(lastIndex, match.index));
-      }
-      const token = match[0];
-      if (token.startsWith('**')) {
-        parts.push(<strong key={key++}>{token.slice(2, -2)}</strong>);
-      } else {
-        parts.push(<em key={key++}>{token.slice(1, -1)}</em>);
-      }
-      lastIndex = match.index + token.length;
-    }
-    if (lastIndex < text.length) {
-      parts.push(text.slice(lastIndex));
-    }
-    return parts;
-  };
-
   const fullDescription = getSubjectDescription();
-  const truncatedDescription = getTruncatedDescription(fullDescription);
   const benefits = getTopicBenefits();
 
   const guideKey = getSubjectContentKey(subject);
   const guide = guideKey ? subjectContent[guideKey] : null;
 
   if (loading) {
-    return (
-      <div className="quiz-list-page">
-        <FuncHeader />
-        <section className="quiz-list-container">
-          <Skeleton width={250} height={40} />
-          <Skeleton width={400} height={20} style={{ marginBottom: '20px' }} />
-          <div className="topics-grid">
-            <Skeleton count={6} height={100} style={{ marginBottom: '10px' }} />
-          </div>
-        </section>
-        <FuncFooter />
-      </div>
-    );
+    return <ExerciseListSkeleton />;
   }
 
   return (
-    <div className={`quiz-list-page ${subject}`}>
+    <div className={`list-page ${subject}`}>
       <Helmet>
         <title>{subjectName ? `${subjectName} Topics | Grey Matter` : "Topics | Grey Matter"}</title>
         <meta
@@ -288,179 +184,29 @@ function ExerciseList() {
               : "Practice high school subjects with free interactive exercises on Grey Matter."
           }
         />
+        <link rel="canonical" href={`https://greymatterschool.co.za/${subject}/`} />
       </Helmet>
 
       <FuncHeader />
 
-      <section className="quiz-list-container">
-        <div className="list-hero">
-          <h1 className="list-title">{subjectName} Topics</h1>
+      <section className="list-container">
+        <ListHero
+          subjectName={subjectName}
+          fullDescription={fullDescription}
+          totalExercises={totalExercises}
+          completedExercises={completedExercises}
+        />
 
-          <div className="list-description-wrapper">
-            <p className="list-description">
-              <span className="list-desktop-full">{fullDescription}</span>
-              <span className="list-mobile-truncated">{isExpanded ? fullDescription : truncatedDescription}</span>
-            </p>
-            <button
-              className="list-expand-toggle"
-              onClick={() => setIsExpanded(!isExpanded)}
-              aria-label={isExpanded ? "Show less" : "Read more"}
-            >
-              {isExpanded ? 'Show less ↑' : 'Read more ↓'}
-            </button>
-          </div>
+        <ListBenefits subjectName={subjectName} benefits={benefits} />
 
-          {totalExercises > 0 && (
-            <div className="list-stats">
-              <span className="list-stat-badge">
-                {totalExercises} exercises
-              </span>
-              <span className="list-stat-badge">
-                {completedExercises} completed
-              </span>
-            </div>
-          )}
-        </div>
+        <GradeTopicsSection
+          groupedTopics={groupedTopics}
+          onTopicClick={handleTopicClick}
+        />
 
-        <section className="list-practice-benefits">
-          <h2>What You'll Gain from Practicing {subjectName}</h2>
-          <div className="list-benefits-grid">
-            {benefits.map((benefit, index) => (
-              <div key={index} className="list-benefit-card">
-                <img
-                  src={getBenefitIcon(benefit)}
-                  alt={benefit.name}
-                  className="list-benefit-image"
-                />
-                <h4>{benefit.name}</h4>
-                <p>{benefit.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        {guide && <SubjectGuide guide={guide} />}
 
-        {groupedTopics.length > 0 ? (
-          <>
-            <div className="grade-section-header">
-              <h2 className="grade-section-title">Topics by Grade</h2>
-
-              {groupedTopics.length > 1 && (
-                <div className="grade-indicator" aria-label="Grade navigation">
-                  <button
-                    type="button"
-                    className="grade-nav-btn"
-                    onClick={() => scrollToGrade(Math.max(activeGradeIdx - 1, 0))}
-                    disabled={gradeAtStart}
-                    aria-label="Previous grade"
-                  >
-                    ‹
-                  </button>
-
-                  <div className="grade-dots">
-                    {groupedTopics.map((grade, idx) => (
-                      <button
-                        key={grade.grade_level}
-                        type="button"
-                        className={`grade-dot ${activeGradeIdx === idx ? 'active' : ''}`}
-                        onClick={() => scrollToGrade(idx)}
-                        aria-label={`Go to ${grade.grade_display}`}
-                      />
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    className="grade-nav-btn"
-                    onClick={() => scrollToGrade(Math.min(activeGradeIdx + 1, groupedTopics.length - 1))}
-                    disabled={gradeAtEnd}
-                    aria-label="Next grade"
-                  >
-                    ›
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className="topic-scroller-wrapper">
-              <div className="topic-list-by-grade" ref={gradeScrollerRef}>
-                {groupedTopics.map((gradeGroup) => (
-                  <div key={gradeGroup.grade_level} className="grade-list-section">
-                    <h2 className="grade-list-header">{gradeGroup.grade_display}</h2>
-                    <div className="topics-list-grid">
-                      {gradeGroup.topics.map((topic) => (
-                        <div
-                          key={topic.topic_id}
-                          className="topic-list-card"
-                          onClick={() => handleTopicClick(topic.topic_id)}
-                        >
-                          <h3 className="topic-list-title">{topic.topic_name}</h3>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
-        ) : (
-          <p className="no-list-quizzes">No topics available for this subject yet. Check back soon!</p>
-        )}
-
-        {guide && (
-          <section className="subject-guide">
-            {guide.sections.map((section, idx) => (
-              <div key={idx} className="subject-guide-section">
-                <h2 className="subject-guide-heading">{section.heading}</h2>
-
-                {section.paragraphs && section.paragraphs.map((para, pIdx) => (
-                  <p key={pIdx} className="subject-guide-paragraph">
-                    {renderInline(para)}
-                  </p>
-                ))}
-
-                {section.subsections && section.subsections.map((sub, sIdx) => (
-                  <div key={sIdx} className="subject-guide-subsection">
-                    <h3 className="subject-guide-subheading">{sub.subheading}</h3>
-                    {sub.paragraphs.map((para, pIdx) => (
-                      <p key={pIdx} className="subject-guide-paragraph">
-                        {renderInline(para)}
-                      </p>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </section>
-        )}
-
-        <section className="list-how-it-works">
-          <h2>How to Use These Exercises</h2>
-          <div className="list-steps-row">
-            <div className="list-step-item">
-              <span className="list-step-num">1</span>
-              <p>Read the chapter notes</p>
-            </div>
-            <span className="list-step-arrow">→</span>
-            <div className="list-step-item">
-              <span className="list-step-num">2</span>
-              <p>Answer the 10 questions</p>
-            </div>
-            <span className="list-step-arrow">→</span>
-            <div className="list-step-item">
-              <span className="list-step-num">3</span>
-              <p>Review the breakdown</p>
-            </div>
-            <span className="list-step-arrow">→</span>
-            <div className="list-step-item">
-              <span className="list-step-num">4</span>
-              <p>Retake in a few days</p>
-            </div>
-          </div>
-          <p className="list-learning-note">
-            Most learners need two or three passes through a topic before it sticks. Read the notes, take the exercise, review the per-question breakdown, then come back to the same exercise in two or three days. If you can hit 8 out of 10 on the retake, the topic is solid.
-          </p>
-        </section>
-
+        {/* <ListHowItWorks /> */}
       </section>
 
       <SocialMedia />

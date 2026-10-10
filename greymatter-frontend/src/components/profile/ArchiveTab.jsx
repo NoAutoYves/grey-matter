@@ -14,7 +14,7 @@ function ArchiveTab({ profileData }) {
     const subjectSlug = subjectName ? subjectName.toLowerCase().replace(/\s+/g, '-') : '';
     
     // Navigate to: /{subject}/topic/{topicId}
-    navigate(`/${subjectSlug}/topic/${topicId}`);
+    navigate(`/${subjectSlug}/topic/${topicId}/`);
   };
 
   // Get up to 20 recent activities

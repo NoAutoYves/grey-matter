@@ -1,0 +1,101 @@
+@font-face {
+  font-family: 'noto';
+  src: url('/fonts/NotoSans-subset.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.quiz-list-page {
+  margin: 0;
+  font-family: 'noto', sans-serif;
+  color: #000000;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: url('../../assets/images/background-images/MainBG.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.quiz-list-container {
+  width: 90%;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border-radius: 12px;
+  font-family: 'noto', sans-serif;
+}
+
+.quiz-list-title {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: #000000;
+}
+
+.quiz-list-subtitle {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  color: #000000;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: 'noto', sans-serif;
+  margin-bottom: 20px;
+  padding: 8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.no-quizzes {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+  font-size: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .back-button:hover {
+    color: #0056b3;
+    text-decoration: underline;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .quiz-list-container {
+    width: 92%;
+    padding: 1.25rem;
+  }
+
+  .quiz-list-title {
+    font-size: 1.6rem;
+  }
+
+  .back-button:hover {
+    color: #007bff;
+    text-decoration: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .quiz-list-container {
+    width: 95%;
+    padding: 1rem;
+  }
+
+  .quiz-list-title {
+    font-size: 1.5rem;
+  }
+
+  .back-button:hover {
+    color: #007bff;
+    text-decoration: none;
+  }
+}

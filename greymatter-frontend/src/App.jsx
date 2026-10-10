@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
@@ -18,21 +18,25 @@ import HowItWorks from "./pages/HowItWorks";
 import { fetchCSRFToken } from "./utils/api";
 
 // Greymatter pages
-import About from "./greymatter/About";
-import Contact from "./greymatter/Contact";
-import Careers from "./greymatter/Careers";
-import Help from "./greymatter/Help";
-import Terms from "./greymatter/Terms";
-import Privacy from "./greymatter/Privacy";
-import Cookies from "./greymatter/Cookies";
+import About from "./components/greymatter/About";
+import Contact from "./components/greymatter/Contact";
+import Careers from "./components/greymatter/Careers";
+import Help from "./components/greymatter/Help";
+import Terms from "./components/greymatter/Terms";
+import Privacy from "./components/greymatter/Privacy";
+import Cookies from "./components/greymatter/Cookies";
 
 // Admin pages
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminExercises from "./pages/admin/AdminExercises";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminUserFeedback from "./pages/admin/AdminUserFeedback";
+import AdminActivity from "./pages/admin/AdminActivity";
+import AdminErrorLogs from "./pages/admin/AdminErrorLogs";
+
+// Lazy-loaded: pulls Recharts (~148 KB gzipped) out of the main bundle.
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 
 function App() {
   useEffect(() => {
@@ -82,8 +86,17 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="exercises" element={<AdminExercises />} />
-          <Route path="analytics" element={<AdminAnalytics />} />
+          <Route
+            path="analytics"
+            element={
+              <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center", color: "#6846ff" }}>Loading analytics...</div>}>
+                <AdminAnalytics />
+              </Suspense>
+            }
+          />
+          <Route path="activity" element={<AdminActivity />} />
           <Route path="feedback" element={<AdminUserFeedback />} />
+          <Route path="errors" element={<AdminErrorLogs />} />
         </Route>
       </Routes>
     </>

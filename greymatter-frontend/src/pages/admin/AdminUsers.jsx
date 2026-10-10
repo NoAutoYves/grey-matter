@@ -1,267 +1,295 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../../utils/api";
-import styles from './AdminUsers.module.css';
+import "../../styles/admin/AdminShared.css";
+import "../../styles/admin/AdminUsers.css";
 
-const ROWS_PER_PAGE = 15;
+function ConfirmModal({ title, text, confirmLabel = "Confirm", danger, onConfirm, onCancel, busy }) {
+  return (
+    <div className="admin-modal-backdrop" onClick={busy ? undefined : onCancel}>
+      <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
+          <h3 className="admin-modal-title">{title}</h3>
+          <button className="admin-modal-close" onClick={onCancel} disabled={busy}>×</button>
+        </div>
+        <div className="admin-modal-body">
+          <p>{text}</p>
+        </div>
+        <div className="admin-modal-footer">
+          <button className="admin-btn admin-btn-secondary" onClick={onCancel} disabled={busy}>Cancel</button>
+          <button
+            className={`admin-btn ${danger ? "admin-btn-danger" : "admin-btn-primary"}`}
+            onClick={onConfirm}
+            disabled={busy}
+          >
+            {busy ? "Working..." : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ActivityModal({ user, activities, loading, onClose }) {
+  return (
+    <div className="admin-modal-backdrop" onClick={onClose}>
+      <div className="admin-modal admin-modal-lg" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
+          <h3 className="admin-modal-title">Activity — {user.email}</h3>
+          <button className="admin-modal-close" onClick={onClose}>×</button>
+        </div>
+        <div className="admin-modal-body">
+          {loading ? (
+            <div className="admin-loading">Loading activity...</div>
+          ) : activities.length === 0 ? (
+            <div className="admin-empty">No activity recorded</div>
+          ) : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activities.map((a, i) => (
+                    <tr key={i}>
+                      <td className="admin-cell-num">{a.created_at || "—"}</td>
+                      <td><span className="admin-badge admin-badge-neutral">{a.action}</span></td>
+                      <td className="admin-cell-details">{a.details}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [page, setPage] = useState(1);
-  const [openMenu, setOpenMenu] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [showDetails, setShowDetails] = useState(false);
-  const [showActivity, setShowActivity] = useState(false);
-  const [activities, setActivities] = useState([]);
-  const menuRef = useRef(null);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [busyId, setBusyId] = useState(null);
+  const [confirm, setConfirm] = useState(null);
+  const [activityTarget, setActivityTarget] = useState(null);
+  const [activityData, setActivityData] = useState([]);
+  const [activityLoading, setActivityLoading] = useState(false);
 
-  useEffect(() => { fetchUsers(); }, []);
+  const loadUsers = async () => {
+    try {
+      const res = await api.get("/api/admin/users");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to load users");
+      setUsers(data.users || []);
+    } catch (e) {
+      setError(e.message || "Failed to load users");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadUsers(); }, []);
 
   useEffect(() => {
-    const handler = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setOpenMenu(null);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+    if (!message) return;
+    const t = setTimeout(() => setMessage(""), 3000);
+    return () => clearTimeout(t);
+  }, [message]);
 
-  useEffect(() => { setPage(1); }, [search, filter]);
-
-  const fetchUsers = async () => {
+  const updateRole = async (user, nextAdmin) => {
+    setBusyId(user.user_id);
     try {
-      const res = await api.get('/api/admin/users');
+      const res = await api.put(`/api/admin/users/${user.user_id}/role`, { is_admin: nextAdmin });
       const data = await res.json();
-      if (res.ok) setUsers(data.users);
-    } catch (e) { console.error("Failed to fetch users:", e); }
-    finally { setLoading(false); }
+      if (!res.ok) throw new Error(data.error || "Failed to update role");
+      setUsers((prev) => prev.map((u) => u.user_id === user.user_id ? { ...u, is_admin: nextAdmin } : u));
+      setMessage(`Role updated for ${user.email}`);
+    } catch (e) {
+      setError(e.message || "Failed to update role");
+    } finally {
+      setBusyId(null);
+    }
   };
 
-  const filtered = users.filter((u) => {
-    if (filter === "admins" && !u.is_admin) return false;
-    if (filter === "verified" && !u.is_verified) return false;
-    if (filter === "unverified" && u.is_verified) return false;
-    if (!search) return true;
-    const q = search.toLowerCase();
-    return (
-      u.email?.toLowerCase().includes(q) ||
-      u.first_name?.toLowerCase().includes(q) ||
-      u.last_name?.toLowerCase().includes(q) ||
-      u.username?.toLowerCase().includes(q)
-    );
-  });
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ROWS_PER_PAGE));
-  const pageUsers = filtered.slice((page - 1) * ROWS_PER_PAGE, page * ROWS_PER_PAGE);
-
-  const toggleRole = async (u) => {
-    const msg = u.is_admin
-      ? `Remove admin access from ${u.email}?`
-      : `Grant admin access to ${u.email}? Admins can manage users, exercises, and see all data.`;
-    if (!confirm(msg)) return;
+  const updateVerified = async (user, nextVerified) => {
+    setBusyId(user.user_id);
     try {
-      const res = await api.put(`/api/admin/users/${u.user_id}/role`, { is_admin: !u.is_admin });
-      if (res.ok) { fetchUsers(); setOpenMenu(null); }
-    } catch (e) { console.error(e); }
-  };
-
-  const toggleVerify = async (u) => {
-    try {
-      const res = await api.put(`/api/admin/users/${u.user_id}/verify`, { is_verified: !u.is_verified });
-      if (res.ok) { fetchUsers(); setOpenMenu(null); }
-    } catch (e) { console.error(e); }
-  };
-
-  const resetPassword = async (u) => {
-    if (!confirm(`Send password reset link to ${u.email}?`)) return;
-    try {
-      const res = await api.post(`/api/admin/users/${u.user_id}/reset-password`);
-      alert(res.ok ? "Reset link sent." : "Failed to send link.");
-      setOpenMenu(null);
-    } catch (e) { console.error(e); }
-  };
-
-  const deleteUser = async (u) => {
-    if (!confirm(
-      `Permanently delete ${u.email}?\n\n` +
-      `This deletes their account, all progress, notes, and feedback. Cannot be undone.`
-    )) return;
-    try {
-      const res = await api.delete(`/api/admin/users/${u.user_id}`);
-      if (res.ok) { fetchUsers(); setOpenMenu(null); }
-      else { const err = await res.json(); alert(err.error || "Failed to delete"); }
-    } catch (e) { console.error(e); }
-  };
-
-  const viewDetails = (u) => { setSelectedUser(u); setShowDetails(true); setOpenMenu(null); };
-
-  const viewActivity = async (u) => {
-    try {
-      const res = await api.get(`/api/admin/users/${u.user_id}/activity`);
+      const res = await api.put(`/api/admin/users/${user.user_id}/verify`, { is_verified: nextVerified });
       const data = await res.json();
-      if (res.ok) { setActivities(data.activities); setShowActivity(true); setOpenMenu(null); }
-    } catch (e) { console.error(e); }
+      if (!res.ok) throw new Error(data.error || "Failed to update verification");
+      setUsers((prev) => prev.map((u) => u.user_id === user.user_id ? { ...u, is_verified: nextVerified } : u));
+      setMessage(`Verification updated for ${user.email}`);
+    } catch (e) {
+      setError(e.message || "Failed to update verification");
+    } finally {
+      setBusyId(null);
+    }
   };
 
-  if (loading) {
-    return <div className="adm-loading"><div className="adm-loading__spinner" /><div>Loading users…</div></div>;
-  }
+  const resetPassword = (user) => {
+    setConfirm({
+      title: "Reset password?",
+      text: `Send a password reset email to ${user.email}?`,
+      confirmLabel: "Send reset email",
+      onConfirm: async () => {
+        setBusyId(user.user_id);
+        try {
+          const res = await api.post(`/api/admin/users/${user.user_id}/reset-password`, {});
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Failed to send reset");
+          setMessage(`Reset email sent to ${user.email}`);
+          setConfirm(null);
+        } catch (e) {
+          setError(e.message || "Failed to send reset");
+        } finally {
+          setBusyId(null);
+        }
+      },
+    });
+  };
+
+  const deleteUser = (user) => {
+    setConfirm({
+      title: "Delete user?",
+      text: `Permanently delete ${user.email}? All progress, notes, activity, and feedback will be removed. This cannot be undone.`,
+      confirmLabel: "Delete user",
+      danger: true,
+      onConfirm: async () => {
+        setBusyId(user.user_id);
+        try {
+          const res = await api.delete(`/api/admin/users/${user.user_id}`);
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Failed to delete user");
+          setUsers((prev) => prev.filter((u) => u.user_id !== user.user_id));
+          setMessage(`Deleted ${user.email}`);
+          setConfirm(null);
+        } catch (e) {
+          setError(e.message || "Failed to delete user");
+        } finally {
+          setBusyId(null);
+        }
+      },
+    });
+  };
+
+  const openActivity = async (user) => {
+    setActivityTarget(user);
+    setActivityData([]);
+    setActivityLoading(true);
+    try {
+      const res = await api.get(`/api/admin/users/${user.user_id}/activity`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to load activity");
+      setActivityData(data.activities || []);
+    } catch (e) {
+      setError(e.message || "Failed to load activity");
+    } finally {
+      setActivityLoading(false);
+    }
+  };
+
+  if (loading) return <div className="admin-loading">Loading users...</div>;
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Users</h1>
-        <p className={styles.subtitle}>{filtered.length} of {users.length} users</p>
+    <div className="admin-page">
+      <header className="admin-page-header">
+        <div>
+          <h1 className="admin-page-title">Users</h1>
+          <p className="admin-page-subtitle">{users.length} registered</p>
+        </div>
       </header>
 
-      <div className={styles.toolbar}>
-        <div className={styles.search}>
-          <span className={styles.searchIcon}>⌕</span>
-          <input
-            type="text"
-            placeholder="Search email, name, username…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="adm-input"
-          />
-        </div>
-        <select value={filter} onChange={(e) => setFilter(e.target.value)} className={`adm-select ${styles.filterSelect}`}>
-          <option value="all">All users</option>
-          <option value="admins">Admins only</option>
-          <option value="verified">Verified</option>
-          <option value="unverified">Unverified</option>
-        </select>
-      </div>
+      {error && <div className="admin-error-banner">{error}</div>}
+      {message && <div className="admin-success-banner">{message}</div>}
 
-      {pageUsers.length === 0 ? (
-        <div className="adm-empty">
-          <div className="adm-empty__icon">◉</div>
-          <div className="adm-empty__title">No users found</div>
-          <div className="adm-empty__body">Try a different search or filter.</div>
-        </div>
+      {users.length === 0 ? (
+        <div className="admin-empty">No users yet</div>
       ) : (
-        <>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>ID</th><th>Email</th><th>Name</th><th>Username</th>
-                  <th>Role</th><th>Verified</th><th>Joined</th><th></th>
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Admin</th>
+                <th>Verified</th>
+                <th>Joined</th>
+                <th>Last login</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.user_id}>
+                  <td className="admin-cell-num">{u.user_id}</td>
+                  <td>{u.email}</td>
+                  <td>{u.first_name} {u.last_name}</td>
+                  <td>@{u.username || "—"}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className={`admin-toggle ${u.is_admin ? "on" : "off"}`}
+                      disabled={busyId === u.user_id}
+                      onClick={() => updateRole(u, !u.is_admin)}
+                      title={u.is_admin ? "Demote" : "Promote"}
+                    >
+                      {u.is_admin ? "Admin" : "User"}
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className={`admin-toggle ${u.is_verified ? "on" : "off"}`}
+                      disabled={busyId === u.user_id}
+                      onClick={() => updateVerified(u, !u.is_verified)}
+                      title={u.is_verified ? "Unverify" : "Verify"}
+                    >
+                      {u.is_verified ? "Verified" : "Unverified"}
+                    </button>
+                  </td>
+                  <td className="admin-cell-num">{u.created_at || "—"}</td>
+                  <td className="admin-cell-num">{u.last_login || "—"}</td>
+                  <td>
+                    <div className="admin-row-actions">
+                      <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => resetPassword(u)}>Reset pwd</button>
+                      <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => openActivity(u)}>Activity</button>
+                      <button className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => deleteUser(u)}>Delete</button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {pageUsers.map((u) => (
-                  <tr key={u.user_id}>
-                    <td className={styles.idCell}>#{u.user_id}</td>
-                    <td className={styles.emailCell}>{u.email}</td>
-                    <td>{u.first_name} {u.last_name}</td>
-                    <td className={styles.muted}>{u.username || "-"}</td>
-                    <td>
-                      <span className={`adm-badge ${u.is_admin ? 'adm-badge--brand' : 'adm-badge--neutral'}`}>
-                        {u.is_admin ? "Admin" : "User"}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`adm-badge ${u.is_verified ? 'adm-badge--success' : 'adm-badge--neutral'}`}>
-                        {u.is_verified ? "Yes" : "No"}
-                      </span>
-                    </td>
-                    <td className={styles.muted}>{u.created_at || "-"}</td>
-                    <td className={styles.actionsCell}>
-                      <div className={styles.menuWrap} ref={openMenu === u.user_id ? menuRef : null}>
-                        <button
-                          className={styles.menuBtn}
-                          onClick={() => setOpenMenu(openMenu === u.user_id ? null : u.user_id)}
-                        >⋯</button>
-                        {openMenu === u.user_id && (
-                          <div className={styles.menu}>
-                            <button onClick={() => viewDetails(u)} className={styles.menuItem}>View details</button>
-                            <button onClick={() => viewActivity(u)} className={styles.menuItem}>View activity</button>
-                            <button onClick={() => toggleRole(u)} className={styles.menuItem}>
-                              {u.is_admin ? "Remove admin" : "Make admin"}
-                            </button>
-                            <button onClick={() => toggleVerify(u)} className={styles.menuItem}>
-                              {u.is_verified ? "Unverify" : "Verify"}
-                            </button>
-                            <button onClick={() => resetPassword(u)} className={styles.menuItem}>Send reset link</button>
-                            <button onClick={() => deleteUser(u)} className={`${styles.menuItem} ${styles.menuDanger}`}>Delete user</button>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {totalPages > 1 && (
-            <div className={styles.pagination}>
-              <div className={styles.pageInfo}>Page {page} of {totalPages}</div>
-              <div className={styles.pageControls}>
-                <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(page - 1)}>←</button>
-                {[...Array(totalPages)].map((_, i) => (
-                  <button
-                    key={i + 1}
-                    className={`${styles.pageBtn} ${page === i + 1 ? styles.pageActive : ''}`}
-                    onClick={() => setPage(i + 1)}
-                  >{i + 1}</button>
-                ))}
-                <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(page + 1)}>→</button>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-
-      {showDetails && selectedUser && (
-        <div className={styles.overlay} onClick={() => setShowDetails(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <header className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>User details</h2>
-              <button className={styles.modalClose} onClick={() => setShowDetails(false)}>✕</button>
-            </header>
-            <div className={styles.detailGrid}>
-              <div><span>ID</span><strong>#{selectedUser.user_id}</strong></div>
-              <div><span>Email</span><strong>{selectedUser.email}</strong></div>
-              <div><span>First name</span><strong>{selectedUser.first_name || "-"}</strong></div>
-              <div><span>Last name</span><strong>{selectedUser.last_name || "-"}</strong></div>
-              <div><span>Username</span><strong>{selectedUser.username || "-"}</strong></div>
-              <div><span>Role</span><strong>{selectedUser.is_admin ? "Admin" : "User"}</strong></div>
-              <div><span>Verified</span><strong>{selectedUser.is_verified ? "Yes" : "No"}</strong></div>
-              <div><span>Joined</span><strong>{selectedUser.created_at || "-"}</strong></div>
-              <div className={styles.detailFull}><span>Last login</span><strong>{selectedUser.last_login || "Never"}</strong></div>
-            </div>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
-      {showActivity && (
-        <div className={styles.overlay} onClick={() => setShowActivity(false)}>
-          <div className={`${styles.modal} ${styles.modalLarge}`} onClick={(e) => e.stopPropagation()}>
-            <header className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>User activity</h2>
-              <button className={styles.modalClose} onClick={() => setShowActivity(false)}>✕</button>
-            </header>
-            {activities.length === 0 ? (
-              <div className="adm-empty">
-                <div className="adm-empty__title">No activity recorded</div>
-                <div className="adm-empty__body">This user hasn't done anything yet.</div>
-              </div>
-            ) : (
-              <div className={styles.activityList}>
-                {activities.map((a, i) => (
-                  <div key={i} className={styles.activityRow}>
-                    <span className={styles.activityAction}>{a.action?.replace(/_/g, " ")}</span>
-                    <span className={styles.activityDetails}>{a.details || "-"}</span>
-                    <span className={styles.activityTime}>{a.created_at}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+      {confirm && (
+        <ConfirmModal
+          title={confirm.title}
+          text={confirm.text}
+          confirmLabel={confirm.confirmLabel}
+          danger={confirm.danger}
+          busy={busyId !== null}
+          onConfirm={confirm.onConfirm}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
+
+      {activityTarget && (
+        <ActivityModal
+          user={activityTarget}
+          activities={activityData}
+          loading={activityLoading}
+          onClose={() => setActivityTarget(null)}
+        />
       )}
     </div>
   );

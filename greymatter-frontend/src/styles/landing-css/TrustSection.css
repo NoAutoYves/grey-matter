@@ -1,0 +1,62 @@
+.trust-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 2rem 1.5rem;
+  background: rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  margin: 1rem auto;
+  max-width: 800px;
+  flex-wrap: wrap;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.trust-item {
+  text-align: center;
+}
+
+.trust-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #6846ff;
+}
+
+.trust-label {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.trust-divider {
+  width: 2px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .trust-section {
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .trust-divider {
+    height: 30px;
+  }
+}
+
+@media (max-width: 576px) {
+  .trust-section {
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .trust-number {
+    font-size: 1.5rem;
+  }
+
+  .trust-divider {
+    display: none;
+  }
+}

@@ -7,7 +7,7 @@
 .info-row {
   display: flex;
   padding: 8px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .info-label {
@@ -46,15 +46,36 @@
 }
 
 .personal-info-form input,
-.personal-info-form textarea {
+.personal-info-form textarea,
+.personal-info-select {
   width: 100%;
   padding: 8px;
   border-radius: 6px;
   border: none;
-  background: rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.1);
   font-family: 'noto', sans-serif;
   font-size: 0.9rem;
   box-sizing: border-box;
+}
+
+.personal-info-select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #6846ff 50%),
+    linear-gradient(135deg, #6846ff 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 2.25rem;
+}
+
+.personal-info-select:focus {
+  outline: 2px solid rgba(104, 70, 255, 0.35);
+  outline-offset: 0;
 }
 
 .personal-info-form textarea {
@@ -78,6 +99,11 @@
   margin-top: 10px;
 }
 
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .cancel-btn {
   background: #e53935;
   color: white;
@@ -89,64 +115,38 @@
 }
 
 @media (min-width: 768px) {
-  .personal-info-display {
-    gap: 15px;
-  }
+  .personal-info-display { gap: 15px; }
 
-  .info-row {
-    padding: 8px 0;
-  }
+  .info-row { padding: 8px 0; }
 
-  .info-label {
-    width: 120px;
-    font-size: 0.9rem;
-  }
+  .info-label { width: 120px; font-size: 0.9rem; }
 
-  .info-value {
-    font-size: 0.9rem;
-  }
+  .info-value { font-size: 0.9rem; }
 
-  .personal-info-form {
-    gap: 1.2rem;
-  }
+  .personal-info-form { gap: 1.2rem; }
 
-  .personal-info-form label {
-    font-size: 0.9rem;
-  }
+  .personal-info-form label { font-size: 0.9rem; }
 
   .personal-info-form input,
-  .personal-info-form textarea {
+  .personal-info-form textarea,
+  .personal-info-select {
     padding: 10px;
     font-size: 1rem;
   }
 
-  .form-buttons {
-    gap: 15px;
-  }
+  .form-buttons { gap: 15px; }
 
-  .cancel-btn {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
+  .cancel-btn { padding: 10px 20px; font-size: 0.9rem; }
 
-  .edit-personal-btn {
-    padding: 10px 16px;
-    font-size: 0.9rem;
-  }
+  .edit-personal-btn { padding: 10px 16px; font-size: 0.9rem; }
 }
 
 @media (min-width: 1024px) {
-  .info-row {
-    padding: 10px 0;
-  }
+  .info-row { padding: 10px 0; }
 
-  .info-label {
-    font-size: 0.95rem;
-  }
+  .info-label { font-size: 0.95rem; }
 
-  .info-value {
-    font-size: 0.95rem;
-  }
+  .info-value { font-size: 0.95rem; }
 
   .save-btn {
     padding: 10px 20px;

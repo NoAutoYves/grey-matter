@@ -6,7 +6,10 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { api } from "../utils/api";
 import MathRenderer from "../components/functional-comps/MathRenderer";
-import '../styles/ExerciseCompleted.css';
+import '../styles/exercise-completed/ExerciseCompleted.css';
+import '../styles/exercise-completed/ResultsSummary.css';
+import '../styles/exercise-completed/QuestionBreakdown.css';
+import '../styles/exercise-completed/ResultsActions.css';
 
 import correctIcon from "../assets/images/func-images/correct-icon.png";
 import incorrectIcon from "../assets/images/func-images/incorrect-icon.png";
@@ -144,7 +147,7 @@ function ViewResults() {
         </div>
         
         <div className="results-actions">
-          <Link to="/subjects" className="action-btn">Try Another Exercise</Link>
+          <Link to="/subjects/" className="action-btn">Try Another Exercise</Link>
           <Link to="/persona" className="action-btn">View Profile</Link>
           <Link to="/" className="action-btn">Return Home</Link>
         </div>

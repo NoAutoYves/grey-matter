@@ -1,0 +1,290 @@
+.admin-page {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-page-title {
+  font-size: 1.6rem;
+  color: #1a1a2e;
+  margin: 0;
+  font-weight: 700;
+}
+
+.admin-page-subtitle {
+  color: #666;
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+.admin-section-title {
+  font-size: 1.1rem;
+  color: #1a1a2e;
+  margin: 0 0 1rem;
+  font-weight: 600;
+}
+
+/* Buttons */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.15s ease, transform 0.1s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.admin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-btn-primary { background: #6846ff; color: white; }
+.admin-btn-primary:hover:not(:disabled) { background: #5535cc; }
+
+.admin-btn-secondary { background: rgba(0, 0, 0, 0.06); color: #333; }
+.admin-btn-secondary:hover:not(:disabled) { background: rgba(0, 0, 0, 0.12); }
+
+.admin-btn-danger { background: #e53935; color: white; }
+.admin-btn-danger:hover:not(:disabled) { background: #c62828; }
+
+.admin-btn-ghost { background: none; color: #6846ff; padding: 0.35rem 0.5rem; }
+.admin-btn-ghost:hover:not(:disabled) { background: rgba(104, 70, 255, 0.08); }
+
+.admin-btn-sm { padding: 0.35rem 0.7rem; font-size: 0.78rem; }
+
+/* Table */
+.admin-table-wrap {
+  overflow-x: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  background: #f7f5ff;
+  color: #1a1a2e;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  font-size: 0.88rem;
+  color: #333;
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: #fafaff; }
+
+.admin-cell-details {
+  color: #666;
+  font-size: 0.82rem;
+  max-width: 380px;
+  word-break: break-word;
+}
+
+.admin-cell-num { font-variant-numeric: tabular-nums; }
+
+/* Badges */
+.admin-badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.admin-badge-success { background: rgba(43, 138, 62, 0.12); color: #2b8a3e; }
+.admin-badge-neutral { background: rgba(0, 0, 0, 0.06); color: #666; }
+.admin-badge-danger  { background: rgba(229, 57, 53, 0.12); color: #e53935; }
+.admin-badge-info    { background: rgba(104, 70, 255, 0.12); color: #6846ff; }
+.admin-badge-warn    { background: rgba(230, 119, 0, 0.12); color: #e67700; }
+
+/* Modal */
+.admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.admin-modal {
+  background: white;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.admin-modal-lg { max-width: 900px; }
+
+.admin-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.15rem 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.admin-modal-title {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #1a1a2e;
+}
+
+.admin-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+  line-height: 1;
+  padding: 0 0.5rem;
+}
+
+.admin-modal-close:hover { color: #333; }
+
+.admin-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.admin-modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* State banners */
+.admin-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #888;
+  background: white;
+  border-radius: 12px;
+}
+
+.admin-loading {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6846ff;
+  font-size: 0.95rem;
+}
+
+.admin-error-banner {
+  background: rgba(229, 57, 53, 0.1);
+  color: #c62828;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.admin-success-banner {
+  background: rgba(43, 138, 62, 0.1);
+  color: #2b8a3e;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Inputs */
+.admin-input,
+.admin-select,
+.admin-textarea {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  background: white;
+}
+
+.admin-input:focus,
+.admin-select:focus,
+.admin-textarea:focus {
+  outline: none;
+  border-color: #6846ff;
+  box-shadow: 0 0 0 3px rgba(104, 70, 255, 0.1);
+}
+
+.admin-textarea { resize: vertical; min-height: 70px; }
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.admin-field label {
+  font-size: 0.78rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.admin-field-error {
+  font-size: 0.75rem;
+  color: #e53935;
+}
+
+.admin-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 767px) {
+  .admin-page { padding: 1rem; }
+  .admin-page-title { font-size: 1.3rem; }
+  .admin-field-row { grid-template-columns: 1fr; }
+  .admin-modal-footer { flex-direction: column-reverse; }
+  .admin-modal-footer .admin-btn { width: 100%; }
+}

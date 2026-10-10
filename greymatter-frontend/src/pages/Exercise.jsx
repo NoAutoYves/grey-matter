@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import ExerciseHeader from "../components/functional-comps/ExerciseHeader";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import { api, BASE_URL } from "../utils/api";
-import MathRenderer from "../components/functional-comps/MathRenderer";
-import NotesSection from "../components/functional-comps/NotesSection";
-import "../styles/Exercise.css";
+import { api } from "../utils/api";
+import ExerciseSkeleton from "../components/exercise-page/ExerciseSkeleton";
+import QuizInfoRow from "../components/exercise-page/QuizInfoRow";
+import QuestionCard from "../components/exercise-page/QuestionCard";
+import NotesSection from "../components/exercise-page/NotesSection";
+import "../styles/exercise-page/Exercise.css";
 
 function Exercise() {
   const { subject } = useParams();
@@ -226,28 +226,7 @@ function Exercise() {
   };
 
   if (exerciseData.length === 0) {
-    return (
-      <div className="quiz-page">
-        <ExerciseHeader />
-        <div className="main-layout">
-          <section className="quiz-container">
-            <div className="quiz-info-row">
-              <div className="info-box"><h4>Score</h4><Skeleton /></div>
-              <div className="info-box"><h4>Progress</h4><Skeleton /></div>
-              <div className="info-box"><h4>Timer</h4><Skeleton /></div>
-            </div>
-            <div className="quiz-box">
-              <Skeleton height={80} />
-              <div className="options-grid">
-                <Skeleton count={4} height={50} style={{ marginBottom: "10px" }} />
-              </div>
-            </div>
-          </section>
-          <NotesSection exerciseId={exerciseId} subject={subject} />
-        </div>
-        <FuncFooter />
-      </div>
-    );
+    return <ExerciseSkeleton exerciseId={exerciseId} subject={subject} />;
   }
 
   const currentQ = exerciseData[currentQuestion];
@@ -259,85 +238,19 @@ function Exercise() {
       <ExerciseHeader hasAnswered={hasAnswered} />
       <div className="main-layout">
         <section className="quiz-container">
-          <div className="quiz-info-row">
-            <div className="info-box"><h4>Score</h4><p>{score}</p></div>
-            <div className="info-box"><h4>Progress</h4><p>{progress}</p></div>
-            <div className="info-box"><h4>Timer</h4><p>{formatTime()}</p></div>
-          </div>
-
-          <div className="quiz-box">
-            <h2><MathRenderer text={currentQ.question_text} /></h2>
-
-            {currentQ.image_url && (
-              <div className="question-image-container">
-                <img
-                  src={`${BASE_URL}${currentQ.image_url}`}
-                  alt="Question diagram"
-                  className="question-image"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                  }}
-                />
-              </div>
-            )}
-
-            <div className="options-grid">
-              {currentQ.options.map((option, idx) => {
-                const letter = String.fromCharCode(65 + idx);
-                const isAnswered = answered[currentQuestion];
-                const isSelected = isAnswered === letter;
-                const showHighlight =
-                  showFeedback &&
-                  letter === currentQ.correct_answer &&
-                  !isSelected &&
-                  !isAnswered;
-                const userAnswerClass =
-                  isSelected && isAnswered
-                    ? letter === currentQ.correct_answer
-                      ? "correct"
-                      : "incorrect"
-                    : "";
-                const highlightClass =
-                  isAnswered &&
-                  letter === currentQ.correct_answer &&
-                  isAnswered !== currentQ.correct_answer
-                    ? "highlight"
-                    : "";
-                const feedbackClass =
-                  showFeedback && isSelected && !isAnswered
-                    ? isCorrectAnswer
-                      ? "correct"
-                      : "incorrect"
-                    : "";
-
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    className={`option ${userAnswerClass} ${feedbackClass} ${highlightClass} ${showHighlight ? "highlight" : ""}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (!isAnswered && !showFeedback) {
-                        setSelectedOption(letter);
-                        handleAnswer(letter, currentQ.correct_answer);
-                      }
-                    }}
-                    disabled={!!isAnswered || showFeedback}
-                  >
-                    <MathRenderer text={option} />
-                  </button>
-                );
-              })}
-            </div>
-            <div className="quiz-nav">
-              <button type="button" onClick={handlePrev} className="nav-button" disabled={currentQuestion === 0 || showFeedback}>⬅ Prev</button>
-              <button type="button" onClick={handleNext} className="nav-button" disabled={currentQuestion === exerciseData.length - 1 || showFeedback}>Next ➡</button>
-            </div>
-          </div>
+          <QuizInfoRow score={score} progress={progress} time={formatTime()} />
+          <QuestionCard
+            currentQ={currentQ}
+            userAnswer={answered[currentQuestion]}
+            showFeedback={showFeedback}
+            isCorrectAnswer={isCorrectAnswer}
+            onSelect={(letter) => handleAnswer(letter, currentQ.correct_answer)}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            currentQuestion={currentQuestion}
+            totalQuestions={exerciseData.length}
+          />
         </section>
-
         <NotesSection exerciseId={exerciseId} subject={subject} />
       </div>
       <FuncFooter />

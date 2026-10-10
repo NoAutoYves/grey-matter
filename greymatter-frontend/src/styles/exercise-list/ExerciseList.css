@@ -1,0 +1,63 @@
+@font-face {
+  font-family: 'noto';
+  src: url('/fonts/NotoSans-subset.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.list-page {
+  margin: 0;
+  font-family: 'noto', sans-serif;
+  color: #000000;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: url('../../assets/images/background-images/MainBG.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.list-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  box-sizing: border-box;
+}
+
+.no-list-quizzes {
+  text-align: center;
+  padding: 3rem;
+  color: #000000;
+  font-size: 1.1rem;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .list-container {
+    padding: 1rem 1.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .list-container {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .list-container {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .list-page {
+    background-image: url('../../assets/images/background-images/desktopBG.jpg');
+  }
+
+  .list-container {
+    padding: 1rem 2rem;
+  }
+}

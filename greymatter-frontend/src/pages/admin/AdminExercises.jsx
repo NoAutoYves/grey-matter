@@ -1,435 +1,519 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../../utils/api";
-import styles from './AdminExercises.module.css';
+import "../../styles/admin/AdminShared.css";
+import "../../styles/admin/AdminExercises.css";
 
-const ROWS_PER_PAGE = 15;
+const EMPTY_QUESTION = () => ({
+  text: "",
+  option_a: "",
+  option_b: "",
+  option_c: "",
+  option_d: "",
+  answer: "A",
+});
 
-function AdminExercises() {
-  const [exercises, setExercises] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [page, setPage] = useState(1);
+const EMPTY_FORM = () => ({
+  grade_id: "",
+  subject_id: "",
+  topic_name: "",
+  topic_url: "",
+  exercise_name: "",
+  exercise_title: "",
+  questions: Array.from({ length: 10 }, EMPTY_QUESTION),
+});
 
-  // Create form
-  const [showForm, setShowForm] = useState(false);
-  const [grades, setGrades] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-  const [gradeId, setGradeId] = useState("");
-  const [subjectId, setSubjectId] = useState("");
-  const [topicName, setTopicName] = useState("");
-  const [topicUrl, setTopicUrl] = useState("");
-  const [exerciseName, setExerciseName] = useState("");
-  const [exerciseTitle, setExerciseTitle] = useState("");
-  const [questions, setQuestions] = useState([]);
-  const [uploadingImage, setUploadingImage] = useState(false);
+function ConfirmModal({ title, text, confirmLabel = "Confirm", danger, onConfirm, onCancel, busy }) {
+  return (
+    <div className="admin-modal-backdrop" onClick={busy ? undefined : onCancel}>
+      <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
+          <h3 className="admin-modal-title">{title}</h3>
+          <button className="admin-modal-close" onClick={onCancel} disabled={busy}>×</button>
+        </div>
+        <div className="admin-modal-body"><p>{text}</p></div>
+        <div className="admin-modal-footer">
+          <button className="admin-btn admin-btn-secondary" onClick={onCancel} disabled={busy}>Cancel</button>
+          <button
+            className={`admin-btn ${danger ? "admin-btn-danger" : "admin-btn-primary"}`}
+            onClick={onConfirm}
+            disabled={busy}
+          >
+            {busy ? "Working..." : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  // Edit modal
-  const [editTarget, setEditTarget] = useState(null);
-  const [editName, setEditName] = useState("");
-  const [editTitle, setEditTitle] = useState("");
+function EditModal({ exercise, onSaved, onClose }) {
+  const [name, setName] = useState(exercise.exercise_name);
+  const [title, setTitle] = useState(exercise.exercise_title);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => { fetchAll(); }, []);
-  useEffect(() => { setPage(1); }, [search, filter]);
-
-  const fetchAll = async () => {
-    try {
-      const [exRes, gRes, sRes] = await Promise.all([
-        api.get('/api/admin/exercises'),
-        api.get('/api/admin/grades'),
-        api.get('/api/admin/subjects'),
-      ]);
-      const exData = await exRes.json();
-      const gData = await gRes.json();
-      const sData = await sRes.json();
-      if (exRes.ok) setExercises(exData.exercises);
-      if (gRes.ok) setGrades(gData.grades || []);
-      if (sRes.ok) setSubjects(sData.subjects || []);
-    } catch (e) { console.error("Failed to load:", e); }
-    finally { setLoading(false); }
-  };
-
-  const filtered = exercises.filter((ex) => {
-    if (filter === "published" && !ex.is_published) return false;
-    if (filter === "unpublished" && ex.is_published) return false;
-    if (!search) return true;
-    const q = search.toLowerCase();
-    return (
-      ex.exercise_title?.toLowerCase().includes(q) ||
-      ex.exercise_name?.toLowerCase().includes(q) ||
-      ex.subject_name?.toLowerCase().includes(q)
-    );
-  });
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ROWS_PER_PAGE));
-  const pageItems = filtered.slice((page - 1) * ROWS_PER_PAGE, page * ROWS_PER_PAGE);
-
-  // ── Create form handlers ─────────────────────────────────────
-  const addQuestion = () => {
-    if (questions.length >= 10) return;
-    setQuestions([...questions, {
-      text: "", option_a: "", option_b: "", option_c: "", option_d: "", answer: "",
-      image_url: null, image_filename: null,
-    }]);
-  };
-
-  const updateQuestion = (i, field, value) => {
-    const copy = [...questions];
-    copy[i][field] = value;
-    setQuestions(copy);
-  };
-
-  const removeQuestion = (i) => setQuestions(questions.filter((_, idx) => idx !== i));
-
-  const handleImageUpload = async (i, file) => {
-    if (!file) return;
-    if (file.size > 500 * 1024) { alert("Image too large (max 500KB)."); return; }
-    if (!file.type.startsWith('image/')) { alert("Please select an image file."); return; }
-
-    const fd = new FormData();
-    fd.append('image', file);
-    setUploadingImage(true);
-    try {
-      const res = await api.post('/api/upload/question-image', fd);
-      const data = await res.json();
-      if (res.ok) {
-        const copy = [...questions];
-        copy[i].image_url = data.image_url;
-        copy[i].image_filename = data.filename;
-        setQuestions(copy);
-      } else { alert(data.error || "Upload failed"); }
-    } catch (e) { console.error(e); alert("Upload failed"); }
-    finally { setUploadingImage(false); }
-  };
-
-  const resetForm = () => {
-    setGradeId(""); setSubjectId(""); setTopicName(""); setTopicUrl("");
-    setExerciseName(""); setExerciseTitle(""); setQuestions([]);
-  };
-
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    if (!topicUrl.trim() || !topicUrl.match(/^[a-z0-9_]+$/)) {
-      alert("Topic URL must be lowercase letters, numbers, and underscores only.");
-      return;
-    }
-    if (questions.length !== 10) { alert(`Add ${10 - questions.length} more questions.`); return; }
-    for (let i = 0; i < questions.length; i++) {
-      const q = questions[i];
-      if (!q.text.trim() || !q.option_a.trim() || !q.option_b.trim() ||
-          !q.option_c.trim() || !q.option_d.trim() || !q.answer) {
-        alert(`Question ${i + 1} is incomplete.`);
-        return;
-      }
-    }
-
-    const payload = {
-      grade_id: parseInt(gradeId),
-      subject_id: parseInt(subjectId),
-      topic_name: topicName.trim() || null,
-      topic_url: topicUrl.trim().toLowerCase(),
-      exercise_name: exerciseName.replace(/\s+/g, '_').toLowerCase(),
-      exercise_title: exerciseTitle,
-      questions: questions.map(q => ({
-        text: q.text, option_a: q.option_a, option_b: q.option_b,
-        option_c: q.option_c, option_d: q.option_d, answer: q.answer,
-        image_url: q.image_url || null,
-      })),
-    };
-
-    try {
-      const res = await api.post('/api/admin/exercises', payload);
-      if (res.ok) {
-        alert("Exercise created.");
-        setShowForm(false);
-        resetForm();
-        fetchAll();
-      } else {
-        const err = await res.json();
-        alert(err.error || "Failed to create");
-      }
-    } catch (e) { console.error(e); }
-  };
-
-  // ── Edit handlers ────────────────────────────────────────────
-  const startEdit = (ex) => {
-    setEditTarget(ex);
-    setEditName(ex.exercise_name);
-    setEditTitle(ex.exercise_title);
-  };
-
-  const saveEdit = async () => {
-    if (!editName.trim() || !editTitle.trim()) {
-      alert("Both fields are required.");
+  const save = async () => {
+    if (!name.trim() || !title.trim()) {
+      setError("Name and title are required");
       return;
     }
     setSaving(true);
     try {
-      const res = await api.put(`/api/admin/exercises/${editTarget.exercise_id}`, {
-        exercise_name: editName.trim(),
-        exercise_title: editTitle.trim(),
+      const res = await api.put(`/api/admin/exercises/${exercise.exercise_id}`, {
+        exercise_name: name.trim(),
+        exercise_title: title.trim(),
       });
-      if (res.ok) { setEditTarget(null); fetchAll(); }
-      else { const err = await res.json(); alert(err.error || "Failed to save"); }
-    } catch (e) { console.error(e); alert("Network error"); }
-    finally { setSaving(false); }
-  };
-
-  // ── Delete with usage warning ────────────────────────────────
-  const deleteExercise = async (ex) => {
-    let usage = null;
-    try {
-      const res = await api.get(`/api/admin/exercises/${ex.exercise_id}/usage`);
-      if (res.ok) usage = await res.json();
-    } catch {}
-
-    let msg = `Delete "${ex.exercise_title}"?`;
-    if (usage && usage.total > 0) {
-      msg =
-        `⚠️ This exercise has user data attached:\n\n` +
-        `• ${usage.user_progress} progress records\n` +
-        `• ${usage.user_notes} notes\n` +
-        `• ${usage.user_feedback} feedback entries\n\n` +
-        `All of it will be permanently deleted. Consider unpublishing instead.\n\n` +
-        `Continue with deletion?`;
-    } else {
-      msg += "\n\nNo user data attached. Safe to delete.";
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update");
+      onSaved({ ...exercise, exercise_name: name.trim(), exercise_title: title.trim() });
+    } catch (e) {
+      setError(e.message || "Failed to update");
+    } finally {
+      setSaving(false);
     }
-    if (!confirm(msg)) return;
-
-    try {
-      const res = await api.delete(`/api/admin/exercises/${ex.exercise_id}`);
-      if (res.ok) fetchAll();
-      else { const err = await res.json(); alert(err.error || "Failed to delete"); }
-    } catch (e) { console.error(e); }
   };
-
-  const togglePublish = async (ex) => {
-    try {
-      const res = await api.put(`/api/admin/exercises/${ex.exercise_id}/publish`, { is_published: !ex.is_published });
-      if (res.ok) fetchAll();
-    } catch (e) { console.error(e); }
-  };
-
-  if (loading) {
-    return <div className="adm-loading"><div className="adm-loading__spinner" /><div>Loading exercises…</div></div>;
-  }
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>Exercises</h1>
-          <p className={styles.subtitle}>{filtered.length} of {exercises.length} exercises</p>
+    <div className="admin-modal-backdrop" onClick={saving ? undefined : onClose}>
+      <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
+          <h3 className="admin-modal-title">Edit Exercise</h3>
+          <button className="admin-modal-close" onClick={onClose} disabled={saving}>×</button>
         </div>
-        <button className="adm-btn adm-btn--primary" onClick={() => { setShowForm(!showForm); if (showForm) resetForm(); }}>
-          {showForm ? "Cancel" : "+ New exercise"}
+        <div className="admin-modal-body">
+          {error && <div className="admin-error-banner">{error}</div>}
+          <div className="admin-field">
+            <label>Exercise name (unique slug)</label>
+            <input className="admin-input" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="admin-field">
+            <label>Exercise title</label>
+            <input className="admin-input" value={title} onChange={(e) => setTitle(e.target.value)} />
+          </div>
+        </div>
+        <div className="admin-modal-footer">
+          <button className="admin-btn admin-btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
+          <button className="admin-btn admin-btn-primary" onClick={save} disabled={saving}>
+            {saving ? "Saving..." : "Save changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function UsageModal({ exercise, onClose }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await api.get(`/api/admin/exercises/${exercise.exercise_id}/usage`);
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.error || "Failed to load usage");
+        setData(d);
+      } catch (e) {
+        setError(e.message || "Failed to load usage");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [exercise.exercise_id]);
+
+  return (
+    <div className="admin-modal-backdrop" onClick={onClose}>
+      <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
+          <h3 className="admin-modal-title">Usage — {exercise.exercise_title}</h3>
+          <button className="admin-modal-close" onClick={onClose}>×</button>
+        </div>
+        <div className="admin-modal-body">
+          {loading ? (
+            <div className="admin-loading">Loading...</div>
+          ) : error ? (
+            <div className="admin-error-banner">{error}</div>
+          ) : (
+            <div className="admin-usage-grid">
+              <div className="admin-usage-item">
+                <span className="admin-stat-label">Progress records</span>
+                <span className="admin-stat-value">{data.user_progress}</span>
+              </div>
+              <div className="admin-usage-item">
+                <span className="admin-stat-label">Notes</span>
+                <span className="admin-stat-value">{data.user_notes}</span>
+              </div>
+              <div className="admin-usage-item">
+                <span className="admin-stat-label">Feedback</span>
+                <span className="admin-stat-value">{data.user_feedback}</span>
+              </div>
+              <div className="admin-usage-item">
+                <span className="admin-stat-label">Total interactions</span>
+                <span className="admin-stat-value">{data.total}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CreateModal({ grades, subjects, onCreated, onClose }) {
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const setField = (key, value) => setForm((f) => ({ ...f, [key]: value }));
+
+  const setQuestion = (index, key, value) => {
+    setForm((f) => ({
+      ...f,
+      questions: f.questions.map((q, i) => i === index ? { ...q, [key]: value } : q),
+    }));
+  };
+
+  const submit = async () => {
+    setError("");
+
+    if (!form.grade_id || !form.subject_id) {
+      setError("Grade and subject are required");
+      return;
+    }
+    if (!form.exercise_name.trim() || !form.exercise_title.trim()) {
+      setError("Exercise name and title are required");
+      return;
+    }
+    for (let i = 0; i < form.questions.length; i++) {
+      const q = form.questions[i];
+      if (!q.text.trim() || !q.option_a.trim() || !q.option_b.trim() || !q.option_c.trim() || !q.option_d.trim()) {
+        setError(`Question ${i + 1} is incomplete`);
+        return;
+      }
+    }
+
+    setSaving(true);
+    try {
+      const res = await api.post("/api/admin/exercises", {
+        grade_id: parseInt(form.grade_id),
+        subject_id: parseInt(form.subject_id),
+        topic_name: form.topic_name.trim(),
+        topic_url: form.topic_url.trim(),
+        exercise_name: form.exercise_name.trim(),
+        exercise_title: form.exercise_title.trim(),
+        questions: form.questions,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create exercise");
+      onCreated();
+    } catch (e) {
+      setError(e.message || "Failed to create exercise");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="admin-modal-backdrop" onClick={saving ? undefined : onClose}>
+      <div className="admin-modal admin-modal-lg" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-header">
+          <h3 className="admin-modal-title">Create Exercise</h3>
+          <button className="admin-modal-close" onClick={onClose} disabled={saving}>×</button>
+        </div>
+        <div className="admin-modal-body">
+          {error && <div className="admin-error-banner">{error}</div>}
+
+          <h4 className="admin-section-title">Metadata</h4>
+          <div className="admin-field-row">
+            <div className="admin-field">
+              <label>Grade</label>
+              <select className="admin-select" value={form.grade_id} onChange={(e) => setField("grade_id", e.target.value)}>
+                <option value="">Select grade</option>
+                {grades.map((g) => (
+                  <option key={g.grade_id} value={g.grade_id}>{g.display_name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="admin-field">
+              <label>Subject</label>
+              <select className="admin-select" value={form.subject_id} onChange={(e) => setField("subject_id", e.target.value)}>
+                <option value="">Select subject</option>
+                {subjects.map((s) => (
+                  <option key={s.subject_id} value={s.subject_id}>{s.subject_name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="admin-field-row">
+            <div className="admin-field">
+              <label>Topic name</label>
+              <input className="admin-input" value={form.topic_name} onChange={(e) => setField("topic_name", e.target.value)} placeholder="e.g. Business Cycles" />
+            </div>
+            <div className="admin-field">
+              <label>Topic URL slug</label>
+              <input className="admin-input" value={form.topic_url} onChange={(e) => setField("topic_url", e.target.value)} placeholder="e.g. business_cycles_economics_grade_12" />
+            </div>
+          </div>
+
+          <div className="admin-field">
+            <label>Exercise name (globally unique)</label>
+            <input className="admin-input" value={form.exercise_name} onChange={(e) => setField("exercise_name", e.target.value)} placeholder="business_cycles_economics_grade_12_exercise_1" />
+          </div>
+
+          <div className="admin-field">
+            <label>Exercise title</label>
+            <input className="admin-input" value={form.exercise_title} onChange={(e) => setField("exercise_title", e.target.value)} placeholder="Business Cycles (Grade 12 Economics) - Exercise 1" />
+          </div>
+
+          <h4 className="admin-section-title" style={{ marginTop: "2rem" }}>Questions (10 required)</h4>
+          {form.questions.map((q, i) => (
+            <div key={i} className="admin-question-block">
+              <div className="admin-question-header">Question {i + 1}</div>
+              <div className="admin-field">
+                <label>Question text</label>
+                <textarea
+                  className="admin-textarea"
+                  value={q.text}
+                  onChange={(e) => setQuestion(i, "text", e.target.value)}
+                  rows={2}
+                />
+              </div>
+              <div className="admin-field-row">
+                <div className="admin-field">
+                  <label>Option A</label>
+                  <input className="admin-input" value={q.option_a} onChange={(e) => setQuestion(i, "option_a", e.target.value)} />
+                </div>
+                <div className="admin-field">
+                  <label>Option B</label>
+                  <input className="admin-input" value={q.option_b} onChange={(e) => setQuestion(i, "option_b", e.target.value)} />
+                </div>
+              </div>
+              <div className="admin-field-row">
+                <div className="admin-field">
+                  <label>Option C</label>
+                  <input className="admin-input" value={q.option_c} onChange={(e) => setQuestion(i, "option_c", e.target.value)} />
+                </div>
+                <div className="admin-field">
+                  <label>Option D</label>
+                  <input className="admin-input" value={q.option_d} onChange={(e) => setQuestion(i, "option_d", e.target.value)} />
+                </div>
+              </div>
+              <div className="admin-field">
+                <label>Correct answer</label>
+                <select className="admin-select" value={q.answer} onChange={(e) => setQuestion(i, "answer", e.target.value)}>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                </select>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="admin-modal-footer">
+          <button className="admin-btn admin-btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
+          <button className="admin-btn admin-btn-primary" onClick={submit} disabled={saving}>
+            {saving ? "Creating..." : "Create exercise"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminExercises() {
+  const [exercises, setExercises] = useState([]);
+  const [grades, setGrades] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [busyId, setBusyId] = useState(null);
+  const [confirm, setConfirm] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
+  const [usageTarget, setUsageTarget] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
+
+  const loadAll = async () => {
+    try {
+      const [exRes, grRes, suRes] = await Promise.all([
+        api.get("/api/admin/exercises"),
+        api.get("/api/admin/grades"),
+        api.get("/api/admin/subjects"),
+      ]);
+      const [exData, grData, suData] = await Promise.all([
+        exRes.json(), grRes.json(), suRes.json(),
+      ]);
+      if (!exRes.ok) throw new Error(exData.error || "Failed to load exercises");
+      setExercises(exData.exercises || []);
+      if (grRes.ok) setGrades(grData.grades || []);
+      if (suRes.ok) setSubjects(suData.subjects || []);
+    } catch (e) {
+      setError(e.message || "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadAll(); }, []);
+
+  useEffect(() => {
+    if (!message) return;
+    const t = setTimeout(() => setMessage(""), 3000);
+    return () => clearTimeout(t);
+  }, [message]);
+
+  const togglePublish = async (ex) => {
+    setBusyId(ex.exercise_id);
+    try {
+      const next = !ex.is_published;
+      const res = await api.put(`/api/admin/exercises/${ex.exercise_id}/publish`, { is_published: next });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update");
+      setExercises((prev) => prev.map((e) => e.exercise_id === ex.exercise_id ? { ...e, is_published: next } : e));
+      setMessage(`${next ? "Published" : "Unpublished"} ${ex.exercise_title}`);
+    } catch (e) {
+      setError(e.message || "Failed to update");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const deleteExercise = (ex) => {
+    setConfirm({
+      title: "Delete exercise?",
+      text: `Permanently delete "${ex.exercise_title}"? All 10 questions, user progress, and notes for this exercise will be removed.`,
+      confirmLabel: "Delete exercise",
+      danger: true,
+      onConfirm: async () => {
+        setBusyId(ex.exercise_id);
+        try {
+          const res = await api.delete(`/api/admin/exercises/${ex.exercise_id}`);
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Failed to delete");
+          setExercises((prev) => prev.filter((e) => e.exercise_id !== ex.exercise_id));
+          setMessage(`Deleted ${ex.exercise_title}`);
+          setConfirm(null);
+        } catch (e) {
+          setError(e.message || "Failed to delete");
+        } finally {
+          setBusyId(null);
+        }
+      },
+    });
+  };
+
+  if (loading) return <div className="admin-loading">Loading exercises...</div>;
+
+  return (
+    <div className="admin-page">
+      <header className="admin-page-header">
+        <div>
+          <h1 className="admin-page-title">Exercises</h1>
+          <p className="admin-page-subtitle">{exercises.length} total</p>
+        </div>
+        <button className="admin-btn admin-btn-primary" onClick={() => setShowCreate(true)}>
+          + New exercise
         </button>
       </header>
 
-      {showForm && (
-        <form onSubmit={handleCreate} className={styles.form}>
-          <h2 className={styles.formTitle}>Create exercise</h2>
+      {error && <div className="admin-error-banner">{error}</div>}
+      {message && <div className="admin-success-banner">{message}</div>}
 
-          <div className={styles.row}>
-            <div className={styles.field}>
-              <label>Grade *</label>
-              <select value={gradeId} onChange={(e) => setGradeId(e.target.value)} className="adm-select" required>
-                <option value="">Select grade</option>
-                {grades.map(g => <option key={g.grade_id} value={g.grade_id}>Grade {g.grade_level}</option>)}
-              </select>
-            </div>
-            <div className={styles.field}>
-              <label>Subject *</label>
-              <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} className="adm-select" required>
-                <option value="">Select subject</option>
-                {subjects.map(s => <option key={s.subject_id} value={s.subject_id}>{s.subject_name}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div className={styles.row}>
-            <div className={styles.field}>
-              <label>Topic name</label>
-              <input type="text" value={topicName} onChange={(e) => setTopicName(e.target.value)}
-                placeholder="e.g. Algebra" className="adm-input" />
-            </div>
-            <div className={styles.field}>
-              <label>Topic URL *</label>
-              <input type="text" value={topicUrl} onChange={(e) => setTopicUrl(e.target.value)}
-                placeholder="e.g. algebra_grade_10" className="adm-input" required />
-              <span className={styles.hint}>Lowercase letters, numbers, underscores only</span>
-            </div>
-          </div>
-
-          <div className={styles.row}>
-            <div className={styles.field}>
-              <label>Exercise name (slug) *</label>
-              <input type="text" value={exerciseName} onChange={(e) => setExerciseName(e.target.value)}
-                placeholder="e.g. algebra_basics_1" className="adm-input" required />
-            </div>
-            <div className={styles.field}>
-              <label>Exercise title *</label>
-              <input type="text" value={exerciseTitle} onChange={(e) => setExerciseTitle(e.target.value)}
-                placeholder="e.g. Algebra Basics - Exercise 1" className="adm-input" required />
-            </div>
-          </div>
-
-          <h3 className={styles.formSection}>Questions ({questions.length}/10)</h3>
-          {questions.map((q, i) => (
-            <div key={i} className={styles.qCard}>
-              <div className={styles.qHeader}>
-                <h4>Question {i + 1}</h4>
-                <button type="button" className="adm-btn adm-btn--danger adm-btn--sm" onClick={() => removeQuestion(i)}>Remove</button>
-              </div>
-              <input type="text" value={q.text} onChange={(e) => updateQuestion(i, 'text', e.target.value)}
-                placeholder="Question text" className="adm-input" required />
-
-              <div className={styles.imageRow}>
-                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(i, e.target.files[0])} disabled={uploadingImage} />
-                {q.image_url && (
-                  <div className={styles.imagePreview}>
-                    <img src={q.image_url} alt="" />
-                    <button type="button" className="adm-btn adm-btn--danger adm-btn--sm"
-                      onClick={() => updateQuestion(i, 'image_url', null)}>Remove</button>
-                  </div>
-                )}
-              </div>
-
-              <div className={styles.options}>
-                {['a', 'b', 'c', 'd'].map(k => (
-                  <input key={k} type="text" value={q[`option_${k}`]}
-                    onChange={(e) => updateQuestion(i, `option_${k}`, e.target.value)}
-                    placeholder={`Option ${k.toUpperCase()}`} className="adm-input" required />
-                ))}
-              </div>
-
-              <select value={q.answer} onChange={(e) => updateQuestion(i, 'answer', e.target.value)}
-                className="adm-select" required>
-                <option value="">Correct answer</option>
-                <option value="A">A</option><option value="B">B</option>
-                <option value="C">C</option><option value="D">D</option>
-              </select>
-            </div>
-          ))}
-
-          {questions.length < 10 && (
-            <button type="button" className="adm-btn" onClick={addQuestion}>
-              + Add question ({questions.length}/10)
-            </button>
-          )}
-
-          <div className={styles.formActions}>
-            <button type="submit" className="adm-btn adm-btn--primary"
-              disabled={questions.length !== 10 || uploadingImage}>
-              {uploadingImage ? "Uploading image…" : "Create exercise"}
-            </button>
-            <button type="button" className="adm-btn" onClick={() => { setShowForm(false); resetForm(); }}>
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
-
-      <div className={styles.toolbar}>
-        <div className={styles.search}>
-          <span className={styles.searchIcon}>⌕</span>
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search title, name, subject…" className="adm-input" />
-        </div>
-        <select value={filter} onChange={(e) => setFilter(e.target.value)} className={`adm-select ${styles.filterSelect}`}>
-          <option value="all">All</option>
-          <option value="published">Published</option>
-          <option value="unpublished">Unpublished</option>
-        </select>
-      </div>
-
-      {pageItems.length === 0 ? (
-        <div className="adm-empty">
-          <div className="adm-empty__icon">▤</div>
-          <div className="adm-empty__title">No exercises found</div>
-          <div className="adm-empty__body">Try a different search or filter.</div>
-        </div>
+      {exercises.length === 0 ? (
+        <div className="admin-empty">No exercises yet</div>
       ) : (
-        <>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>ID</th><th>Title</th><th>Subject</th><th>Grade</th>
-                  <th>Q</th><th>Status</th><th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pageItems.map((ex) => (
-                  <tr key={ex.exercise_id}>
-                    <td className={styles.idCell}>#{ex.exercise_id}</td>
-                    <td className={styles.titleCell}>{ex.exercise_title}</td>
-                    <td>{ex.subject_name}</td>
-                    <td className={styles.muted}>Grade {ex.grade_level}</td>
-                    <td className={styles.muted}>{ex.question_count}</td>
-                    <td>
-                      <span className={`adm-badge ${ex.is_published ? 'adm-badge--success' : 'adm-badge--neutral'}`}>
-                        {ex.is_published ? "Published" : "Draft"}
-                      </span>
-                    </td>
-                    <td className={styles.actionsCell}>
-                      <button className="adm-btn adm-btn--sm" onClick={() => startEdit(ex)}>Edit</button>
-                      <button className="adm-btn adm-btn--sm" onClick={() => togglePublish(ex)}>
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Name</th>
+                <th>Subject</th>
+                <th>Grade</th>
+                <th>Qs</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {exercises.map((ex) => (
+                <tr key={ex.exercise_id}>
+                  <td className="admin-cell-num">{ex.exercise_id}</td>
+                  <td>{ex.exercise_title}</td>
+                  <td className="admin-cell-details">{ex.exercise_name}</td>
+                  <td>{ex.subject_name}</td>
+                  <td className="admin-cell-num">{ex.grade_level}</td>
+                  <td className="admin-cell-num">{ex.question_count}</td>
+                  <td>
+                    <span className={`admin-badge ${ex.is_published ? "admin-badge-success" : "admin-badge-neutral"}`}>
+                      {ex.is_published ? "Published" : "Draft"}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="admin-row-actions">
+                      <button
+                        className="admin-btn admin-btn-ghost admin-btn-sm"
+                        onClick={() => togglePublish(ex)}
+                        disabled={busyId === ex.exercise_id}
+                      >
                         {ex.is_published ? "Unpublish" : "Publish"}
                       </button>
-                      <button className="adm-btn adm-btn--danger adm-btn--sm" onClick={() => deleteExercise(ex)}>Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => setEditTarget(ex)}>Edit</button>
+                      <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => setUsageTarget(ex)}>Usage</button>
+                      <button className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => deleteExercise(ex)}>Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-          {totalPages > 1 && (
-            <div className={styles.pagination}>
-              <div className={styles.pageInfo}>Page {page} of {totalPages}</div>
-              <div className={styles.pageControls}>
-                <button className={styles.pageBtn} disabled={page === 1} onClick={() => setPage(page - 1)}>←</button>
-                {[...Array(totalPages)].map((_, i) => (
-                  <button key={i + 1}
-                    className={`${styles.pageBtn} ${page === i + 1 ? styles.pageActive : ''}`}
-                    onClick={() => setPage(i + 1)}>{i + 1}</button>
-                ))}
-                <button className={styles.pageBtn} disabled={page === totalPages} onClick={() => setPage(page + 1)}>→</button>
-              </div>
-            </div>
-          )}
-        </>
+      {showCreate && (
+        <CreateModal
+          grades={grades}
+          subjects={subjects}
+          onCreated={() => {
+            setShowCreate(false);
+            setMessage("Exercise created");
+            loadAll();
+          }}
+          onClose={() => setShowCreate(false)}
+        />
       )}
 
       {editTarget && (
-        <div className={styles.overlay} onClick={() => setEditTarget(null)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <header className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Edit exercise #{editTarget.exercise_id}</h2>
-              <button className={styles.modalClose} onClick={() => setEditTarget(null)}>✕</button>
-            </header>
-            <div className={styles.modalBody}>
-              <div className={styles.field}>
-                <label>Exercise name (slug)</label>
-                <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="adm-input" />
-              </div>
-              <div className={styles.field}>
-                <label>Exercise title</label>
-                <input type="text" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="adm-input" />
-              </div>
-              <p className={styles.hint}>Editing individual questions is not yet supported.</p>
-            </div>
-            <div className={styles.modalFooter}>
-              <button className="adm-btn" onClick={() => setEditTarget(null)} disabled={saving}>Cancel</button>
-              <button className="adm-btn adm-btn--primary" onClick={saveEdit} disabled={saving}>
-                {saving ? "Saving…" : "Save changes"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <EditModal
+          exercise={editTarget}
+          onSaved={(updated) => {
+            setExercises((prev) => prev.map((e) => e.exercise_id === updated.exercise_id ? updated : e));
+            setMessage("Exercise updated");
+            setEditTarget(null);
+          }}
+          onClose={() => setEditTarget(null)}
+        />
+      )}
+
+      {usageTarget && (
+        <UsageModal exercise={usageTarget} onClose={() => setUsageTarget(null)} />
+      )}
+
+      {confirm && (
+        <ConfirmModal
+          title={confirm.title}
+          text={confirm.text}
+          confirmLabel={confirm.confirmLabel}
+          danger={confirm.danger}
+          busy={busyId !== null}
+          onConfirm={confirm.onConfirm}
+          onCancel={() => setConfirm(null)}
+        />
       )}
     </div>
   );
