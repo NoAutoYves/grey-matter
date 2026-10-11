@@ -77,7 +77,7 @@ function FuncHeader({ showWarning = false }) {
             {link.name}
           </Link>
         ))}
-        <SearchTrigger className="func-nav-links" />
+        <SearchTrigger className="func-nav-links" iconClassName="header-nav-img" />
         <button onClick={handleLogout} className="func-nav-links">
           <img src={logout} alt="LOGOUT" className="header-nav-img" />
           LOG OUT

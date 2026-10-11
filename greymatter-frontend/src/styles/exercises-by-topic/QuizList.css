@@ -4,9 +4,11 @@
   margin: 0;
 }
 
+/* Original glass card. No coloured left border. */
 .quiz-item {
   background: rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   margin-bottom: 1rem;
   border-radius: 10px;
   transition: background 0.2s ease, box-shadow 0.2s ease;
@@ -15,48 +17,127 @@
 
 .quiz-item.completed {
   background: rgba(0, 188, 212, 0.15);
-  border-left: 4px solid #009723;
 }
 
 .quiz-item.not-taken {
   background: rgba(0, 0, 0, 0.08);
-  border-left: 4px solid #6846ff;
 }
 
-/* When the dropdown is open, raise the item above its siblings
-   so the menu is never clipped or overlapped. */
 .quiz-item.dropdown-open {
   z-index: 10;
   box-shadow: 0 4px 18px rgba(104, 70, 255, 0.14);
 }
 
+/* Not-taken: horizontal row with the Start pill on the right. */
 .quiz-link {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   padding: 1rem;
   text-decoration: none;
   color: #000000;
-  gap: 1rem;
 }
 
-.quiz-title {
-  font-size: 1rem;
-  font-weight: 500;
+/* Completed: title row on top, Actions button below. */
+.quiz-item .quiz-completed-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
-.quiz-status {
-  font-size: 0.85rem;
-  padding: 0.3rem 0.9rem;
-  border-radius: 20px;
-  background: rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
+.quiz-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
 }
 
-.quiz-item.completed .quiz-status {
+.quiz-number {
+  flex-shrink: 0;
+  font-family: 'noto', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #888;
+  font-variant-numeric: tabular-nums;
+}
+
+.quiz-item.completed .quiz-number {
   color: #009723;
 }
 
-.quiz-item.not-taken .quiz-status {
+.quiz-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #000000;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Start pill — same shape and colour as the original status pill. */
+.quiz-status {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  background: transparent;
+  border: 1.5px solid rgba(104, 70, 255, 0.45);
   color: #6846ff;
+  white-space: nowrap;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.quiz-link:hover .quiz-status {
+  background: #6846ff;
+  border-color: #6846ff;
+  color: #ffffff;
+  transform: translateX(2px);
+}
+
+/* .quiz-link:active .quiz-status {
+  transform: translateX(2px) scale(0.97);
+} */
+
+/* Completed row: full-width Actions button in the stacked layout. */
+.quiz-item .dropdown-container {
+  width: 100%;
+}
+
+.quiz-item .actions-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .quiz-link,
+  .quiz-item .quiz-completed-actions {
+    gap: 0.75rem;
+    padding: 0.9rem;
+  }
+
+  .quiz-title {
+    font-size: 0.92rem;
+  }
+
+  .quiz-number {
+    font-size: 0.68rem;
+  }
+
+  .quiz-status {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.75rem;
+  }
 }

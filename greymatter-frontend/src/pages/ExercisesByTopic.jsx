@@ -9,8 +9,8 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import SocialMedia from "../components/functional-comps/LandingSocialMedia";
 import { apiRequest } from "../utils/api";
 import '../styles/exercises-by-topic/ExercisesByTopic.css';
-import '../styles/exercises-by-topic/QuizList.css';
 import '../styles/exercises-by-topic/QuizActionsMenu.css';
+import '../styles/exercises-by-topic/QuizList.css';
 
 function ExercisesByTopic() {
   const { subject, topicId } = useParams();
@@ -78,6 +78,11 @@ function ExercisesByTopic() {
     }
   };
 
+  const subjectDisplay = subject
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+
   if (loading) {
     return (
       <div className="quiz-list-page">
@@ -114,63 +119,78 @@ function ExercisesByTopic() {
           ← Back to Topics
         </button>
 
+        <p className="quiz-list-overline">{subjectDisplay}</p>
         <h2 className="quiz-list-title">{topicName}</h2>
-        <p className="quiz-list-subtitle">Select an exercise to begin:</p>
+        <p className="quiz-list-subtitle">
+          {exercises.length > 0
+            ? `${exercises.length} ${exercises.length === 1 ? 'exercise' : 'exercises'}, 10 questions each. Read the notes, take the exercise, retake after a few days.`
+            : 'Select an exercise to begin.'}
+        </p>
 
         {exercises.length > 0 ? (
           <ul className="quiz-list">
-            {exercises.map((exercise) => (
-              <li
-                key={exercise.exercise_id}
-                className={`quiz-item ${exercise.completed ? 'completed' : 'not-taken'} ${openDropdown === exercise.exercise_id ? 'dropdown-open' : ''}`}
-              >
-                {exercise.completed ? (
-                  <div className="quiz-completed-actions">
-                    <span className="quiz-title">{exercise.exercise_title}</span>
-                    <div
-                      className="dropdown-container"
-                      ref={openDropdown === exercise.exercise_id ? dropdownRef : null}
-                    >
-                      <button
-                        type="button"
-                        className={`actions-btn ${openDropdown === exercise.exercise_id ? 'actions-btn-open' : ''}`}
-                        onClick={() => toggleDropdown(exercise.exercise_id)}
-                        aria-expanded={openDropdown === exercise.exercise_id}
-                        aria-haspopup="menu"
+            {exercises.map((exercise, index) => {
+              const number = String(index + 1).padStart(2, '0');
+              return (
+                <li
+                  key={exercise.exercise_id}
+                  className={`quiz-item ${exercise.completed ? 'completed' : 'not-taken'} ${openDropdown === exercise.exercise_id ? 'dropdown-open' : ''}`}
+                >
+                  {exercise.completed ? (
+                    <div className="quiz-completed-actions">
+                      <div className="quiz-item-row">
+                        <span className="quiz-number">{number}</span>
+                        <span className="quiz-title">{exercise.exercise_title}</span>
+                      </div>
+                      <div
+                        className="dropdown-container"
+                        ref={openDropdown === exercise.exercise_id ? dropdownRef : null}
                       >
-                        <span className="actions-btn-label">Actions</span>
-                        <span className="actions-chevron">▾</span>
-                      </button>
-                      {openDropdown === exercise.exercise_id && (
-                        <div className="dropdown-menu" role="menu">
-                          <Link
-                            to={`/${subject}/exercise?exercise_id=${exercise.exercise_id}`}
-                            className="dropdown-item"
-                            role="menuitem"
-                            onClick={() => handleRetake(exercise.exercise_id)}
-                          >
-                            <span className="dropdown-item-label">Retake</span>
-                          </Link>
-                          <Link
-                            to={`/view-results?exercise_id=${exercise.exercise_id}`}
-                            className="dropdown-item"
-                            role="menuitem"
-                            onClick={() => setOpenDropdown(null)}
-                          >
-                            <span className="dropdown-item-label">View Results</span>
-                          </Link>
-                        </div>
-                      )}
+                        <button
+                          type="button"
+                          className={`actions-btn ${openDropdown === exercise.exercise_id ? 'actions-btn-open' : ''}`}
+                          onClick={() => toggleDropdown(exercise.exercise_id)}
+                          aria-expanded={openDropdown === exercise.exercise_id}
+                          aria-haspopup="menu"
+                        >
+                          <span className="actions-btn-label">Actions</span>
+                          <span className="actions-chevron">▾</span>
+                        </button>
+                        {openDropdown === exercise.exercise_id && (
+                          <div className="dropdown-menu" role="menu">
+                            <Link
+                              to={`/${subject}/exercise?exercise_id=${exercise.exercise_id}`}
+                              className="dropdown-item"
+                              role="menuitem"
+                              onClick={() => handleRetake(exercise.exercise_id)}
+                            >
+                              <span className="dropdown-item-label">Retake</span>
+                            </Link>
+                            <Link
+                              to={`/view-results?exercise_id=${exercise.exercise_id}`}
+                              className="dropdown-item"
+                              role="menuitem"
+                              onClick={() => setOpenDropdown(null)}
+                            >
+                              <span className="dropdown-item-label">View Results</span>
+                            </Link>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <Link to={`/${subject}/exercise?exercise_id=${exercise.exercise_id}`} className="quiz-link">
-                    <span className="quiz-title">{exercise.exercise_title}</span>
-                    <span className="quiz-status">Not Taken</span>
-                  </Link>
-                )}
-              </li>
-            ))}
+                  ) : (
+                    <Link
+                      to={`/${subject}/exercise?exercise_id=${exercise.exercise_id}`}
+                      className="quiz-link"
+                    >
+                      <span className="quiz-number">{number}</span>
+                      <span className="quiz-title">{exercise.exercise_title}</span>
+                      <span className="quiz-status">Start</span>
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <p className="no-quizzes">No exercises available for this topic yet.</p>
