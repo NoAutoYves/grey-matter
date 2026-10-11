@@ -1,0 +1,23 @@
+# Grey Matter
+
+> Free South African high school e-learning platform for Grades 10–12. 
+> Covers 8 CAPS-aligned subjects with interactive multiple-choice exercises, 
+> chapter notes, and progress tracking. No paywalls, no sign-up required to browse.
+
+## Subjects
+
+- [Accounting](https://greymatterschool.co.za/accounting/): Financial statements, ledgers, reconciliations
+- [Business Studies](https://greymatterschool.co.za/business/): Business environments, operations, ventures
+- [Economics](https://greymatterschool.co.za/economics/): Micro, macro, economic pursuits
+- [Geography](https://greymatterschool.co.za/geography/): Climatology, geomorphology, settlement
+- [Life Sciences](https://greymatterschool.co.za/life-science/): Cells, genetics, ecology, human systems
+- [Physical Sciences](https://greymatterschool.co.za/physics/): Mechanics, waves, electricity, chemistry
+- [Mathematical Literacy](https://greymatterschool.co.za/maths-lit/): Finance, data, measurement
+- [Mathematics](https://greymatterschool.co.za/mathematics/): Algebra, calculus, trigonometry, statistics
+
+## About
+
+- [How It Works](https://greymatterschool.co.za/how-it-works/): Study method and retake guidance
+- [About Grey Matter](https://greymatterschool.co.za/about/): Mission and scope
+- [Help & FAQ](https://greymatterschool.co.za/help/): Common questions
+- [Contact](https://greymatterschool.co.za/contact/): Support
