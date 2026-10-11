@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import { Link } from "react-router-dom";
 import LoginLink from "./LoginLink";
 import AuthField from "./AuthField";
 import PasswordRules from "./PasswordRules";
@@ -219,7 +220,16 @@ function SignupForm() {
               }}
             />
             <label htmlFor="privacy_p" className="signup-remember-label">
-              I agree to the Privacy Policy
+              I agree to the{" "}
+              <Link
+                to="/privacy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="signup-privacy-link"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Privacy Policy
+              </Link>
             </label>
           </div>
           {fieldError("privacy_p") && (

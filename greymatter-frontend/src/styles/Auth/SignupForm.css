@@ -18,6 +18,17 @@
     color: #000000;
 }
 
+.signup-privacy-link {
+    color: #6846ff;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.signup-privacy-link:hover {
+    color: #5535cc;
+}
+
 .signup-button {
     margin-top: 0.5rem;
     padding: 0.7rem;
