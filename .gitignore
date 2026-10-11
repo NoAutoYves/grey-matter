@@ -87,6 +87,13 @@ Thumbs.db
 # === Deployment scripts ===
 upload-backend.bat
 upload-frontend.bat
+upload-backend.sh
 deploy-backend.sh
 deploy-frontend.sh
 *.deploy
+
+# === Local-only tools and config ===
+start-local-dev.bat
+greymatter.config
+grey-matter-backend/Upload_Notes.py
+grey-matter-backend/setup.sh
