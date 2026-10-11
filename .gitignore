@@ -34,6 +34,7 @@ dmypy.json
 .env.*.local
 .env.development.local
 .env.production.local
+greymatter-frontend/.env.production
 
 # === Backend local config files ===
 config_local.py
@@ -97,3 +98,7 @@ start-local-dev.bat
 greymatter.config
 grey-matter-backend/Upload_Notes.py
 grey-matter-backend/setup.sh
+
+# === Frontend public files kept out of git ===
+greymatter-frontend/public/ads.txt
+greymatter-frontend/public/llms.txt
