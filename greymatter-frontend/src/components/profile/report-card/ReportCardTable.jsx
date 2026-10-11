@@ -7,9 +7,21 @@ const TERMS = [
   { key: 4, label: "Term 4", months: "Oct – Dec" },
 ];
 
+const PASS_THRESHOLD = 40;
+
 function fmt(v) {
   if (v === null || v === undefined) return "—";
   return `${v}%`;
+}
+
+function resultClass(avg) {
+  if (avg === null || avg === undefined) return "rc-td-result-none";
+  return avg >= PASS_THRESHOLD ? "rc-td-result-pass" : "rc-td-result-fail";
+}
+
+function resultLabel(avg) {
+  if (avg === null || avg === undefined) return "—";
+  return avg >= PASS_THRESHOLD ? "PASS" : "FAIL";
 }
 
 function ReportCardTable({ subjects }) {
@@ -26,7 +38,7 @@ function ReportCardTable({ subjects }) {
               </th>
             ))}
             <th>Average</th>
-            <th>Grade</th>
+            <th>Result</th>
           </tr>
         </thead>
         <tbody>
@@ -41,7 +53,11 @@ function ReportCardTable({ subjects }) {
                     <td key={t.key} className="rc-term-cell">{fmt(s.terms[t.key])}</td>
                   ))}
                   <td className="rc-avg">{fmt(s.average)}</td>
-                  <td className="rc-grade">{s.grade || "—"}</td>
+                  <td className="rc-result-cell">
+                    <span className={`rc-td-result ${resultClass(s.average)}`}>
+                      {resultLabel(s.average)}
+                    </span>
+                  </td>
                 </>
               )}
             </tr>

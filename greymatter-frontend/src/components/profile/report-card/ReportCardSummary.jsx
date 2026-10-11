@@ -1,23 +1,21 @@
 import "../../../styles/profile/report-card/ReportCardSummary.css";
 
 const TERMS = [1, 2, 3, 4];
+const PASS_THRESHOLD = 40;
 
 function fmt(v) {
   if (v === null || v === undefined) return "—";
   return `${v}%`;
 }
 
-function gradeClass(grade) {
-  if (!grade) return "rc-grade-none";
-  const g = String(grade).toUpperCase();
-  if (g === "A") return "rc-grade-a";
-  if (g === "B") return "rc-grade-b";
-  if (g === "C") return "rc-grade-c";
-  if (g === "D") return "rc-grade-d";
-  if (g === "E") return "rc-grade-e";
-  if (g === "F") return "rc-grade-f";
-  if (g === "G") return "rc-grade-g";
-  return "rc-grade-none";
+function resultClass(avg) {
+  if (avg === null || avg === undefined) return "rc-result-none";
+  return avg >= PASS_THRESHOLD ? "rc-result-pass" : "rc-result-fail";
+}
+
+function resultLabel(avg) {
+  if (avg === null || avg === undefined) return "—";
+  return avg >= PASS_THRESHOLD ? "PASS" : "FAIL";
 }
 
 function ReportCardSummary({ subjects, overallAvg, overallGrade }) {
@@ -52,8 +50,8 @@ function ReportCardSummary({ subjects, overallAvg, overallGrade }) {
 
       <div className="rc-summary-row rc-summary-final">
         <span className="rc-summary-label">Overall Grade</span>
-        <span className={`rc-summary-wide rc-grade-badge ${gradeClass(overallGrade)}`}>
-          {overallGrade || "—"}
+        <span className={`rc-summary-wide rc-result-badge ${resultClass(overallAvg)}`}>
+          {resultLabel(overallAvg)}
         </span>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import ReportCard from "./ReportCard";
 import downloadIcon from "../../../assets/images/func-images/download-icon.png";
@@ -24,19 +24,19 @@ function CloseIcon() {
   );
 }
 
+function isIosDevice() {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  if (/iPad|iPhone|iPod/.test(ua)) return true;
+  // iPadOS 13+ reports as MacIntel but has touch — detect that case.
+  return navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+}
+
 function ReportCardModal({ onClose }) {
   const [downloading, setDownloading] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
   const [downloadError, setDownloadError] = useState("");
-  const closeRef = useRef(null);
 
-  // Focus the close button on mount so keyboard users land somewhere useful.
-  useEffect(() => {
-    closeRef.current?.focus();
-  }, []);
-
-  // Esc closes; body scroll locks with scrollbar-width compensation
-  // so the page underneath doesn't shift when the scrollbar disappears.
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
@@ -105,8 +105,55 @@ function ReportCardModal({ onClose }) {
         .trim()
         .replace(/\s+/g, "-")
         .replace(/[^a-zA-Z0-9-]/g, "");
-      pdf.save(`report-card-${safeName || "student"}.pdf`);
+      const fileName = `report-card-${safeName || "student"}.pdf`;
 
+      const pdfBlob = pdf.output("blob");
+      const ios = isIosDevice();
+
+      // iOS Safari ignores <a download> for blob URLs and jsPDF's save()
+      // silently opens the PDF in the current tab without saving. Route
+      // iOS through the Web Share API so the user gets the OS share sheet
+      // with "Save to Files" as an option.
+      if (ios && navigator.canShare) {
+        try {
+          const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: "Report Card" });
+            setDownloaded(true);
+            setTimeout(() => setDownloaded(false), 2200);
+            return;
+          }
+        } catch (shareErr) {
+          // User cancelled the share sheet — do nothing else.
+          if (shareErr?.name === "AbortError") {
+            return;
+          }
+          // Otherwise fall through to the open-in-tab path.
+          console.warn("Share API failed, falling back:", shareErr);
+        }
+      }
+
+      if (ios) {
+        // Fallback for iOS when share isn't available: open the PDF in a
+        // new tab so iOS's native viewer takes over. From there the user
+        // can tap Share → Save to Files.
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.target = "_blank";
+        link.rel = "noopener";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        // Revoke after a delay — the tab needs time to load the blob first.
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+        setDownloaded(true);
+        setTimeout(() => setDownloaded(false), 2200);
+        return;
+      }
+
+      // Desktop and Android Chrome: standard anchor download.
+      pdf.save(fileName);
       setDownloaded(true);
       setTimeout(() => setDownloaded(false), 2200);
     } catch (e) {
@@ -142,7 +189,6 @@ function ReportCardModal({ onClose }) {
               className="rcm-close"
               onClick={onClose}
               aria-label="Close report card"
-              ref={closeRef}
             >
               <CloseIcon />
             </button>

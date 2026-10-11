@@ -44,66 +44,36 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Overall grade badge — colour keyed to letter                        */
+/* Overall result badge — PASS / FAIL                                  */
 /* ------------------------------------------------------------------ */
 
-.rc-summary-final .rc-grade-badge {
+.rc-summary-final .rc-result-badge {
   display: inline-block;
   justify-self: center;
   align-self: center;
-  min-width: 44px;
-  padding: 0.25rem 0.9rem;
+  min-width: 90px;
+  padding: 0.3rem 1rem;
   border-radius: 999px;
   font-size: 0.95rem;
   font-weight: 800;
-  letter-spacing: 0.5px;
+  letter-spacing: 1.5px;
   border: 1px solid transparent;
   transition: background 0.2s ease, color 0.2s ease;
 }
 
-.rc-grade-a {
+.rc-result-pass {
   background: #dcfce7;
   color: #15803d;
   border-color: #86efac;
 }
 
-.rc-grade-b {
-  background: #dbeafe;
-  color: #1d4ed8;
-  border-color: #93c5fd;
-}
-
-.rc-grade-c {
-  background: #ccfbf1;
-  color: #0f766e;
-  border-color: #5eead4;
-}
-
-.rc-grade-d {
-  background: #fef9c3;
-  color: #a16207;
-  border-color: #fde047;
-}
-
-.rc-grade-e {
-  background: #ffedd5;
-  color: #c2410c;
-  border-color: #fdba74;
-}
-
-.rc-grade-f {
+.rc-result-fail {
   background: #fee2e2;
   color: #b91c1c;
   border-color: #fca5a5;
 }
 
-.rc-grade-g {
-  background: #4c0519;
-  color: #fecdd3;
-  border-color: #9f1239;
-}
-
-.rc-grade-none {
+.rc-result-none {
   background: #f4f4f5;
   color: #71717a;
   border-color: #e4e4e7;
@@ -120,9 +90,11 @@
     gap: 0.25rem;
   }
 
-  .rc-summary-final .rc-grade-badge {
-    padding: 0.2rem 0.7rem;
+  .rc-summary-final .rc-result-badge {
+    padding: 0.25rem 0.8rem;
     font-size: 0.85rem;
-    min-width: 38px;
+    letter-spacing: 1px;
+    min-width: 74px;
   }
 }
+
