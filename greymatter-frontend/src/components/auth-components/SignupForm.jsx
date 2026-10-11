@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import LoginLink from "./LoginLink";
 import AuthField from "./AuthField";
 import PasswordRules from "./PasswordRules";
 import PasswordStrength from "./PasswordStrength";
+import { UserContext } from "../../context/UserContext";
 import { apiRequest } from "../../utils/api";
+import { flushPendingExercise } from "../../utils/pendingExercise";
 import "../../styles/Auth/SignupForm.css";
 
 const PASSWORD_RULES = [
@@ -25,6 +27,7 @@ function SignupForm() {
   const [privacy_p, setPrivacyP] = useState(false);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const { login } = useContext(UserContext);
 
   const passwordChecks = PASSWORD_RULES.map((r) => ({ ...r, passed: r.test(password) }));
   const passedCount = passwordChecks.filter((c) => c.passed).length;
@@ -68,7 +71,8 @@ function SignupForm() {
 
     if (Object.keys(validation).length > 0) return;
 
-    const response = await apiRequest(`/auth/signup`, {
+    // Step 1: create the account.
+    const signupRes = await apiRequest(`/auth/signup`, {
       method: "POST",
       body: JSON.stringify({
         first_name,
@@ -80,31 +84,66 @@ function SignupForm() {
       }),
     });
 
-    const data = await response.json();
+    const signupData = await signupRes.json();
 
-    if (response.ok) {
-      window.location.href = "/login";
+    if (!signupRes.ok) {
+      const msg = signupData.error || "Signup failed";
+      const backendErrors = {};
+
+      if (msg.includes("Email already exists")) {
+        backendErrors.email = "This email is already registered";
+      } else if (msg.includes("Passwords do not match")) {
+        backendErrors.confirm_password = "Passwords do not match";
+      } else if (msg.includes("Privacy policy")) {
+        backendErrors.privacy_p = "You must accept the Privacy Policy";
+      } else if (msg.toLowerCase().includes("password does not meet")) {
+        backendErrors.password = "Password does not meet all requirements";
+      } else if (msg.toLowerCase().includes("email")) {
+        backendErrors.email = msg;
+      } else {
+        backendErrors.form = msg;
+      }
+
+      setErrors(backendErrors);
       return;
     }
 
-    const msg = data.error || "Signup failed";
-    const backendErrors = {};
+    // Step 2: auto-login with the credentials we just used.
+    // This is required so the session is live before we try to save any
+    // pending guest exercise. If it fails, fall back to the login page and
+    // let the pending payload flush on the next manual login.
+    try {
+      const loginRes = await apiRequest(`/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          email,
+          password,
+          remember: "off",
+        }),
+      });
 
-    if (msg.includes("Email already exists")) {
-      backendErrors.email = "This email is already registered";
-    } else if (msg.includes("Passwords do not match")) {
-      backendErrors.confirm_password = "Passwords do not match";
-    } else if (msg.includes("Privacy policy")) {
-      backendErrors.privacy_p = "You must accept the Privacy Policy";
-    } else if (msg.toLowerCase().includes("password does not meet")) {
-      backendErrors.password = "Password does not meet all requirements";
-    } else if (msg.toLowerCase().includes("email")) {
-      backendErrors.email = msg;
-    } else {
-      backendErrors.form = msg;
+      if (loginRes.ok) {
+        const loginData = await loginRes.json();
+        login({ user_id: loginData.user_id, email: loginData.email });
+
+        // Step 3: save the guest exercise (if any) to the new account.
+        try {
+          await flushPendingExercise();
+        } catch (err) {
+          console.error("Pending exercise flush failed:", err);
+        }
+
+        window.location.href = "/";
+        return;
+      }
+    } catch (err) {
+      console.error("Auto-login after signup failed:", err);
     }
 
-    setErrors(backendErrors);
+    // Auto-login failed — account exists, but user must log in manually.
+    // Pending payload stays in sessionStorage and will flush on next login.
+    window.location.href = "/login";
   };
 
   const fieldError = (field) => (touched[field] && errors[field] ? errors[field] : null);

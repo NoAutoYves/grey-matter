@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import { api } from "../utils/api";
+import { UserContext } from "../context/UserContext";
 import ShareModal from "../components/functional-comps/ShareModal";
 
 import ExerciseCompletedSkeleton from "../components/exercise-completed/ExerciseCompletedSkeleton";
@@ -11,11 +12,13 @@ import ShareResultsSection from "../components/exercise-completed/ShareResultsSe
 import QuestionBreakdown from "../components/exercise-completed/QuestionBreakdown";
 import FeedbackSection from "../components/exercise-completed/FeedbackSection";
 import ResultsActions from "../components/exercise-completed/ResultsActions";
+import SignupPrompt from "../components/exercise-completed/SignupPrompt";
 
 import '../styles/exercise-completed/ExerciseCompleted.css';
 
 function ExerciseCompleted() {
   const location = useLocation();
+  const { user } = useContext(UserContext);
   const queryParams = new URLSearchParams(location.search);
   const exerciseId = queryParams.get("exercise_id");
   const subjectFromUrl = queryParams.get("subject") || "";
@@ -33,6 +36,8 @@ function ExerciseCompleted() {
   const [topicName, setTopicName] = useState("");
 
   const [showShareModal, setShowShareModal] = useState(false);
+
+  const isGuest = !user;
 
   const formatTimeFromSeconds = (seconds) => {
     if (!seconds || seconds === 0) return "0:00";
@@ -64,25 +69,7 @@ function ExerciseCompleted() {
   useEffect(() => {
     let isMounted = true;
 
-    const hasSaved = sessionStorage.getItem(`exercise_saved_${exerciseId}`);
-
-    if (hasSaved === "true") {
-      const storedScore = parseInt(localStorage.getItem("finalScore")) || 0;
-      const storedTotal = parseInt(localStorage.getItem("totalQuestions")) || 1;
-      const storedTime = parseInt(localStorage.getItem("timeTaken")) || 0;
-      const storedNotes = localStorage.getItem("notes") || "No notes taken.";
-      const storedBreakdown = JSON.parse(localStorage.getItem("breakdown")) || [];
-
-      setScore(storedScore);
-      setTotal(storedTotal);
-      setTimeTaken(storedTime);
-      setNotes(storedNotes);
-      setBreakdown(storedBreakdown);
-      setSaving(false);
-      setLoading(false);
-      return;
-    }
-
+    // Read score data written by Exercise.jsx.
     const storedScore = parseInt(localStorage.getItem("finalScore")) || 0;
     const storedTotal = parseInt(localStorage.getItem("totalQuestions")) || 1;
     const storedTime = parseInt(localStorage.getItem("timeTaken")) || 0;
@@ -94,6 +81,21 @@ function ExerciseCompleted() {
     setTimeTaken(storedTime);
     setNotes(storedNotes);
     setBreakdown(storedBreakdown);
+
+    // Guests: no server save. Straight to the results view.
+    if (isGuest) {
+      setSaving(false);
+      setLoading(false);
+      return () => { isMounted = false; };
+    }
+
+    const hasSaved = sessionStorage.getItem(`exercise_saved_${exerciseId}`);
+
+    if (hasSaved === "true") {
+      setSaving(false);
+      setLoading(false);
+      return () => { isMounted = false; };
+    }
 
     const saveResults = async (retryCount = 0) => {
       const maxRetries = 3;
@@ -143,7 +145,7 @@ function ExerciseCompleted() {
     return () => {
       isMounted = false;
     };
-  }, [exerciseId]);
+  }, [exerciseId, isGuest]);
 
   if (loading || saving) {
     return <ExerciseCompletedSkeleton />;
@@ -158,7 +160,7 @@ function ExerciseCompleted() {
 
       <div className="sponsor-container-results sponsor-top">
         <div className="sponsor-placeholder">
-          Advertisement (Leaderboard - 728x90)
+          {/* Advertisement (Leaderboard - 728x90) */}
         </div>
       </div>
 
@@ -166,7 +168,9 @@ function ExerciseCompleted() {
         <h2 className="results-title">Exercise Completed</h2>
         <p className="results-subtitle">Here's how you did:</p>
 
-        {saveError && (
+        {isGuest && <SignupPrompt />}
+
+        {!isGuest && saveError && (
           <div className="save-error-warning">
             <span>⚠️</span> Your results may not have been saved. Please contact support if this persists.
           </div>
@@ -183,19 +187,21 @@ function ExerciseCompleted() {
 
         <QuestionBreakdown breakdown={breakdown} />
 
-        <FeedbackSection
-          exerciseId={exerciseId}
-          score={score}
-          total={total}
-          timeTaken={timeTaken}
-        />
+        {!isGuest && (
+          <FeedbackSection
+            exerciseId={exerciseId}
+            score={score}
+            total={total}
+            timeTaken={timeTaken}
+          />
+        )}
 
         <ResultsActions />
       </section>
 
       <div className="sponsor-container-results sponsor-billboard">
         <div className="sponsor-placeholder">
-          Advertisement (Large Rectangle - 336x280)
+          {/* Advertisement (Large Rectangle - 336x280) */}
         </div>
       </div>
 

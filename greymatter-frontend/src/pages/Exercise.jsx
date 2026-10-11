@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import ExerciseHeader from "../components/functional-comps/ExerciseHeader";
 import { api } from "../utils/api";
+import { UserContext } from "../context/UserContext";
+import { storePendingExercise } from "../utils/pendingExercise";
 import ExerciseSkeleton from "../components/exercise-page/ExerciseSkeleton";
 import QuizInfoRow from "../components/exercise-page/QuizInfoRow";
 import QuestionCard from "../components/exercise-page/QuestionCard";
@@ -13,6 +15,7 @@ function Exercise() {
   const { subject } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   const queryParams = new URLSearchParams(location.search);
   const exerciseId = queryParams.get("exercise_id");
 
@@ -143,9 +146,26 @@ function Exercise() {
       })
       .filter(Boolean);
 
-    api.batch
-      .submitExercise(parseInt(exerciseId), formattedAnswers, timeTaken, notes, breakdown)
-      .catch((err) => console.error("Error submitting exercise:", err));
+    if (user) {
+      // Logged in: POST immediately.
+      api.batch
+        .submitExercise(parseInt(exerciseId), formattedAnswers, timeTaken, notes, breakdown)
+        .catch((err) => console.error("Error submitting exercise:", err));
+
+      sessionStorage.setItem(`exercise_guest_${exerciseId}`, "false");
+    } else {
+      // Guest: stash the payload so it can be POSTed after signup or login.
+      storePendingExercise({
+        exercise_id: parseInt(exerciseId),
+        answers: formattedAnswers,
+        time_taken_seconds: timeTaken,
+        notes: notes,
+        breakdown: breakdown,
+        stored_at: Date.now(),
+      });
+
+      sessionStorage.setItem(`exercise_guest_${exerciseId}`, "true");
+    }
 
     localStorage.setItem("finalScore", finalScore);
     localStorage.setItem("totalQuestions", totalQuestions);

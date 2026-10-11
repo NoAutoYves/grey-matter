@@ -306,14 +306,15 @@ def get_exercise_results(exercise_id):
 
 @exercise_bp.route("/exercise/batch-data/<int:exercise_id>", methods=["GET"])
 def get_exercise_batch_data(exercise_id):
+    """Fetch exercise + questions + (optional) progress.
+
+    Public endpoint. Guests get exercise and questions, no progress data.
+    Logged-in users get their progress for this exercise.
+    """
     ip = request.remote_addr
     ua = request.headers.get('User-Agent', '')
 
-    if 'user_id' not in session:
-        log_activity(None, "batch_data_failed", "Not logged in", ip, ua)
-        return jsonify({"error": "Not logged in"}), 401
-
-    user_id = session['user_id']
+    user_id = session.get('user_id')
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -341,14 +342,16 @@ def get_exercise_batch_data(exercise_id):
 
         questions_data = cursor.fetchall()
 
-        cursor.execute("""
-            SELECT score, total_questions, percentage, time_taken_seconds, answers,
-                   completed_at, retake_count
-            FROM user_progress
-            WHERE user_id = %s AND exercise_id = %s
-        """, (user_id, exercise_id))
-
-        progress = cursor.fetchone()
+        # Progress is user-specific; guests get None.
+        progress = None
+        if user_id:
+            cursor.execute("""
+                SELECT score, total_questions, percentage, time_taken_seconds, answers,
+                       completed_at, retake_count
+                FROM user_progress
+                WHERE user_id = %s AND exercise_id = %s
+            """, (user_id, exercise_id))
+            progress = cursor.fetchone()
 
         questions = []
         for q in questions_data:

@@ -4,6 +4,7 @@ import SignUpLink from "./SignUp";
 import AuthField from "./AuthField";
 import { UserContext } from "../../context/UserContext";
 import { apiRequest } from "../../utils/api";
+import { flushPendingExercise } from "../../utils/pendingExercise";
 import "../../styles/Auth/LoginForm.css";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -62,6 +63,14 @@ function LoginForm() {
     if (response.ok) {
       const data = await response.json();
       login({ user_id: data.user_id, email: data.email });
+
+      // If this session had a guest exercise waiting, save it now.
+      try {
+        await flushPendingExercise();
+      } catch (err) {
+        console.error("Pending exercise flush failed:", err);
+      }
+
       window.location.href = "/";
       return;
     }
@@ -74,9 +83,6 @@ function LoginForm() {
       // Non-JSON response (e.g. 429 rate limit, or 500). Fall through with default.
     }
 
-    // Backend returns "Email and password required" (400) with no field context.
-    // Map it to both fields; everything else stays form-level so we don't
-    // leak which field failed on a 401.
     if (msg === "Email and password required") {
       setErrors({ email: "Email is required", password: "Password is required" });
       return;

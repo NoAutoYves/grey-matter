@@ -8,15 +8,11 @@ notes_bp = Blueprint('notes', __name__)
 @notes_bp.route("/exercise/notes/<int:exercise_id>", methods=["GET"])
 @limiter.limit("120 per minute")
 def get_exercise_notes(exercise_id):
-    """Get chapter notes for a specific exercise"""
-    ip = request.remote_addr
-    ua = request.headers.get('User-Agent', '')
+    """Get chapter notes for a specific exercise.
 
-    if 'user_id' not in session:
-        return jsonify({"error": "Not logged in"}), 401
-
-    user_id = session['user_id']
-
+    Public endpoint — the notes are the same for everyone and are what
+    makes the exercise pages indexable. No auth required.
+    """
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -35,8 +31,6 @@ def get_exercise_notes(exercise_id):
         result = cursor.fetchone()
 
         if not result:
-            cursor.close()
-            conn.close()
             return jsonify({"error": "Exercise not found"}), 404
 
         subject_id, grade_id, topic_id, subject_name, grade_level, topic_name, topic_notes = result
@@ -58,9 +52,6 @@ def get_exercise_notes(exercise_id):
                 notes_content = None
                 notes_source = None
 
-        cursor.close()
-        conn.close()
-
         return jsonify({
             "notes": notes_content,
             "source": notes_source,
@@ -70,9 +61,11 @@ def get_exercise_notes(exercise_id):
         }), 200
 
     except Exception as e:
-        cursor.close()
-        conn.close()
         return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        return_db_connection(conn)
 
 
 @notes_bp.route("/notes/topic/<int:topic_id>", methods=["GET"])

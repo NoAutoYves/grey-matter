@@ -17,7 +17,6 @@ import ViewResults from "./pages/ViewResults";
 import HowItWorks from "./pages/HowItWorks";
 import { fetchCSRFToken } from "./utils/api";
 
-// Greymatter pages
 import About from "./components/greymatter/About";
 import Contact from "./components/greymatter/Contact";
 import Careers from "./components/greymatter/Careers";
@@ -26,7 +25,6 @@ import Terms from "./components/greymatter/Terms";
 import Privacy from "./components/greymatter/Privacy";
 import Cookies from "./components/greymatter/Cookies";
 
-// Admin pages
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -35,7 +33,6 @@ import AdminUserFeedback from "./pages/admin/AdminUserFeedback";
 import AdminActivity from "./pages/admin/AdminActivity";
 import AdminErrorLogs from "./pages/admin/AdminErrorLogs";
 
-// Lazy-loaded: pulls Recharts (~148 KB gzipped) out of the main bundle.
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 
 function App() {
@@ -73,9 +70,11 @@ function App() {
         <Route path="/:subject/topic/:topicId" element={<ExercisesByTopic />} />
         <Route path="/:subject" element={<ExerciseList />} />
 
-        {/* Exercise and Results - Protected (Require Login) */}
-        <Route path="/:subject/exercise" element={<ProtectedRoute><Exercise /></ProtectedRoute>} />
-        <Route path="/exercise-completed" element={<ProtectedRoute><ExerciseCompleted /></ProtectedRoute>} />
+        {/* Exercises - Public (Free to take, sign up to save) */}
+        <Route path="/:subject/exercise" element={<Exercise />} />
+        <Route path="/exercise-completed" element={<ExerciseCompleted />} />
+
+        {/* Results history - Protected */}
         <Route path="/view-results" element={<ProtectedRoute><ViewResults /></ProtectedRoute>} />
 
         {/* Profile - Protected */}
