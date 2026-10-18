@@ -207,3 +207,18 @@
     font-size: 0.75rem;
   }
 }
+
+.func-header-logo {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.func-header-logo h1 {
+  margin: 0;
+}
+
+.func-header-logo:hover h1 {
+  color: #6846ff;
+  transition: color 0.15s ease;
+}

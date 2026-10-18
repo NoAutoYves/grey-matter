@@ -10,6 +10,7 @@ import loginIcon from "../../assets/images/func-images/login.png";
 import subjectIcon from "../../assets/images/func-images/subjects.png";
 import profileIcon from "../../assets/images/func-images/profile.png";
 import logoutIcon from "../../assets/images/func-images/logout.png";
+import notesIcon from "../../assets/images/func-images/notes.png";
 
 function LandingNav() {
   const { showModal } = useModal();
@@ -31,6 +32,7 @@ function LandingNav() {
     <nav className="landing-nav">
       <Link to="/login"><img src={loginIcon} alt="Login" className="nav-img"/>LOGIN</Link>
       <Link to="/subjects/"><img src={subjectIcon} alt="Topics" className="nav-img"/>TOPICS</Link>
+      <Link to="/notes/"><img src={notesIcon} alt="Notes" className="nav-img"/>NOTES</Link>
       <SearchTrigger className="landing-nav-search" label="SEARCH" />
       <Link to="/persona"><img src={profileIcon} alt="Profile" className="nav-img"/>PROFILE</Link>
       <button onClick={handleLogout}><img src={logoutIcon} alt="Logout" className="nav-img"/>LOGOUT</button>
