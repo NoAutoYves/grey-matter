@@ -1,0 +1,112 @@
+.notes-renderer {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #333;
+}
+
+.notes-renderer .notes-heading {
+  font-weight: 700;
+  color: #1a1a2e;
+  line-height: 1.3;
+  margin: 1.4rem 0 0.6rem;
+}
+
+.notes-renderer .notes-heading:first-child {
+  margin-top: 0;
+}
+
+.notes-renderer .notes-heading-1 { font-size: 1.35rem; }
+.notes-renderer .notes-heading-2 { font-size: 1.15rem; }
+.notes-renderer .notes-heading-3 { font-size: 1rem; }
+.notes-renderer .notes-heading-4 { font-size: 0.92rem; }
+
+.notes-renderer .notes-paragraph {
+  margin: 0.6rem 0;
+  color: #333;
+}
+
+.notes-renderer .notes-ul,
+.notes-renderer .notes-ol {
+  margin: 0.5rem 0 0.5rem 1.4rem;
+  padding: 0;
+}
+
+.notes-renderer .notes-ul .notes-list-item { list-style-type: disc; }
+.notes-renderer .notes-ol .notes-list-item { list-style-type: decimal; }
+
+.notes-renderer .notes-list-item {
+  margin: 0.25rem 0;
+  color: #333;
+}
+
+.notes-renderer strong { color: #1a1a2e; font-weight: 700; }
+.notes-renderer em { color: #444; font-style: italic; }
+
+.notes-renderer code {
+  background: rgba(104, 70, 255, 0.08);
+  color: #5535cc;
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.88em;
+}
+
+.notes-renderer .notes-highlight {
+  background: rgba(255, 224, 100, 0.55);
+  color: inherit;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+
+.notes-renderer .notes-display-math {
+  margin: 0.85rem 0;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.notes-renderer .notes-callout {
+  margin: 0.9rem 0;
+  padding: 0.7rem 0.95rem;
+  border-radius: 8px;
+  border-left: 3px solid #6846ff;
+  background: rgba(104, 70, 255, 0.06);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.notes-renderer .notes-callout-label {
+  font-weight: 700;
+  color: #6846ff;
+}
+
+.notes-renderer .notes-callout-key-point {
+  border-left-color: #6846ff;
+  background: rgba(104, 70, 255, 0.08);
+}
+.notes-renderer .notes-callout-key-point .notes-callout-label { color: #5535cc; }
+
+.notes-renderer .notes-callout-worked-example {
+  border-left-color: #2b8a3e;
+  background: rgba(43, 138, 62, 0.08);
+}
+.notes-renderer .notes-callout-worked-example .notes-callout-label { color: #2b8a3e; }
+
+.notes-renderer .notes-callout-common-mistake {
+  border-left-color: #d9480f;
+  background: rgba(217, 72, 15, 0.08);
+}
+.notes-renderer .notes-callout-common-mistake .notes-callout-label { color: #d9480f; }
+
+.notes-renderer .notes-callout-exam-tip {
+  border-left-color: #e67700;
+  background: rgba(230, 119, 0, 0.08);
+}
+.notes-renderer .notes-callout-exam-tip .notes-callout-label { color: #e67700; }
+
+@media (max-width: 767px) {
+  .notes-renderer { font-size: 0.88rem; }
+  .notes-renderer .notes-heading-1 { font-size: 1.15rem; }
+  .notes-renderer .notes-heading-2 { font-size: 1.02rem; }
+  .notes-renderer .notes-heading-3 { font-size: 0.94rem; }
+  .notes-renderer .notes-callout { font-size: 0.86rem; padding: 0.6rem 0.8rem; }
+}

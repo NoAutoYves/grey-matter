@@ -25,6 +25,10 @@ import Terms from "./components/greymatter/Terms";
 import Privacy from "./components/greymatter/Privacy";
 import Cookies from "./components/greymatter/Cookies";
 
+import NotesLanding from "./pages/notes/NotesLanding";
+import NotesTopicList from "./pages/notes/NotesTopicList";
+import Notes from "./pages/notes/Notes";
+
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -32,6 +36,7 @@ import AdminExercises from "./pages/admin/AdminExercises";
 import AdminUserFeedback from "./pages/admin/AdminUserFeedback";
 import AdminActivity from "./pages/admin/AdminActivity";
 import AdminErrorLogs from "./pages/admin/AdminErrorLogs";
+import AdminSocial from "./pages/admin/AdminSocial";
 
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 
@@ -65,6 +70,11 @@ function App() {
         <Route path="/cookies" element={<Cookies />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
 
+        {/* Notes - Public (free to read, SEO surface) */}
+        <Route path="/notes/" element={<NotesLanding />} />
+        <Route path="/notes/:subjectSlug/" element={<NotesTopicList />} />
+        <Route path="/notes/:subjectSlug/:topicId/" element={<Notes />} />
+
         {/* Subjects and Topics - Public (Free to browse) */}
         <Route path="/subjects" element={<Subjects />} />
         <Route path="/:subject/topic/:topicId" element={<ExercisesByTopic />} />
@@ -94,6 +104,7 @@ function App() {
             }
           />
           <Route path="activity" element={<AdminActivity />} />
+          <Route path="social" element={<AdminSocial />} />
           <Route path="feedback" element={<AdminUserFeedback />} />
           <Route path="errors" element={<AdminErrorLogs />} />
         </Route>

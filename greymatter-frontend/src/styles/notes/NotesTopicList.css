@@ -1,0 +1,207 @@
+.notes-topics-page {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'noto', sans-serif;
+  color: #000000;
+  background-image: url('../../assets/images/background-images/MainBG.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.notes-topics-main {
+  flex: 1;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem 2rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.notes-topics-hero {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.25rem;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.notes-back-link {
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6846ff;
+  text-decoration: none;
+  margin-bottom: 0.6rem;
+  transition: color 0.15s ease;
+}
+
+.notes-back-link:hover { color: #5535cc; }
+
+.notes-topics-title {
+  font-size: 1.8rem;
+  color: #1a1a2e;
+  margin: 0 0 0.3rem;
+}
+
+.notes-topics-subtitle {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.notes-grade-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.notes-grade-tab {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 0.55rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.notes-grade-tab:hover:not(:disabled) {
+  background: rgba(104, 70, 255, 0.1);
+  border-color: rgba(104, 70, 255, 0.3);
+}
+
+.notes-grade-tab.active {
+  background: #6846ff;
+  border-color: #6846ff;
+  color: #ffffff;
+}
+
+.notes-grade-tab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.notes-grade-tab-count {
+  font-size: 0.72rem;
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+  padding: 0.05rem 0.45rem;
+  border-radius: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.notes-grade-tab.active .notes-grade-tab-count {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.notes-topic-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.notes-topic-item {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notes-topic-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(104, 70, 255, 0.3);
+  box-shadow: 0 6px 18px rgba(104, 70, 255, 0.1);
+}
+
+.notes-topic-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  text-decoration: none;
+  color: #1a1a2e;
+}
+
+.notes-topic-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.notes-topic-name {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  word-break: break-word;
+}
+
+.notes-topic-meta {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.notes-topic-arrow {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #6846ff;
+  flex-shrink: 0;
+}
+
+.notes-loading,
+.notes-empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: #666;
+  font-size: 0.9rem;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+}
+
+.notes-error {
+  background: rgba(229, 57, 53, 0.1);
+  color: #c62828;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 767px) {
+  .notes-topics-main { padding: 0.75rem 1rem 2rem; }
+  .notes-topics-hero { padding: 1.25rem; }
+  .notes-topics-title { font-size: 1.4rem; }
+  .notes-topics-subtitle { font-size: 0.82rem; }
+  .notes-topic-item:hover { transform: none; box-shadow: none; }
+  .notes-topic-name { font-size: 0.9rem; }
+  .notes-grade-tab { font-size: 0.8rem; padding: 0.45rem 0.9rem; }
+}
+
+@media (min-width: 1024px) {
+  .notes-topics-page {
+    background-image: url('../../assets/images/background-images/desktopBG.jpg');
+  }
+}
