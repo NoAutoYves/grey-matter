@@ -1,0 +1,17 @@
+.social-analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  min-width: 0;
+}
+
+.social-analytics-panel {
+  margin-top: 2rem;
+}
+
+@media (max-width: 1023px) {
+  .social-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}

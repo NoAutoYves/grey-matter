@@ -28,12 +28,13 @@ function AdminLayout() {
           <NavLink to="/admin/exercises" className={linkClass}>Exercises</NavLink>
           <NavLink to="/admin/analytics" className={linkClass}>Analytics</NavLink>
           <NavLink to="/admin/activity" className={linkClass}>Activity</NavLink>
+          <NavLink to="/admin/social" className={linkClass}>Social</NavLink>
           <NavLink to="/admin/feedback" className={linkClass}>Feedback</NavLink>
           <NavLink to="/admin/errors" className={linkClass}>Errors</NavLink>
         </nav>
 
         <div className="admin-sidebar-footer">
-          <Link to="/" className="admin-nav-link">← Back to site</Link>
+          <Link to="/" className="admin-nav-link"> Back to site</Link>
           <button className="admin-nav-link admin-nav-logout" onClick={handleLogout}>Logout</button>
         </div>
       </aside>

@@ -1,0 +1,66 @@
+.social-preview {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-top: 3px solid #6846ff;
+  padding: 0.9rem 1rem;
+}
+
+.social-preview-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.social-preview-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.social-preview-name {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #1a1a2e;
+  flex: 1;
+}
+
+.social-preview-count {
+  font-size: 0.72rem;
+  color: #888;
+  font-variant-numeric: tabular-nums;
+}
+
+.social-preview-count.over {
+  color: #e53935;
+  font-weight: 700;
+}
+
+.social-preview-body {
+  font-size: 0.82rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+.social-preview-media {
+  background: #f7f5ff;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.75rem;
+  color: #6846ff;
+  font-weight: 600;
+  margin-bottom: 0.55rem;
+}
+
+.social-preview-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.social-preview-placeholder {
+  color: #bbb;
+}

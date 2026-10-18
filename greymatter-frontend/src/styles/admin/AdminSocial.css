@@ -1,0 +1,147 @@
+/* Stats strip */
+.social-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.social-stat {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border-left: 4px solid #6846ff;
+}
+
+.social-stat-danger .admin-stat-value { color: #e53935; }
+
+/* Shared list rows (queue + history) */
+.social-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.social-list-row {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.social-list-main { flex: 1; min-width: 0; }
+
+.social-list-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+}
+
+.social-list-time {
+  font-size: 0.78rem;
+  color: #666;
+  font-variant-numeric: tabular-nums;
+}
+
+.social-list-reach {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.social-list-content {
+  margin: 0 0 0.55rem;
+  color: #1a1a2e;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.social-list-error {
+  margin: 0 0 0.55rem;
+  font-size: 0.78rem;
+  color: #c62828;
+}
+
+.social-list-platforms {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.social-platform-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 0.15rem 0.55rem;
+  border-radius: 10px;
+  border: 1px solid currentColor;
+}
+
+.social-list-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+/* Accounts grid */
+.social-accounts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.social-account-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.social-account-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.social-account-platform {
+  font-weight: 600;
+  color: #1a1a2e;
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.social-account-handle {
+  font-size: 0.82rem;
+  color: #666;
+}
+
+.social-account-expiry {
+  font-size: 0.72rem;
+  color: #999;
+}
+
+.social-account-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 767px) {
+  .social-list-row { flex-direction: column; }
+  .social-list-actions { flex-direction: row; }
+}
