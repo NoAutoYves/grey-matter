@@ -322,3 +322,16 @@
     text-decoration: none;
   }
 }
+
+/* Sidebar context: NotesRenderer inherits the smaller sidebar font size,
+   not its own 0.95rem. Keeps the sidebar visually identical to before. */
+.chapter-notes-content .notes-renderer {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 767px) {
+  .chapter-notes-content .notes-renderer {
+    font-size: 0.8rem;
+  }
+}

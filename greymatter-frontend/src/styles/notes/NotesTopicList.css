@@ -27,8 +27,8 @@
   padding: 1.75rem 2rem;
   margin-bottom: 1.25rem;
   background: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -66,8 +66,8 @@
 
 .notes-grade-tab {
   background: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
   padding: 0.55rem 1.1rem;
@@ -122,8 +122,8 @@
 
 .notes-topic-item {
   background: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;

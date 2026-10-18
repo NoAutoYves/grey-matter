@@ -42,7 +42,8 @@
 .notes-renderer strong { color: #1a1a2e; font-weight: 700; }
 .notes-renderer em { color: #444; font-style: italic; }
 
-.notes-renderer code {
+.notes-renderer code,
+.notes-renderer .notes-inline-code {
   background: rgba(104, 70, 255, 0.08);
   color: #5535cc;
   padding: 0.05rem 0.35rem;
@@ -62,6 +63,12 @@
   margin: 0.85rem 0;
   text-align: center;
   overflow-x: auto;
+}
+
+.notes-renderer .notes-inline-display-math {
+  display: inline-block;
+  margin: 0.2rem 0;
+  vertical-align: middle;
 }
 
 .notes-renderer .notes-callout {
@@ -103,10 +110,90 @@
 }
 .notes-renderer .notes-callout-exam-tip .notes-callout-label { color: #e67700; }
 
+/* ================================================================== */
+/* New element types — unscoped so they work in both the notes page   */
+/* and the exercise sidebar. Bold is deliberately replaced with a     */
+/* highlight because the loaded font file has no heavier weight.      */
+/* ================================================================== */
+
+.notes-emphasis {
+  background: rgba(104, 70, 255, 0.12);
+  color: inherit;
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+}
+
+.notes-lead-in {
+  background: rgba(104, 70, 255, 0.18);
+  color: #5535cc;
+  padding: 0.05rem 0.4rem;
+  border-radius: 4px;
+}
+
+.notes-underline {
+  text-decoration: underline;
+  text-decoration-color: rgba(104, 70, 255, 0.5);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.notes-quote {
+  margin: 1rem 0;
+  padding: 0.75rem 1.1rem;
+  border-left: 3px solid #6846ff;
+  background: rgba(104, 70, 255, 0.05);
+  border-radius: 4px;
+  font-style: italic;
+  color: #444;
+}
+
+.notes-table-wrap {
+  overflow-x: auto;
+  margin: 1rem 0;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.notes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.notes-table th,
+.notes-table td {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.notes-table th {
+  background: rgba(104, 70, 255, 0.08);
+  color: #1a1a2e;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.notes-table td {
+  color: #333;
+}
+
 @media (max-width: 767px) {
   .notes-renderer { font-size: 0.88rem; }
   .notes-renderer .notes-heading-1 { font-size: 1.15rem; }
   .notes-renderer .notes-heading-2 { font-size: 1.02rem; }
   .notes-renderer .notes-heading-3 { font-size: 0.94rem; }
   .notes-renderer .notes-callout { font-size: 0.86rem; padding: 0.6rem 0.8rem; }
+  .notes-table { font-size: 0.8rem; }
+  .notes-table th,
+  .notes-table td { padding: 0.4rem 0.55rem; }
+}
+
+/* Ellipsis shown when NotesRenderer truncates with previewLimit */
+.notes-ellipsis {
+  display: inline-block;
+  margin-left: 0.15rem;
+  color: #888;
 }
