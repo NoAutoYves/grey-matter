@@ -4,12 +4,15 @@ import FuncFooter from "../components/functional-comps/FuncFooter";
 import ExerciseHeader from "../components/functional-comps/ExerciseHeader";
 import { api } from "../utils/api";
 import { UserContext } from "../context/UserContext";
+import { Helmet } from "react-helmet";
 import { storePendingExercise } from "../utils/pendingExercise";
 import ExerciseSkeleton from "../components/exercise-page/ExerciseSkeleton";
+import ExerciseInfoBar from "../components/exercise-page/ExerciseInfoBar";
 import QuizInfoRow from "../components/exercise-page/QuizInfoRow";
 import QuestionCard from "../components/exercise-page/QuestionCard";
 import NotesSection from "../components/exercise-page/NotesSection";
 import "../styles/exercise-page/Exercise.css";
+import "../styles/exercise-page/ExerciseInfoBar.css";
 
 function Exercise() {
   const { subject } = useParams();
@@ -20,6 +23,7 @@ function Exercise() {
   const exerciseId = queryParams.get("exercise_id");
 
   const [exerciseData, setExerciseData] = useState([]);
+  const [exerciseInfo, setExerciseInfo] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState({});
@@ -97,6 +101,8 @@ function Exercise() {
         const response = await api.batch.getExerciseData(parseInt(exerciseId));
         const data = await response.json();
         if (response.ok) {
+          setExerciseInfo(data.exercise || null);
+
           const formattedQuestions = data.questions.map((q) => ({
             question_text: q.question_text,
             options: q.options,
@@ -147,14 +153,12 @@ function Exercise() {
       .filter(Boolean);
 
     if (user) {
-      // Logged in: POST immediately.
       api.batch
         .submitExercise(parseInt(exerciseId), formattedAnswers, timeTaken, notes, breakdown)
         .catch((err) => console.error("Error submitting exercise:", err));
 
       sessionStorage.setItem(`exercise_guest_${exerciseId}`, "false");
     } else {
-      // Guest: stash the payload so it can be POSTed after signup or login.
       storePendingExercise({
         exercise_id: parseInt(exerciseId),
         answers: formattedAnswers,
@@ -255,9 +259,48 @@ function Exercise() {
 
   return (
     <div className="quiz-page">
+      <Helmet htmlAttributes={{ lang: "en-ZA" }}>
+        <title>
+          {exerciseInfo ? `${exerciseInfo.exercise_title} | Grey Matter` : "Exercise | Grey Matter"}
+        </title>
+        <meta
+          name="description"
+          content={
+            exerciseInfo
+              ? `Practice ${exerciseInfo.exercise_title} on Grey Matter. ${exerciseInfo.total_questions || 10} multiple-choice questions, instant feedback, and full chapter notes.`
+              : "Free CAPS-aligned exercises for South African high school learners."
+          }
+        />
+        <meta name="theme-color" content="#6846ff" />
+        <meta name="robots" content="index, follow" />
+        <link
+          rel="canonical"
+          href={`https://greymatterschool.co.za/${subject}/exercise?exercise_id=${exerciseId}`}
+        />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Quiz",
+            "name": exerciseInfo?.exercise_title || "Exercise",
+            "url": `https://greymatterschool.co.za/${subject}/exercise?exercise_id=${exerciseId}`,
+            "educationalLevel": exerciseInfo?.exercise_title?.match(/Grade \d+/)?.[0] || undefined,
+            "numberOfQuestions": exerciseInfo?.total_questions || undefined,
+            "isAccessibleForFree": true,
+            "inLanguage": "en-ZA",
+            "provider": {
+              "@type": "EducationalOrganization",
+              "name": "Grey Matter",
+              "url": "https://greymatterschool.co.za/"
+            }
+          })}
+        </script>
+      </Helmet>
+
       <ExerciseHeader hasAnswered={hasAnswered} />
+      
       <div className="main-layout">
         <section className="quiz-container">
+          <ExerciseInfoBar exercise={exerciseInfo} />
           <QuizInfoRow score={score} progress={progress} time={formatTime()} />
           <QuestionCard
             currentQ={currentQ}
