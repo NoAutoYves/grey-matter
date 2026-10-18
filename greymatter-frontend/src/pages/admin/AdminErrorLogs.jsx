@@ -279,9 +279,9 @@ function DbErrorPanel() {
           </div>
 
           <div className="admin-pagination">
-            <button className="admin-btn admin-btn-secondary" disabled={page <= 1} onClick={() => load({ page: page - 1 })}>← Prev</button>
+            <button className="admin-btn admin-btn-secondary" disabled={page <= 1} onClick={() => load({ page: page - 1 })}> Prev</button>
             <span className="admin-pagination-info">Page {page} of {totalPages}</span>
-            <button className="admin-btn admin-btn-secondary" disabled={page >= totalPages} onClick={() => load({ page: page + 1 })}>Next →</button>
+            <button className="admin-btn admin-btn-secondary" disabled={page >= totalPages} onClick={() => load({ page: page + 1 })}>Next </button>
           </div>
         </>
       )}

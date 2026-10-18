@@ -5,6 +5,7 @@ import { UserContext } from "../context/UserContext";
 import { useModal } from "../context/ModalContext";
 import MessageModal from '../components/functional-comps/MessageModal';
 import Skeleton from 'react-loading-skeleton';
+import { Helmet } from "react-helmet";
 import 'react-loading-skeleton/dist/skeleton.css';
 import ImageCropper from "../components/functional-comps/ImageCropper";
 import { api } from "../utils/api";
@@ -237,6 +238,13 @@ function Profile() {
 
   return (
     <div className="profile-page">
+      <Helmet htmlAttributes={{ lang: "en-ZA" }}>
+        <title>My Profile | Grey Matter</title>
+        <meta name="description" content="Your Grey Matter profile, saved notes, and exercise history." />
+        <meta name="theme-color" content="#6846ff" />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+
       <FuncHeader />
 
       <section className="profile-container">

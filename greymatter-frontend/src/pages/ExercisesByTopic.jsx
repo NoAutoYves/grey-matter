@@ -99,24 +99,36 @@ function ExercisesByTopic() {
 
   return (
     <div className={`quiz-list-page ${subject}`}>
-      <Helmet>
+      <Helmet htmlAttributes={{ lang: "en-ZA" }}>
         <title>{topicName ? `${topicName} | Grey Matter` : "Topic | Grey Matter"}</title>
         <meta
           name="description"
           content={
             topicName
-              ? `Practice exercises for ${topicName} on Grey Matter.`
+              ? `Practice exercises for ${topicName} on Grey Matter. 5 exercises, 10 questions each, with instant feedback and full chapter notes.`
               : "Practice exercises on Grey Matter."
           }
         />
+        <meta name="theme-color" content="#6846ff" />
+        <meta name="robots" content="index, follow" />
         <link rel="canonical" href={`https://greymatterschool.co.za/${subject}/topic/${topicId}/`} />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": topicName ? `${topicName} | Grey Matter` : "Topic | Grey Matter",
+            "url": `https://greymatterschool.co.za/${subject}/topic/${topicId}/`,
+            "about": topicName || subject,
+            "inLanguage": "en-ZA"
+          })}
+        </script>
       </Helmet>
-
+      
       <FuncHeader />
 
       <section className="quiz-list-container">
         <button className="back-button" onClick={() => navigate(`/${subject}/`)}>
-          ← Back to Topics
+           Back to Topics
         </button>
 
         <p className="quiz-list-overline">{subjectDisplay}</p>

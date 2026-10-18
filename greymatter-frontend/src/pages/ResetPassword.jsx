@@ -4,6 +4,7 @@ import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import SocialMedia from "../components/functional-comps/LandingSocialMedia";
 import MessageModal from '../components/functional-comps/MessageModal';
+import { Helmet } from "react-helmet";
 
 import { apiRequest } from "../utils/api";
 import '../styles/Auth/ResetPassword.css';
@@ -80,6 +81,13 @@ function ResetPassword() {
     return (
       <>
         <div className="reset-password-page">
+          <Helmet htmlAttributes={{ lang: "en-ZA" }}>
+            <title>Reset Password | Grey Matter</title>
+            <meta name="description" content="Set a new password for your Grey Matter account." />
+            <meta name="theme-color" content="#6846ff" />
+            <meta name="robots" content="noindex, nofollow" />
+          </Helmet>
+
           <FuncHeader />
           <div className="reset-password-container">
             <h2 className="reset-password-title">Invalid Reset Link</h2>

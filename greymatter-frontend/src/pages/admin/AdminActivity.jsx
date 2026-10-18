@@ -177,9 +177,9 @@ function AdminActivity() {
           })()}
 
           <div className="admin-pagination">
-            <button className="admin-btn admin-btn-secondary" disabled={page <= 1} onClick={() => gotoPage(page - 1)}>← Prev</button>
+            <button className="admin-btn admin-btn-secondary" disabled={page <= 1} onClick={() => gotoPage(page - 1)}> Prev</button>
             <span className="admin-pagination-info">Page {page} of {totalPages}</span>
-            <button className="admin-btn admin-btn-secondary" disabled={page >= totalPages} onClick={() => gotoPage(page + 1)}>Next →</button>
+            <button className="admin-btn admin-btn-secondary" disabled={page >= totalPages} onClick={() => gotoPage(page + 1)}>Next </button>
           </div>
         </>
       )}

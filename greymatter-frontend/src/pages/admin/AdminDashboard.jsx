@@ -71,7 +71,7 @@ function AdminDashboard() {
         <div className="admin-panel-header">
           <h2 className="admin-section-title">Recent Activity</h2>
           <Link to="/admin/activity" className="admin-panel-link">
-            View all activity →
+            View all activity 
           </Link>
         </div>
 

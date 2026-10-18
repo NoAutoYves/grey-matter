@@ -107,15 +107,32 @@ function HowItWorks() {
 
   return (
     <div className="info-page">
-      <Helmet>
+      <Helmet htmlAttributes={{ lang: "en-ZA" }}>
         <title>How It Works | Grey Matter</title>
         <meta
           name="description"
           content="How Grey Matter works, step by step: browse subjects and topics, take 10-question exercises, get instant feedback, read chapter notes, and track your progress over time. Free for Grades 10 to 12."
         />
+        <meta name="theme-color" content="#6846ff" />
+        <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://greymatterschool.co.za/how-it-works/" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "How It Works | Grey Matter",
+            "url": "https://greymatterschool.co.za/how-it-works/",
+            "description": "How Grey Matter works, step by step.",
+            "inLanguage": "en-ZA",
+            "isPartOf": {
+              "@type": "WebSite",
+              "name": "Grey Matter",
+              "url": "https://greymatterschool.co.za/"
+            }
+          })}
+        </script>
       </Helmet>
-
+      
       <FuncHeader />
 
       <div className="info-container">
@@ -157,7 +174,7 @@ function HowItWorks() {
         <div className="hiw-cta">
           <p>Ready to try it? Everything is free.</p>
           <Link to="/subjects/" className="hiw-cta-btn">
-            Browse subjects →
+            Browse subjects 
           </Link>
         </div>
       </div>

@@ -11,7 +11,7 @@ import { subjectContent, getSubjectContentKey } from "../data/subjectContent";
 
 import ExerciseListSkeleton from "../components/exercise-list/ExerciseListSkeleton";
 import ListHero from "../components/exercise-list/ListHero";
-import ListBenefits from "../components/exercise-list/ListBenefits";
+// import ListBenefits from "../components/exercise-list/ListBenefits";
 import GradeTopicsSection from "../components/exercise-list/GradeTopicsSection";
 import SubjectGuide from "../components/exercise-list/SubjectGuide";
 import ListHowItWorks from "../components/exercise-list/ListHowItWorks";
@@ -174,7 +174,7 @@ function ExerciseList() {
 
   return (
     <div className={`list-page ${subject}`}>
-      <Helmet>
+      <Helmet htmlAttributes={{ lang: "en-ZA" }}>
         <title>{subjectName ? `${subjectName} Topics | Grey Matter` : "Topics | Grey Matter"}</title>
         <meta
           name="description"
@@ -184,9 +184,27 @@ function ExerciseList() {
               : "Practice high school subjects with free interactive exercises on Grey Matter."
           }
         />
+        <meta name="theme-color" content="#6846ff" />
+        <meta name="robots" content="index, follow" />
         <link rel="canonical" href={`https://greymatterschool.co.za/${subject}/`} />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": subjectName ? `${subjectName} Topics | Grey Matter` : "Topics | Grey Matter",
+            "url": `https://greymatterschool.co.za/${subject}/`,
+            "about": subjectName || subject,
+            "educationalLevel": ["Grade 10", "Grade 11", "Grade 12"],
+            "inLanguage": "en-ZA",
+            "isPartOf": {
+              "@type": "WebSite",
+              "name": "Grey Matter",
+              "url": "https://greymatterschool.co.za/"
+            }
+          })}
+        </script>
       </Helmet>
-
+      
       <FuncHeader />
 
       <section className="list-container">
@@ -197,7 +215,7 @@ function ExerciseList() {
           completedExercises={completedExercises}
         />
 
-        <ListBenefits subjectName={subjectName} benefits={benefits} />
+        {/* <ListBenefits subjectName={subjectName} benefits={benefits} /> */}
 
         <GradeTopicsSection
           groupedTopics={groupedTopics}

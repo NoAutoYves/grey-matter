@@ -15,16 +15,28 @@ import "../styles/landing-css/LandingPage.css";
 function LandingPage() {
   return (
     <>
-      <Helmet>
+      <Helmet htmlAttributes={{ lang: "en-ZA" }}>
         <title>Grey Matter | Free High School Practice for Grades 10–12</title>
         <meta
           name="description"
           content="Free interactive practice for South African high school students. 1,300+ exercises across Accounting, Business, Economics, Geography, Life Science, Physics, Maths Literacy and Mathematics - with instant feedback and progress tracking."
-          
         />
+        <meta name="theme-color" content="#6846ff" />
+        <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://greymatterschool.co.za/" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "EducationalOrganization",
+            "name": "Grey Matter",
+            "url": "https://greymatterschool.co.za/",
+            "description": "Free CAPS-aligned practice platform for South African high school learners in Grades 10 to 12.",
+            "areaServed": "ZA",
+            "inLanguage": "en-ZA"
+          })}
+        </script>
       </Helmet>
-
+      
       <div className="index-page">
         <LandingNav />
         <LandingHeader />

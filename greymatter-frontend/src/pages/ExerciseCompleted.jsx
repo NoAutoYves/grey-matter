@@ -1,5 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import { api } from "../utils/api";
@@ -156,6 +157,16 @@ function ExerciseCompleted() {
 
   return (
     <div className="results-page">
+      <Helmet htmlAttributes={{ lang: "en-ZA" }}>
+        <title>Exercise Complete | Grey Matter</title>
+        <meta
+          name="description"
+          content="Your exercise results and question-by-question breakdown on Grey Matter."
+        />
+        <meta name="theme-color" content="#6846ff" />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+
       <FuncHeader />
 
       <div className="sponsor-container-results sponsor-top">

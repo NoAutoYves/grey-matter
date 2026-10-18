@@ -3,6 +3,7 @@ import FuncFooter from "../components/functional-comps/FuncFooter";
 import SocialMedia from "../components/functional-comps/LandingSocialMedia";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { apiRequest } from "../utils/api";
 import '../styles/Auth/ForgotPassword.css';
 
@@ -38,6 +39,13 @@ function ForgotPassword() {
   return (
     <>
       <div className="forgot-password-page">
+        <Helmet htmlAttributes={{ lang: "en-ZA" }}>
+          <title>Forgot Password | Grey Matter</title>
+          <meta name="description" content="Reset your Grey Matter password." />
+          <meta name="theme-color" content="#6846ff" />
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
+
         <FuncHeader />
 
         <div className="forgot-password-wrapper">

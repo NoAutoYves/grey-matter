@@ -4,6 +4,7 @@ import FuncFooter from "../components/functional-comps/FuncFooter";
 import FuncHeader from "../components/functional-comps/FuncHeader";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { Helmet } from "react-helmet";
 import { api } from "../utils/api";
 import MathRenderer from "../components/functional-comps/MathRenderer";
 import '../styles/exercise-completed/ExerciseCompleted.css';
@@ -91,6 +92,13 @@ function ViewResults() {
 
   return (
     <div className="results-page">
+      <Helmet htmlAttributes={{ lang: "en-ZA" }}>
+        <title>Results | Grey Matter</title>
+        <meta name="description" content="Your saved exercise results on Grey Matter." />
+        <meta name="theme-color" content="#6846ff" />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+
       <FuncHeader />
       
       <section className="results-container">
