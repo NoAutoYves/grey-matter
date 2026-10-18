@@ -23,6 +23,8 @@ Writes (idempotent, per-topic transaction):
 Also emits per-file manifest:
   <topic> - image_manifest.json   (filename <-> image query mapping for image-gen)
 
+DB config is read from tools/.env (DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT).
+
 Usage:
   upload_exercises.py --path "C:\...\GRADE 12" --subject Economics --grade 12 --dry-run
   upload_exercises.py --path "C:\...\GRADE 12" --subject Economics --grade 12 --commit
@@ -35,6 +37,7 @@ Usage:
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -43,8 +46,8 @@ import psycopg2
 from docx import Document
 
 
-DB = dict(host="localhost", dbname="greymatter_db", user="greymatter_user",
-          password="GreyMatter2025", port="5432")
+SCRIPT_DIR = Path(__file__).resolve().parent
+ENV_FILE = SCRIPT_DIR / ".env"
 
 VALID_SUBJECTS = {
     "Accounting", "Business", "Economics", "Geography",
@@ -85,6 +88,46 @@ BAD_UNICODE = [
     "\u03c0", "\u03b8", "\u03b1", "\u03b2", "\u0394",
     "\u00b0", "\u2192", "\u2190", "\u221a", "\u00b1",
 ]
+
+
+# --------------------------------------------------------------------------- #
+# .env loading
+# --------------------------------------------------------------------------- #
+
+def load_env(env_path: Path) -> None:
+    """Load KEY=VALUE pairs from a .env file into os.environ.
+    Existing environment variables are left alone."""
+    if not env_path.exists():
+        return
+    for raw in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
+def load_db_config() -> dict:
+    """Return the DB connection dict from env vars, raising a clear error if
+    any required key is missing."""
+    load_env(ENV_FILE)
+    required = ("DB_NAME", "DB_USER", "DB_PASSWORD", "DB_HOST", "DB_PORT")
+    missing = [k for k in required if not os.environ.get(k)]
+    if missing:
+        raise SystemExit(
+            f"Missing DB config: {', '.join(missing)}. "
+            f"Add them to {ENV_FILE}."
+        )
+    return dict(
+        host=os.environ["DB_HOST"],
+        dbname=os.environ["DB_NAME"],
+        user=os.environ["DB_USER"],
+        password=os.environ["DB_PASSWORD"],
+        port=os.environ["DB_PORT"],
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -145,10 +188,8 @@ def infer_subject_grade_from_path(path: Path):
 def validate_katex(text: str) -> list[str]:
     """Return list of issues with $ delimiter balance."""
     issues = []
-    # count of $ must be even (a lone $ is unbalanced)
     if text.count("$") % 2 != 0:
         issues.append(f"unbalanced $ in text: {text[:80]!r}")
-    # unclosed $$: count of $$ occurrences must divide cleanly
     return issues
 
 
@@ -187,9 +228,6 @@ def parse_exercises(path: Path) -> dict[int, list[dict]]:
         return s[len(p):].strip() if s.startswith(p) else s
 
     def find_stem(a_i: int, header_i: int) -> str:
-        """Walk backward from option A) to find the question stem.
-        Skip blank paragraphs. Stop if we hit the Question header or an
-        Image query line, meaning there is genuinely no stem."""
         j = a_i - 1
         while j > header_i:
             t = paras[j].text.strip()
@@ -551,7 +589,7 @@ def main():
           + ("  [notes-only]" if args.notes_only else "")
           + ("  [exercises-only]" if args.exercises_only else ""))
 
-    conn = psycopg2.connect(**DB)
+    conn = psycopg2.connect(**load_db_config())
     cur = conn.cursor()
 
     processed = skipped = 0
