@@ -40,8 +40,8 @@
   width: 300px;
   max-width: 84vw;
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
+  backdrop-filter: blur(50px);
   border-left: 1px solid rgba(104, 70, 255, 0.2);
   box-shadow: -8px 0 30px rgba(0, 0, 0, 0.08);
   z-index: 9999;
