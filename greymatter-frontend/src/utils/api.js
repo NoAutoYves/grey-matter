@@ -6,9 +6,9 @@ let sessionCacheTime = 0;
 const SESSION_CACHE_TTL = 60000; // 1 minute
 
 // Relative URLs - the origin serving the app also serves /api.
-//   dev     → Vite server.proxy → http://localhost:5000
-//   preview → Vite preview.proxy → https://greymatterschool.co.za
-//   prod    → nginx → http://127.0.0.1:5000
+//   dev      Vite server.proxy  http://localhost:5000
+//   preview  Vite preview.proxy  https://greymatterschool.co.za
+//   prod     nginx  http://127.0.0.1:5000
 export const BASE_URL = '';
 const API_URL = '';
 

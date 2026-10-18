@@ -55,12 +55,12 @@ function HeroSection() {
             onClick={() => setIsExpanded(!isExpanded)}
             aria-label={isExpanded ? "Show less" : "Read more"}
           >
-            {isExpanded ? 'Show less ↑' : 'Read more ↓'}
+            {isExpanded ? 'Show less ' : 'Read more '}
           </button>
         </div>
 
         <Link to={isLoggedIn ? "/subjects/" : "/signup"} className="hero-cta">
-          {isLoggedIn ? "Continue Learning →" : "Get Started Free →"}
+          {isLoggedIn ? "Continue Learning " : "Get Started Free "}
         </Link>
       </div>
     </section>

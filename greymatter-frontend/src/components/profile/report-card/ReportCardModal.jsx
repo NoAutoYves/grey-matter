@@ -136,7 +136,7 @@ function ReportCardModal({ onClose }) {
       if (ios) {
         // Fallback for iOS when share isn't available: open the PDF in a
         // new tab so iOS's native viewer takes over. From there the user
-        // can tap Share → Save to Files.
+        // can tap Share  Save to Files.
         const blobUrl = URL.createObjectURL(pdfBlob);
         const link = document.createElement("a");
         link.href = blobUrl;

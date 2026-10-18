@@ -4,9 +4,9 @@
 // Keys match the URL slug used in App.jsx routing.
 //
 // Formatting:
-//   **bold text**    → <strong>
-//   *italic text*    → <em>
-//   subsections[]    → renders as a sub-heading with paragraphs below it
+//   **bold text**     <strong>
+//   *italic text*     <em>
+//   subsections[]     renders as a sub-heading with paragraphs below it
 
 export const subjectContent = {
   accounting: {

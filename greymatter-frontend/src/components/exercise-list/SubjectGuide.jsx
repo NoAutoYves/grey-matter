@@ -95,7 +95,7 @@ function SubjectGuide({ guide }) {
           onClick={() => setIsExpanded((v) => !v)}
           aria-expanded={isExpanded}
         >
-          {isExpanded ? "Show less ↑" : "Read more ↓"}
+          {isExpanded ? "Show less " : "Read more "}
         </button>
       )}
     </section>

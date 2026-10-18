@@ -386,7 +386,7 @@ const NotesSection = ({ exerciseId, subject }) => {
                   className="notes-toggle-btn"
                   onClick={() => setShowFullNotes((v) => !v)}
                 >
-                  {showFullNotes ? "Show Less ↑" : "Read More ↓"}
+                  {showFullNotes ? "Show Less " : "Read More "}
                 </button>
               </>
             ) : (

@@ -9,17 +9,17 @@ function ListHowItWorks() {
           <span className="list-step-num">1</span>
           <p>Read the chapter notes</p>
         </div>
-        <span className="list-step-arrow">→</span>
+        <span className="list-step-arrow"></span>
         <div className="list-step-item">
           <span className="list-step-num">2</span>
           <p>Answer the 10 questions</p>
         </div>
-        <span className="list-step-arrow">→</span>
+        <span className="list-step-arrow"></span>
         <div className="list-step-item">
           <span className="list-step-num">3</span>
           <p>Review the breakdown</p>
         </div>
-        <span className="list-step-arrow">→</span>
+        <span className="list-step-arrow"></span>
         <div className="list-step-item">
           <span className="list-step-num">4</span>
           <p>Retake in a few days</p>

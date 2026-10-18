@@ -31,7 +31,7 @@ function ListHero({ subjectName, fullDescription, totalExercises, completedExerc
           onClick={() => setIsExpanded(!isExpanded)}
           aria-label={isExpanded ? "Show less" : "Read more"}
         >
-          {isExpanded ? 'Show less ↑' : 'Read more ↓'}
+          {isExpanded ? 'Show less' : 'Read more '}
         </button>
       </div>
 
