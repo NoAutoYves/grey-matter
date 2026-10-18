@@ -19,7 +19,7 @@ function LandingPage() {
         <title>Grey Matter | Free High School Practice for Grades 10–12</title>
         <meta
           name="description"
-          content="Free interactive practice for South African high school students. 1,300+ exercises across Accounting, Business, Economics, Geography, Life Science, Physics, Maths Literacy and Mathematics - with instant feedback and progress tracking."
+          content="Free interactive practice for South African high school students. 1,400+ exercises across Accounting, Business, Economics, Geography, Life Science, Physics, Maths Literacy and Mathematics - with instant feedback and progress tracking."
         />
         <meta name="theme-color" content="#6846ff" />
         <meta name="robots" content="index, follow" />

@@ -21,7 +21,7 @@ function HeroSection() {
     checkAuth();
   }, []);
 
-  const heroDescription = `Over 1,300 practice exercises across eight South African high school subjects for Grades 10, 11, and 12. Each exercise is 10 multiple-choice questions with instant feedback, a per-question breakdown, and chapter notes for the topic. Track every attempt, retake as many times as you want, and see exactly where you are losing marks before the exam does. Free, and no sign-up needed to browse.`;
+  const heroDescription = `Over 1,400 practice exercises across eight South African high school subjects for Grades 10, 11, and 12. Each exercise is 10 multiple-choice questions with instant feedback, a per-question breakdown, and chapter notes for the topic. Track every attempt, retake as many times as you want, and see exactly where you are losing marks before the exam does. Free, and no sign-up needed to browse.`;
 
   const getTruncatedDescription = (text) => {
     if (!text) return '';

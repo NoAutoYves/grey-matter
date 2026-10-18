@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "../../styles/subjects/SubjectsHero.css";
 
-const heroDescription = `Grey Matter has over 1,300 practice exercises across eight South African high school subjects for Grades 10, 11, and 12. Every exercise is 10 multiple-choice questions with instant feedback and a full per-question breakdown. Read the chapter notes alongside the questions, retake the exercise as many times as you want, and see exactly which topics are costing you marks before the exam does. Built for the phone you already have. Free, and no sign-up needed to browse.`;
+const heroDescription = `Grey Matter has over 1,400 practice exercises across eight South African high school subjects for Grades 10, 11, and 12. Every exercise is 10 multiple-choice questions with instant feedback and a full per-question breakdown. Read the chapter notes alongside the questions, retake the exercise as many times as you want, and see exactly which topics are costing you marks before the exam does. Built for the phone you already have. Free, and no sign-up needed to browse.`;
 
 function getTruncatedDescription(text) {
   if (!text) return '';
