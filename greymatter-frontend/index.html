@@ -31,28 +31,6 @@
     <meta name="twitter:title" content="Grey Matter | Master High School Commerce & Science" />
     <meta name="twitter:description" content="Interactive exercises, instant feedback, and progress tracking for high school students." />
     <meta name="twitter:image" content="https://greymatterschool.co.za/gm-logo.jpeg" />
-
-    <!-- Canonical URL - Will be updated by JavaScript -->
-    <link rel="canonical" href="https://greymatterschool.co.za/" />
-
-    <!-- Dynamic Canonical Script - Updates canonical tag based on current URL -->
-    <script>
-      (function() {
-        var currentPath = window.location.pathname;
-        var canonicalUrl = 'https://greymatterschool.co.za' + currentPath;
-        
-        var canonicalLink = document.querySelector("link[rel='canonical']");
-        
-        if (canonicalLink) {
-          canonicalLink.href = canonicalUrl;
-        }
-        
-        var ogUrl = document.querySelector("meta[property='og:url']");
-        if (ogUrl) {
-          ogUrl.content = canonicalUrl;
-        }
-      })();
-    </script>
   </head>
   <body>
     <div id="root"></div>

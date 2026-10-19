@@ -12,6 +12,17 @@ const SESSION_CACHE_TTL = 60000; // 1 minute
 export const BASE_URL = '';
 const API_URL = '';
 
+// Body types that must be forwarded as-is (browser or caller controls Content-Type).
+function isPassthroughBody(body) {
+    return (
+        body instanceof FormData ||
+        body instanceof URLSearchParams ||
+        typeof body === 'string' ||
+        body instanceof Blob ||
+        body instanceof ArrayBuffer
+    );
+}
+
 // Get CSRF token from backend
 export async function fetchCSRFToken() {
     try {
@@ -76,7 +87,16 @@ export async function apiRequest(url, options = {}) {
             'X-CSRFToken': csrfToken
         };
 
-        if (!options.headers['Content-Type'] && !(options.body instanceof URLSearchParams) && !(options.body instanceof FormData)) {
+        // Only auto-set Content-Type when the caller did not pass one.
+        // FormData is special: never set Content-Type, the browser needs to
+        // compute the multipart boundary itself.
+        if (options.body instanceof FormData) {
+            delete options.headers['Content-Type'];
+        } else if (
+            !options.headers['Content-Type'] &&
+            !(options.body instanceof URLSearchParams) &&
+            !(typeof options.body === 'string' && options.body.startsWith('{'))
+        ) {
             options.headers['Content-Type'] = 'application/json';
         }
     }
@@ -122,36 +142,78 @@ export const api = {
     get: (url, options = {}) => apiRequest(url, { ...options, method: 'GET' }),
 
     post: (url, body, options = {}) => {
-        const isFormData = body instanceof FormData;
-        const headers = { ...options.headers };
-
-        if (isFormData) {
-            delete headers['Content-Type'];
+        let finalBody;
+        if (isPassthroughBody(body)) {
+            finalBody = body;
+        } else if (body === undefined || body === null) {
+            finalBody = undefined;
+        } else {
+            finalBody = JSON.stringify(body);
         }
 
         return apiRequest(url, {
             ...options,
             method: 'POST',
-            body: isFormData ? body : JSON.stringify(body),
+            body: finalBody,
+            headers: { ...options.headers }
+        });
+    },
+
+    put: (url, body, options = {}) => {
+        let finalBody;
+        if (isPassthroughBody(body)) {
+            finalBody = body;
+        } else if (body === undefined || body === null) {
+            finalBody = undefined;
+        } else {
+            finalBody = JSON.stringify(body);
+        }
+
+        const headers = { ...options.headers };
+        if (
+            finalBody !== undefined &&
+            !headers['Content-Type'] &&
+            !(finalBody instanceof URLSearchParams) &&
+            !(finalBody instanceof FormData)
+        ) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        return apiRequest(url, {
+            ...options,
+            method: 'PUT',
+            body: finalBody,
             headers
         });
     },
 
-    put: (url, body, options = {}) => apiRequest(url, {
-        ...options,
-        method: 'PUT',
-        body: body !== undefined ? JSON.stringify(body) : undefined,
-        headers: { 'Content-Type': 'application/json', ...options.headers }
-    }),
+    delete: (url, body, options = {}) => {
+        let finalBody;
+        if (isPassthroughBody(body)) {
+            finalBody = body;
+        } else if (body === undefined || body === null) {
+            finalBody = undefined;
+        } else {
+            finalBody = JSON.stringify(body);
+        }
 
-    delete: (url, body, options = {}) => apiRequest(url, {
-        ...options,
-        method: 'DELETE',
-        body: body !== undefined ? JSON.stringify(body) : undefined,
-        headers: body !== undefined
-            ? { 'Content-Type': 'application/json', ...options.headers }
-            : { ...options.headers }
-    }),
+        const headers = { ...options.headers };
+        if (
+            finalBody !== undefined &&
+            !headers['Content-Type'] &&
+            !(finalBody instanceof URLSearchParams) &&
+            !(finalBody instanceof FormData)
+        ) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        return apiRequest(url, {
+            ...options,
+            method: 'DELETE',
+            body: finalBody,
+            headers
+        });
+    },
 
     batch: {
         getExerciseData: (exerciseId) => {
